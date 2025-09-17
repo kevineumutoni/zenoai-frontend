@@ -2,6 +2,12 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import LoginPage from './page';
 
+const mockPush = jest.fn();
+jest.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: mockPush,
+  }),
+}));
 let mockError: string | null = null;
 let mockIsLoading: boolean = false;
 const mockLogin = jest.fn();
@@ -13,7 +19,6 @@ jest.mock('../hooks/usefetchlogin', () => ({
   }),
 }));
 
-
 const typeLogin = (email = '', password = '') => {
   fireEvent.change(screen.getByPlaceholderText('Email'), { target: { value: email } });
   fireEvent.change(screen.getByPlaceholderText('Password'), { target: { value: password } });
@@ -24,13 +29,13 @@ describe('LoginPage', () => {
     mockLogin.mockReset();
     mockIsLoading = false;
     mockError = null;
+    mockPush.mockReset();
   });
 
   it('renders login form', () => {
     render(<LoginPage />);
     expect(screen.getByPlaceholderText('Email')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('Password')).toBeInTheDocument();
-    // Use getByRole to target button
     expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument();
   });
 
@@ -85,7 +90,4 @@ describe('LoginPage', () => {
     render(<LoginPage />);
     expect(screen.getByText(/invalid credentials/i)).toBeInTheDocument();
   });
-
-  
-
 });

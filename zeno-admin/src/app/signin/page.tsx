@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useFetchLogin } from '../hooks/usefetchlogin';
 import MailOutlineIcon from '@mui/icons-material/MailOutline';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
@@ -10,10 +11,14 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [show, setShow] = useState(false);
   const { login, isLoading, error } = useFetchLogin();
+  const router = useRouter();
 
   async function handleSubmit(e: React.FormEvent) { 
     e.preventDefault();
-    await login(email, password);
+    const result = await login(email, password);
+    if (result && !error) {
+      router.push('/home');
+    }
   }
 
   return (
