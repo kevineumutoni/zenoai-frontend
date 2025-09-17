@@ -22,6 +22,8 @@ body {
   padding: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color:#0A1A2E ;
+  color: #fff;
 }
 
 * {
