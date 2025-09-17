@@ -10,6 +10,9 @@ export function useFetchLogin() {
     setError(null);
     try {
       const data = await fetchLogin(email, password);
+      if (data && data.token) {
+        localStorage.setItem('token', data.token);
+      }
       setIsLoading(false);
       return data;
     } catch (error) {

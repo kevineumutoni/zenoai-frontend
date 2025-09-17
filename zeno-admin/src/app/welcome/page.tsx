@@ -8,20 +8,21 @@ const WelcomePage = () => {
   const router = useRouter();
 
   useEffect(() => {
-    const fadeTimeout = setTimeout(() => setFade(true), 2000);
-    const routeTimeout = setTimeout(() => {
-      router.push('/signin');
-    }, 3000);
+    const fadeTimeout = setTimeout(() => {
+      setFade(true);
+      setTimeout(() => {
+        router.push('/signin');
+      }, 700);
+    }, 2000);
 
     return () => {
       clearTimeout(fadeTimeout);
-      clearTimeout(routeTimeout);
     };
   }, [router]);
 
   return (
     <div
-      className={`min-h-screen bg-gray-900 flex items-center justify-center p-4 transition-opacity duration-500 ${fade ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}
+      className={`min-h-screen bg-gray-900 flex items-center justify-center p-4 transition-opacity duration-700 ${fade ? 'opacity-0' : 'opacity-100'}`}
     >
       <Image
         src="/images/zeno-logo.png"

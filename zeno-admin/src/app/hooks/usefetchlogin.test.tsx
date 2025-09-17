@@ -9,10 +9,11 @@ const { fetchLogin } = require('../utils/fetchlogin');
 describe('useFetchLogin', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    localStorage.clear(); 
   });
 
   it('returns result and sets loading/error correctly on success', async () => {
-    fetchLogin.mockResolvedValue({ user: 'ok' });
+    fetchLogin.mockResolvedValue({ token: 'mytoken', user: 'ok' });
 
     const { result } = renderHook(() => useFetchLogin());
     await act(async () => {
@@ -22,6 +23,7 @@ describe('useFetchLogin', () => {
       expect(result.current.isLoading).toBe(false);
     });
     expect(result.current.error).toBeNull();
+    expect(localStorage.getItem('token')).toBe('mytoken'); 
   });
 
   it('sets error on failed login', async () => {
@@ -36,6 +38,7 @@ describe('useFetchLogin', () => {
       expect(result.current.isLoading).toBe(false);
       expect(result.current.error).not.toBeNull();
       expect(result.current.error?.message).toBe('Invalid credentials');
+      expect(localStorage.getItem('token')).toBe(null);
     });
   });
 });
