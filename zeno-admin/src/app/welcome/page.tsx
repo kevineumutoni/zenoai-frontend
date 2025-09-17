@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation';
 const WelcomePage = () => {
   const [fade, setFade] = useState(false);
   const router = useRouter();
-
   useEffect(() => {
     const fadeTimeout = setTimeout(() => {
       setFade(true);
