@@ -8,7 +8,6 @@ jest.mock('next/navigation', () => ({
     push: mockPush,
   }),
 }));
-
 let mockError: string | null = null;
 let mockIsLoading: boolean = false;
 const mockLogin = jest.fn();
