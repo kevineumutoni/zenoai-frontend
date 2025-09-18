@@ -14,7 +14,7 @@ import { Run } from '../../../hooks/useFetchRuns';
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler);
 
 interface QueryVolumeCardProps {
-  runs: Run[]; // Changed from any[]
+  runs: Run[]; 
   dateRange: { start: Date | null; end: Date | null };
 }
 

@@ -58,8 +58,8 @@ describe('AccuracyRateCard', () => {
 
   it('filters runs by date range', () => {
     const runs = [
-      { id: 1, started_at: '2025-08-01T10:00:00Z', final_output: 'Error: internal' }, // ❌ outside range
-      { id: 2, started_at: '2025-09-15T12:00:00Z', final_output: 'Error: internal' }, // ✅ inside range → classified as "internal"
+      { id: 1, started_at: '2025-08-01T10:00:00Z', final_output: 'Error: internal' }, 
+      { id: 2, started_at: '2025-09-15T12:00:00Z', final_output: 'Error: internal' }, 
     ];
 
     const range = {

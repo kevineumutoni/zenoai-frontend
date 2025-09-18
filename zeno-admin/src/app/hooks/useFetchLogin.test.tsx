@@ -1,20 +1,19 @@
 import { renderHook, act, waitFor } from '@testing-library/react';
-import { useFetchLogin } from './usefetchlogin';
+import { useFetchLogin } from './useFetchLogin';
+import { fetchLogin } from '../utils/fetchlogin';
 
 jest.mock('../utils/fetchlogin', () => ({
   fetchLogin: jest.fn(),
 }));
-const { fetchLogin } = require('../utils/fetchlogin');
 
+const mockedFetchLogin = fetchLogin as jest.MockedFunction<typeof fetchLogin>;
 describe('useFetchLogin', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    localStorage.clear(); 
+    localStorage.clear();
   });
-
   it('returns result and sets loading/error correctly on success', async () => {
-    fetchLogin.mockResolvedValue({ token: 'mytoken', user: 'ok' });
-
+    mockedFetchLogin.mockResolvedValue({ token: 'mytoken', user: 'ok' });
     const { result } = renderHook(() => useFetchLogin());
     await act(async () => {
       await result.current.login('ok@email.com', 'good');
@@ -23,17 +22,14 @@ describe('useFetchLogin', () => {
       expect(result.current.isLoading).toBe(false);
     });
     expect(result.current.error).toBeNull();
-    expect(localStorage.getItem('token')).toBe('mytoken'); 
+    expect(localStorage.getItem('token')).toBe('mytoken');
   });
-
   it('sets error on failed login', async () => {
-    fetchLogin.mockRejectedValue(new Error('Invalid credentials'));
+    mockedFetchLogin.mockRejectedValue(new Error('Invalid credentials'));
     const { result } = renderHook(() => useFetchLogin());
-
     await act(async () => {
       await result.current.login('kevine@email.com', 'Umutoni123');
     });
-
     await waitFor(() => {
       expect(result.current.isLoading).toBe(false);
       expect(result.current.error).not.toBeNull();

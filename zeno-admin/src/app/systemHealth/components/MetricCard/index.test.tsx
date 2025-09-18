@@ -1,4 +1,3 @@
-// src/app/systemHealth/components/MetricCard/index.test.tsx
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import MetricCard from '.';
