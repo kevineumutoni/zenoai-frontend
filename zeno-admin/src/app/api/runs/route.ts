@@ -5,7 +5,8 @@ export async function GET(request: Request) {
     return new Response('The system is not properly configured. Please try again.', { status: 500 });
   }
 
-  const token = request.headers.get('Authorization')?.replace('Token ', '');
+  const token = request.headers.get('Authorization');
+  
   if (!token) {
     return new Response('Please log in to view system data.', { status: 401 });
   }
@@ -15,16 +16,9 @@ export async function GET(request: Request) {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Token ${token}`,
+        'Authorization': token,
       },
     });
-
-    if (!response.ok) {
-      const errorMessage = await response.text();
-      return new Response(`We couldn't retrieve the data: ${errorMessage}. Please try again.`, {
-        status: response.status,
-      });
-    }
 
     const result = await response.json();
     return new Response(JSON.stringify(result), {

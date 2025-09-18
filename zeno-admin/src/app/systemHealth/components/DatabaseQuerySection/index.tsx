@@ -3,7 +3,7 @@ import QueryVolumeCard from '../QueryVolumeCard';
 import AccuracyRateCard from '../AccuracyRateCard';
 import CalendarDropdown from '../../../sharedComponents/CalendarDropdown';
 import { subDays } from 'date-fns';
-import { Run } from '../../../hooks/useFetchRuns';
+import { Run } from '../../../utils/types';
 
 interface DatabaseQuerySectionProps {
   runs: Run[];

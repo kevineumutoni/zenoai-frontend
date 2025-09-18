@@ -9,6 +9,9 @@ import { useFetchRuns } from '../hooks/useFetchRuns';
 export default function HealthDashboard() {
     const { data: runs, isLoading, error } = useFetchRuns();
 
+    console.log({runs});
+    
+
     if (isLoading) return <div className="text-white text-center p-6">Loading system health analytics...</div>;
     if (error) return <div className="text-red-500 text-center p-6">{error.message}</div>;
     if (!runs || !Array.isArray(runs) || runs.length === 0) {
