@@ -13,7 +13,7 @@ import Image from 'next/image';
 
 const navItems = [
   { Icon: LuLayoutDashboard , label: 'Dashboard', path: '/usermanagement'  },
-  { Icon: TbActivityHeartbeat, label: 'System Health', path: '/usermanagement' },
+  { Icon: TbActivityHeartbeat, label: 'System Health', path: '/systemHealth' },
   { Icon: BsBarChart , label: 'Usage Analytics', path: '/usermanagement' },
   { Icon: AiOutlineComment, label: 'User Feedback', path: '/usermanagement' },
   { Icon: FiDatabase  , label: 'Resource Management', path: '/usermanagement' },

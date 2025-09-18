@@ -7,11 +7,12 @@ import {
   LineElement,
   Title,
   Tooltip,
+  Filler,
   Legend,
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler);
 
 interface QueryVolumeCardProps {
   runs: any[];
@@ -22,48 +23,32 @@ const QueryVolumeCard: React.FC<QueryVolumeCardProps> = ({ runs, dateRange }) =>
   const filteredRuns = runs.filter((run: any) => {
     if (!run.started_at) return false;
     const runDate = new Date(run.started_at);
+    const { start, end } = dateRange;
 
-    if (dateRange.start && dateRange.end) {
-      return runDate >= dateRange.start && runDate <= dateRange.end;
-    }
-
-    if (dateRange.start && !dateRange.end) {
-      return runDate >= dateRange.start;
-    }
-
-    if (!dateRange.start && dateRange.end) {
-      return runDate <= dateRange.end;
-    }
-
+    if (start && end) return runDate >= start && runDate <= end;
+    if (start) return runDate >= start;
+    if (end) return runDate <= end;
     return true;
   });
 
-  const dailyCounts: { [key: string]: number } = {
-    S: 0,
-    M: 0,
-    T: 0,
-    W: 0,
-    Th: 0,
-    F: 0,
-    Sat: 0,
-  };
+  const dayKeys = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const dayLabels = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
+  const dailyCounts = dayKeys.reduce((acc, day) => ({ ...acc, [day]: 0 }), {} as Record<string, number>);
   filteredRuns.forEach((run: any) => {
     if (run.started_at) {
-      const date = new Date(run.started_at);
-      const day = date.getDay();
-      const days = ['S', 'M', 'T', 'W', 'Th', 'F', 'Sat'];
-      const dayKey = days[day];
-      dailyCounts[dayKey] += 1;
+      const dayIndex = new Date(run.started_at).getDay();
+      dailyCounts[dayKeys[dayIndex]] += 1;
     }
   });
 
+  const dataPoints = dayKeys.map(day => dailyCounts[day]);
   const lineData = {
-    labels: ['S', 'M', 'T', 'W', 'Th', 'F', 'Sat'],
+    labels: dayLabels,
     datasets: [
       {
         label: 'Queries',
-        data: Object.values(dailyCounts),
+        data: dataPoints,
         borderColor: '#00C4CC',
         backgroundColor: 'rgba(0, 196, 204, 0.3)',
         fill: true,
@@ -78,58 +63,45 @@ const QueryVolumeCard: React.FC<QueryVolumeCardProps> = ({ runs, dateRange }) =>
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: {
-        display: false,
-      },
-      tooltip: {
-        enabled: false,
-      },
+      legend: { display: false },
+      tooltip: { enabled: false },
     },
     scales: {
-      x: {
-        grid: {
-          display: false,
-        },
-        ticks: {
-          color: '#fff',
-          font: {
-            size: 12,
-          },
-        },
-      },
+      x: { grid: { display: false }, ticks: { display: false } },
       y: {
-        grid: {
-          display: false,
-        },
+        grid: { display: false },
         ticks: {
           color: '#fff',
-          font: {
-            size: 12,
-          },
-          callback: function(value: string | number) {
-            return value.toString();
-          },
+          font: { size: 12 },
+          callback: (value: string | number) => value.toString(),
         },
       },
     },
   };
 
+
   return (
-    <div className="bg-gray-900 p-6 rounded-xl border border-teal-500/30 shadow-lg ">
+    <div className=" p-6 rounded-xl border border-teal-500/30 shadow-lg">
       <h3 className="text-xl xl:text-2xl font-bold text-teal-400 mb-2">Database Query Volume</h3>
       <p className="text-sm xl:text-lg text-gray-400 mb-4">Weekly database queries</p>
 
       {filteredRuns.length > 0 ? (
-        <div className="h-64">
+        <div className="h-64 w-full">
           <Line data={lineData} options={options} />
         </div>
       ) : (
         <div className="h-64 flex items-center justify-center text-gray-500">No data for selected range</div>
       )}
 
-      <div className="flex justify-center mt-4 space-x-4">
-        {['S', 'M', 'T', 'W', 'Th', 'F', 'Sat'].map((day) => (
-          <div key={day} className="w-6 h-6 md:w-10 md:h-10 flex items-center justify-center text-xs text-white bg-teal-500/20 border border-teal-500/50 rounded-full">
+      <div className="w-full flex justify-between px-6 mt-4">
+        {dayLabels.map((day, index) => (
+          <div
+            key={index}
+            className={`w-8 h-8 md:w-10 md:h-10 lg:w-5 lg:h-5 xl:w-10 xl:h-10 flex items-center justify-center text-xs md:text-sm font-medium text-white border border-teal-500/50 rounded-full transition-colors ${index === 0 || index === 6
+                ? 'bg-teal-500/30 ring-1 ring-teal-400'
+                : 'bg-teal-500/20'
+              }`}
+          >
             {day}
           </div>
         ))}

@@ -22,7 +22,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const showSidebar = !hideSidebarPaths.includes(pathname);
   return (
     <html lang="en" >
-      <body  className={`${teachers.variable} antialiased`}>
+      <head>
+        <link rel="icon" href="/images/zeno-logo.png" />
+        </head>      
+        <body  className={`${teachers.variable} antialiased`}>
         <div className="flex min-h-screen">
           {showSidebar && <SidebarNav />}
           <main className="flex-1">{children}</main>
