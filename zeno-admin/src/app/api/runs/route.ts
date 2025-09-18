@@ -26,6 +26,7 @@ export async function GET(request: Request) {
       statusText: 'Data retreived successfully',
     });
   } catch (error) {
-    return new Response('An error occurred while retreiving data.', { status: 500 });
-  }
+  const message = (error as Error).message || 'An error occurred while retrieving data.';
+  return new Response(message, { status: 500 });
+}
 }

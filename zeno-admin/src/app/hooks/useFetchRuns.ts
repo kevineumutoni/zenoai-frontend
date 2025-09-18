@@ -5,7 +5,7 @@ import { Run } from '../utils/types';
 export function useFetchRuns() {
   const [data, setData] = useState<Run[] | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   async function fetchData() {
     setIsLoading(true);
@@ -15,7 +15,8 @@ export function useFetchRuns() {
       
       setData(result);
     } catch (err) {
-      setError(err as Error);
+      const message = (err as Error).message || 'An unknown error occurred';
+      setError(message); 
     } finally {
       setIsLoading(false);
     }

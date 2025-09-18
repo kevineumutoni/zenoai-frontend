@@ -40,7 +40,7 @@ describe('useFetchRuns hook', () => {
     await waitFor(() => expect(result.current.isLoading).toBe(false));
 
     expect(result.current.data).toBeNull();
-    expect(result.current.error?.message).toBe('Fetch failed');
+    expect(result.current.error).toBe('Fetch failed'); 
   });
 
   it('manually triggers fetchData without warnings', async () => {
