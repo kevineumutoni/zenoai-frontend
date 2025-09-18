@@ -1,4 +1,3 @@
-import React from 'react';
 import MetricCard from '../MetricCard';
 import { FaStopwatch, FaExclamationTriangle, FaDatabase } from 'react-icons/fa';
 
@@ -26,6 +25,7 @@ const SystemHealthSection = ({ runs }: { runs: any[] }) => {
                     subtext="Last completed runs"
                     colorClass="bg-green-100"
                     icon={<FaStopwatch />}
+                    data-testid="avg-response-time"
                 />
                 <MetricCard
                     title="Error Rate"
@@ -33,6 +33,7 @@ const SystemHealthSection = ({ runs }: { runs: any[] }) => {
                     subtext={`${failed} failed / ${totalRelevant} total`}
                     colorClass="bg-pink-100"
                     icon={<FaExclamationTriangle />}
+                    data-testid="error-rate"
                 />
                 <MetricCard
                     title="Database Queries"
@@ -40,6 +41,7 @@ const SystemHealthSection = ({ runs }: { runs: any[] }) => {
                     subtext="Total executed"
                     colorClass="bg-yellow-100"
                     icon={<FaDatabase />}
+                    data-testid="total-queries"
                 />
             </div>
         </section>

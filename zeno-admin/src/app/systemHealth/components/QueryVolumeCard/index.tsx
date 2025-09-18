@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -11,16 +10,16 @@ import {
   Legend,
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
-
+import { Run } from '../../../hooks/useFetchRuns';
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler);
 
 interface QueryVolumeCardProps {
-  runs: any[];
+  runs: Run[]; // Changed from any[]
   dateRange: { start: Date | null; end: Date | null };
 }
 
 const QueryVolumeCard: React.FC<QueryVolumeCardProps> = ({ runs, dateRange }) => {
-  const filteredRuns = runs.filter((run: any) => {
+  const filteredRuns = runs.filter((run) => {
     if (!run.started_at) return false;
     const runDate = new Date(run.started_at);
     const { start, end } = dateRange;
@@ -35,7 +34,7 @@ const QueryVolumeCard: React.FC<QueryVolumeCardProps> = ({ runs, dateRange }) =>
   const dayLabels = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
   const dailyCounts = dayKeys.reduce((acc, day) => ({ ...acc, [day]: 0 }), {} as Record<string, number>);
-  filteredRuns.forEach((run: any) => {
+  filteredRuns.forEach((run) => {
     if (run.started_at) {
       const dayIndex = new Date(run.started_at).getDay();
       dailyCounts[dayKeys[dayIndex]] += 1;
@@ -79,9 +78,8 @@ const QueryVolumeCard: React.FC<QueryVolumeCardProps> = ({ runs, dateRange }) =>
     },
   };
 
-
   return (
-    <div className=" p-6 rounded-xl border border-teal-500/30 shadow-lg">
+    <div className="p-6 rounded-xl border border-teal-500/30 shadow-lg">
       <h3 className="text-xl xl:text-2xl font-bold text-teal-400 mb-2">Database Query Volume</h3>
       <p className="text-sm xl:text-lg text-gray-400 mb-4">Weekly database queries</p>
 
@@ -97,10 +95,9 @@ const QueryVolumeCard: React.FC<QueryVolumeCardProps> = ({ runs, dateRange }) =>
         {dayLabels.map((day, index) => (
           <div
             key={index}
-            className={`w-8 h-8 md:w-10 md:h-10 lg:w-5 lg:h-5 xl:w-10 xl:h-10 flex items-center justify-center text-xs md:text-sm font-medium text-white border border-teal-500/50 rounded-full transition-colors ${index === 0 || index === 6
-                ? 'bg-teal-500/30 ring-1 ring-teal-400'
-                : 'bg-teal-500/20'
-              }`}
+            className={`w-8 h-8 md:w-10 md:h-10 lg:w-5 lg:h-5 xl:w-10 xl:h-10 flex items-center justify-center text-xs md:text-sm font-medium text-white border border-teal-500/50 rounded-full transition-colors ${
+              index === 0 || index === 6 ? 'bg-teal-500/30 ring-1 ring-teal-400' : 'bg-teal-500/20'
+            }`}
           >
             {day}
           </div>
