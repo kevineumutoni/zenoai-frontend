@@ -1,5 +1,5 @@
-import UserStatsContainer from "./components/userCard/userCard";
-import UsersTable from "./components/userstable";
+import UserStatsContainer from "./components/UserCard";
+import UsersTable from "./components/UsersTable";
 
 
 

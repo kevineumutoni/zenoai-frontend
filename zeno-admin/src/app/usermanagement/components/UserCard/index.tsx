@@ -27,7 +27,7 @@ function UserCard({ total_users, new_users }: UserCardProps) {
 export default function UserStatsContainer() {
   const { total_users, new_users, loading, error } = useUserStats();
 
-  if (loading) return <p>Loading user stats...</p>;
+  if (loading) return <p className="ml-200">Loading user stats...</p>;
   if (error) return <p>Error loading user stats: {error}</p>;
 
   return <UserCard total_users={total_users} new_users={new_users} />;

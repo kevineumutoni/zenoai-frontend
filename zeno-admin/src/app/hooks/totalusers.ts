@@ -1,12 +1,7 @@
 import { useState, useEffect } from "react";
 import { fetchUsers } from "../utils/fetchUsers";
-type User = {
-  first_name: string;
-  last_name: string;
-  email: string;
-  created_at: string;
-  image?: string;
-};
+import type { User } from "../utils/types";
+
 
 type UserStats = {
   total_users: number;

@@ -1,13 +1,6 @@
 const BASE_URL = process.env.BASE_URL;
+import type { User } from "../../utils/types";
 
-export type User = {
-  first_name: string;
-  last_name: string;
-  email: string;
-  created_at: string;
-  role: string;
-  image?: string;
-};
 
 export async function GET(req: Request) {
   try {
@@ -24,13 +17,7 @@ export async function GET(req: Request) {
       },
     });
 
-    if (!response.ok) {
-      const errorMessage = await response.text();
-      return new Response(`Failed to fetch users: ${errorMessage}`, {
-        status: response.status,
-      });
-    }
-
+   
     const users: User[] = await response.json();
 
     return new Response(JSON.stringify(users), {
