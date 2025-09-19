@@ -8,17 +8,17 @@ jest.mock('../utils/fetchUsers');
 describe('useUsers hook', () => {
   const mockUsers: User[] = [
     {
-      first_name: 'Alice',
-      last_name: 'Smith',
-      email: 'alice@example.com',
+      first_name: 'Arsu',
+      last_name: 'Meron',
+      email: 'arsu@example.com',
       role: 'user',
       created_at: '2023-01-10T10:00:00Z',
       image: undefined,
     },
     {
-      first_name: 'Bob',
-      last_name: 'Johnson',
-      email: 'bob@example.com',
+      first_name: 'Meron',
+      last_name: 'Jane',
+      email: 'meron@example.com',
       role: 'admin',
       created_at: '2023-02-15T10:00:00Z',
       image: 'https://www.pinterest.com/pin/422281211926701/',
@@ -64,8 +64,8 @@ describe('useUsers hook', () => {
   it('reloads users when loadUsers is called', async () => {
     const firstUsers: User[] = [
       {
-        first_name: 'Alice',
-        last_name: 'Smith',
+        first_name: 'Arsu',
+        last_name: 'Meron',
         email: 'alice@example.com',
         role: 'user',
         created_at: '2023-01-10T10:00:00Z',
@@ -74,8 +74,8 @@ describe('useUsers hook', () => {
     ];
     const secondUsers: User[] = [
       {
-        first_name: 'Bob',
-        last_name: 'Johnson',
+        first_name: 'Meron',
+        last_name: 'Jane',
         email: 'bob@example.com',
         role: 'admin',
         created_at: '2023-02-15T10:00:00Z',

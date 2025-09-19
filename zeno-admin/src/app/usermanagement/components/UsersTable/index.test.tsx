@@ -29,17 +29,17 @@ import { useUsers } from "../../../hooks/usefetchUsers";
 describe("UsersTable component", () => {
   const usersMock = [
     {
-      first_name: "Alice",
-      last_name: "Smith",
-      email: "alice@example.com",
+      first_name: "Meron",
+      last_name: "Mary",
+      email: "meron@example.com",
       role: "admin",
       created_at: "2023-05-10T12:00:00Z",
       image: "",
     },
     {
-      first_name: "Bob",
-      last_name: "Jones",
-      email: "bob@example.com",
+      first_name: "Ann",
+      last_name: "Kendi",
+      email: "ann@example.com",
       role: "user",
       created_at: "2023-06-15T12:00:00Z",
       image: "",
@@ -62,23 +62,23 @@ describe("UsersTable component", () => {
     (useUsers as jest.Mock).mockReturnValue({ users: usersMock, loading: false, error: null });
     render(<UsersTable />);
 
-    expect(screen.getByText("Alice Smith")).toBeInTheDocument();
-    expect(screen.getByText("Bob Jones")).toBeInTheDocument();
+    expect(screen.getByText("Meron Mary")).toBeInTheDocument();
+    expect(screen.getByText("Ann Kendi")).toBeInTheDocument();
 
-    fireEvent.change(screen.getByPlaceholderText(/Search by name or email/i), { target: { value: "alice" } });
-    expect(screen.getByText("Alice Smith")).toBeInTheDocument();
-    expect(screen.queryByText("Bob Jones")).not.toBeInTheDocument();
+    fireEvent.change(screen.getByPlaceholderText(/Search by name or email/i), { target: { value: "Meron" } });
+    expect(screen.getByText("Meron Mary")).toBeInTheDocument();
+    expect(screen.queryByText("Ann Kendi")).not.toBeInTheDocument();
 
     fireEvent.change(screen.getByPlaceholderText(/Search by name or email/i), { target: { value: "" } });
     fireEvent.change(screen.getByTestId("role-dropdown"), { target: { value: "admin" } });
-    expect(screen.getByText("Alice Smith")).toBeInTheDocument();
-    expect(screen.queryByText("Bob Jones")).not.toBeInTheDocument();
+    expect(screen.getByText("Meron Mary")).toBeInTheDocument();
+    expect(screen.queryByText("Ann Kendi")).not.toBeInTheDocument();
 
     fireEvent.change(screen.getByTestId("role-dropdown"), { target: { value: "all" } });
     fireEvent.click(screen.getByText("Set Date")); 
 
-    expect(screen.getByText("Alice Smith")).toBeInTheDocument();
-    expect(screen.getByText("Bob Jones")).toBeInTheDocument();
+    expect(screen.getByText("Meron Mary")).toBeInTheDocument();
+    expect(screen.getByText("Ann Kendi")).toBeInTheDocument();
 
   });
 
