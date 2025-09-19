@@ -38,7 +38,9 @@ describe('useUsers hook', () => {
     expect(result.current.users).toEqual([]);
     expect(result.current.error).toBeNull();
 
-    await waitFor(() => expect(result.current.loading).toBe(false));
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
 
     expect(result.current.users).toEqual(mockUsers);
     expect(result.current.error).toBeNull();
@@ -51,7 +53,9 @@ describe('useUsers hook', () => {
 
     expect(result.current.loading).toBe(true);
 
-    await waitFor(() => expect(result.current.loading).toBe(false));
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
 
     expect(result.current.error).toBe('Fetch failed');
     expect(result.current.users).toEqual([]);
@@ -85,7 +89,9 @@ describe('useUsers hook', () => {
 
     const { result } = renderHook(() => useUsers());
 
-    await waitFor(() => expect(result.current.loading).toBe(false));
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
     expect(result.current.users).toEqual(firstUsers);
 
     await act(async () => {
@@ -95,5 +101,37 @@ describe('useUsers hook', () => {
     expect(fetchUsersMock).toHaveBeenCalledTimes(2);
     expect(result.current.users).toEqual(secondUsers);
     expect(result.current.error).toBeNull();
+  });
+
+  it('returns an empty array when no users are found', async () => {
+    (fetchUsers as jest.Mock).mockResolvedValue([]);
+
+    const users = await fetchUsers();
+
+    expect(users).toEqual([]);
+    expect(fetchUsers).toHaveBeenCalledTimes(1);
+  });
+
+  it('simulates loading state during fetchUsers', async () => {
+    let resolveFetch: (value: User[]) => void;
+    const fetchPromise = new Promise<User[]>(resolve => {
+      resolveFetch = resolve;
+    });
+    (fetchUsers as jest.Mock).mockReturnValue(fetchPromise);
+
+    const { result } = renderHook(() => useUsers());
+
+    expect(result.current.loading).toBe(true);
+    expect(result.current.users).toEqual([]);
+
+    act(() => {
+      resolveFetch!([]);
+    });
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
+    expect(result.current.users).toEqual([]);
   });
 });

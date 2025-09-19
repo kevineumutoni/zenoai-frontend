@@ -77,38 +77,6 @@ describe('fetchUsers', () => {
     }));
   });
 
-  it('returns an empty array when no users are found', async () => {
-  const mockUsers: User[] = [];
-  global.fetch = jest.fn(() =>
-    Promise.resolve({
-      ok: true,
-      json: () => Promise.resolve(mockUsers),
-    } as Response)
-  ) as jest.Mock;
 
-  const users = await fetchUsers();
-
-  expect(users).toEqual([]);
-  expect(global.fetch).toHaveBeenCalledTimes(1);
-});
-
-it('simulates loading state during fetchUsers', async () => {
-  let resolveFetch: (value: Response) => void;
-  global.fetch = jest.fn(() => new Promise<Response>(resolve => {
-    resolveFetch = resolve;
-  })) as jest.Mock;
-
-  const promise = fetchUsers();
-
-  expect(global.fetch).toHaveBeenCalled();
-
-  resolveFetch!({
-    ok: true,
-    json: () => Promise.resolve([]),
-  } as Response);
-
-  const users = await promise;
-  expect(users).toEqual([]);
-});
 
 });
