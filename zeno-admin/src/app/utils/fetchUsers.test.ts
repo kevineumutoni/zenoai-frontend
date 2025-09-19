@@ -13,7 +13,7 @@ describe('fetchUsers', () => {
        {
       first_name: "Jane",
       last_name: "Alex",
-      email: "alice@example.com",
+      email: "jane@example.com",
       role: "admin",
       created_at: "2023-01-10T10:00:00Z",
       image: undefined,
