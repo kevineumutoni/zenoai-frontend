@@ -15,17 +15,17 @@ describe("useUserStats hook", () => {
 
  const users = [
   {
-    first_name: "Alice",
-    last_name: "Smith",
-    email: "alice@example.com",
+    first_name: "Meron",
+    last_name: "Gebru",
+    email: "meron@example.com",
     role: "admin",
     created_at: "2023-05-10T12:00:00Z",
     image: "",
   },
   {
-    first_name: "Bob",
-    last_name: "Jones",
-    email: "bob@example.com",
+    first_name: "Jane",
+    last_name: "Kamau",
+    email: "janeb@example.com",
     role: "user",
     created_at: "2023-06-15T12:00:00Z",
     image: "",
