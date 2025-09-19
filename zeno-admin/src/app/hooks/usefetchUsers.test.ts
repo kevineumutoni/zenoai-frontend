@@ -66,7 +66,7 @@ describe('useUsers hook', () => {
       {
         first_name: 'Arsu',
         last_name: 'Meron',
-        email: 'alice@example.com',
+        email: 'arsu@example.com',
         role: 'user',
         created_at: '2023-01-10T10:00:00Z',
         image: undefined,
@@ -76,7 +76,7 @@ describe('useUsers hook', () => {
       {
         first_name: 'Meron',
         last_name: 'Jane',
-        email: 'bob@example.com',
+        email: 'meron@example.com',
         role: 'admin',
         created_at: '2023-02-15T10:00:00Z',
         image: 'https://www.pinterest.com/pin/422281211926701/',

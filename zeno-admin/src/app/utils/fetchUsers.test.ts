@@ -11,17 +11,17 @@ describe('fetchUsers', () => {
   it('fetches users successfully with token in header', async () => {
     const mockUsers: User[] = [
        {
-      first_name: "Alice",
-      last_name: "Smith",
+      first_name: "Jane",
+      last_name: "Alex",
       email: "alice@example.com",
       role: "admin",
       created_at: "2023-01-10T10:00:00Z",
       image: undefined,
     },
     {
-      first_name: "Bob",
-      last_name: "Johnson",
-      email: "bob@example.com",
+      first_name: "John",
+      last_name: "Kamau",
+      email: "john@example.com",
       role: "user",
       created_at: "2023-02-15T10:00:00Z",
       image: "https://www.pinterest.com/pin/422281211926701/",
