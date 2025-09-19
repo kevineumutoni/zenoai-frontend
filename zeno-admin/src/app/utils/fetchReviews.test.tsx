@@ -9,6 +9,7 @@ describe('fetchReviews', () => {
 
     global.fetch = jest.fn();
   });
+
   afterEach(() => {
     jest.resetAllMocks();
   });
@@ -19,18 +20,20 @@ describe('fetchReviews', () => {
   });
   
   it('throws error if response not ok', async () => {
-    (fetch as jest.Mock).mockResolvedValueOnce({
+    (global.fetch as jest.Mock).mockResolvedValueOnce({
       ok: false,
       status: 400,
       json: async () => ({}),
     });
+
     await expect(fetchReviews()).rejects.toThrow(
       'Unable to fetch users feedback, Try again.'
     );
   });
+
   it('returns JSON result if fetch successful', async () => {
     const mockData = [{ id: 1, review_text: 'Great' }];
-    (fetch as jest.Mock).mockResolvedValueOnce({
+    (global.fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,
       json: async () => mockData,
     });
@@ -38,17 +41,20 @@ describe('fetchReviews', () => {
     const data = await fetchReviews();
 
     expect(data).toEqual(mockData);
-    expect(fetch).toHaveBeenCalledWith('/api/user_feedback', {
-      method: 'GET',
-      headers: expect.objectContaining({
-        'Content-Type': 'application/json',
-        Authorization: 'Token fake-token',
-      }),
-    });
+    expect(global.fetch).toHaveBeenCalledWith(
+      'https://zeno-ai-be14a438528a.herokuapp.com/reviews/',
+      {
+        method: 'GET',
+        headers: expect.objectContaining({
+          'Content-Type': 'application/json',
+          Authorization: 'Token fake-token',
+        }),
+      }
+    );
   });
 
   it('throws error if fetch throws', async () => {
-    (fetch as jest.Mock).mockRejectedValueOnce(new Error('Network error'));
+    (global.fetch as jest.Mock).mockRejectedValueOnce(new Error('Network error'));
 
     await expect(fetchReviews()).rejects.toThrow(
       "We couldn't load users feedback: Network error"
