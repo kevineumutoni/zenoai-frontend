@@ -1,4 +1,4 @@
-const baseUrl = process.env.BASE_URL || 'https://zeno-ai-be14a438528a.herokuapp.com';
+const baseUrl = process.env.BASE_URL;
 
 export async function POST(request: Request) {
   const { email, password } = await request.json();
@@ -33,11 +33,10 @@ export async function POST(request: Request) {
 
     const result = await response.json();
 
-    // Provide both user_id and id for frontend consistency
     const responseData = {
       token: result.token,
       user_id: result.user_id,
-      id: result.user_id, // Set id to user_id for easy use in API calls
+      id: result.user_id, 
       email: result.email,
       role: result.role
     };

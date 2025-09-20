@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import useFetchAdmins from '../hooks/useFetchAdmins';
-import ProfileMenu from '../sharedComponents/ProfileMenu';
 import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
 
 interface FormData {
