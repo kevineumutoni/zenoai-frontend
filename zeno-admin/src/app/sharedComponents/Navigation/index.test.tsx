@@ -49,9 +49,4 @@ describe('SidebarNav', () => {
     fireEvent.mouseOver(firstButton);
     expect(tooltip).toHaveTextContent(tooltipText);
   });
-
-
-
-
-
 });

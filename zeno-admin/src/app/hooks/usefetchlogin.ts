@@ -12,6 +12,13 @@ export function useFetchLogin() {
       const data = await fetchLogin(email, password);
       if (data && data.token) {
         localStorage.setItem('token', data.token);
+        if (data.user_id) {
+          localStorage.setItem('user_id', data.user_id.toString());
+          localStorage.setItem('id', data.user_id.toString());
+        }
+        if (data.id) {
+          localStorage.setItem('id', data.id.toString());
+        }
       }
       setIsLoading(false);
       return data;

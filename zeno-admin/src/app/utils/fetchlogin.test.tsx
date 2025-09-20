@@ -5,6 +5,7 @@ global.fetch = jest.fn();
 describe('fetchLogin', () => {
   afterEach(() => {
     jest.resetAllMocks();
+    localStorage.clear();
   });
 
   it('returns result when login succeeds', async () => {
@@ -30,10 +31,10 @@ describe('fetchLogin', () => {
       ok: false,
       status: 401,
       statusText: 'Unauthorized',
-      json: async () => ({ error: 'bad login' }),
+      text: async () => 'Unauthorized', 
     });
 
-    await expect(fetchLogin('wrong@email.com', 'bad')).rejects.toThrow('Something went wrong,Unauthorized');
+    await expect(fetchLogin('wrong@email.com', 'bad')).rejects.toThrow('Something went wrong: Unauthorized');
   });
 
   it('throws error if fetch throws', async () => {
