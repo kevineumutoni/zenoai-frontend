@@ -50,7 +50,7 @@ const ProfileMenu = ({ image }: { image?: string }) => {
   };
 
   return (
-    <div className="relative" ref={menuRef}>
+    <div className="relative mt-10" ref={menuRef}>
       <img
         src={image || "/images/zeno-logo.png"}
         alt="Profile"

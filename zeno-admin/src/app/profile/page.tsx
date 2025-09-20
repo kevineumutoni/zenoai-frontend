@@ -112,7 +112,7 @@ const handleSubmit = async (e: React.FormEvent) => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-4">
+      <div className="min-h-screen w-full flex items-center justify-center px-4">
         <div className="text-center">
           <div className="rounded-full h-16 w-16 border-t-2 border-b-2 border-cyan-500 mx-auto mb-4 animate-spin"></div>
           <p className="text-white text-lg">Loading profile...</p>
@@ -149,15 +149,12 @@ const handleSubmit = async (e: React.FormEvent) => {
   }
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-cover bg-center">
-      <div className="w-full max-w-7xl mx-auto pt-10 sm:pt-15 px-4 sm:px-6 lg:px-10">
+    <div className="relative overflow-hidden bg-cover bg-center -mt-8">
+      <div className="w-full overflow-hidden max-w-7xl mx-auto">
         <header className="mt-10 sm:mt-25 flex flex-col sm:flex-row justify-between items-center mb-6 sm:mb-10">
           <div className="text-center sm:text-left">
             <h1 className="text-3xl sm:text-4xl font-bold text-white">Profile</h1>
             <p className="text-sm sm:text-base mt-1 text-zinc-100">View your profile</p>
-          </div>
-          <div className="relative mt-4 sm:mt-0">
-            <ProfileMenu image={user?.image} />
           </div>
         </header>
 

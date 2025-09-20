@@ -11,7 +11,7 @@ jest.mock('next/navigation', () => ({
 let mockError: string | null = null;
 let mockIsLoading: boolean = false;
 const mockLogin = jest.fn();
-jest.mock('../hooks/usefetchlogin', () => ({
+jest.mock('../hooks/useFetchLogin', () => ({
   useFetchLogin: () => ({
     login: mockLogin,
     isLoading: mockIsLoading,
