@@ -32,12 +32,12 @@ describe('fetchCurrentAdmin', () => {
 
   it('throws error if no token found', async () => {
     localStorage.removeItem('token');
-    await expect(fetchCurrentAdmin()).rejects.toThrow('No token found in localStorage');
+    await expect(fetchCurrentAdmin()).rejects.toThrow('Missing token or id');
   });
 
   it('throws error if no id found', async () => {
     localStorage.removeItem('id');
-    await expect(fetchCurrentAdmin()).rejects.toThrow('No id or user_id found in localStorage. Please login.');
+    await expect(fetchCurrentAdmin()).rejects.toThrow('Missing token or id');
   });
 });
 
@@ -46,9 +46,9 @@ describe('updateCurrentAdmin', () => {
     fetchMock.mockResponseOnce(
       JSON.stringify({
         id: 91,
-        first_name: 'Updated',
-        last_name: 'Admin',
-        email: 'update@gmail.com',
+        first_name: 'Tirsit',
+        last_name: 'Teshome',
+        email: 'tt@gmail.com',
         role: 'Admin',
         image: 'new-image-url',
         created_at: '2025-09-19T21:18:58.271883Z'
@@ -56,23 +56,19 @@ describe('updateCurrentAdmin', () => {
     );
 
     const updated = await updateCurrentAdmin('91', {
-      first_name: 'Updated',
-      last_name: 'Admin',
-      email: 'update@gmail.com',
+      first_name: 'Tirsit',
+      last_name: 'Teshome',
+      email: 'tt@gmail.com',
       image: 'new-image-url'
     });
 
-    expect(updated.first_name).toBe('Updated');
-    expect(updated.email).toBe('update@gmail.com');
+    expect(updated.first_name).toBe('Tirsit');
+    expect(updated.last_name).toBe('Teshome');
+    expect(updated.email).toBe('tt@gmail.com');
   });
 
-  it('returns 401 Response if no token', async () => {
+  it('throws error if no token', async () => {
     localStorage.removeItem('token');
-
-    const result = await updateCurrentAdmin('91', { first_name: 'Test' });
-
-    expect(result).toBeInstanceOf(Response);
-    expect(result.status).toBe(401);
-    expect(await result.text()).toBe('No token found');
+    await expect(updateCurrentAdmin('91', { first_name: 'Test' })).rejects.toThrow('No token found');
   });
 });
