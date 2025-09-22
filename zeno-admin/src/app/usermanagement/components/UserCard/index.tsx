@@ -1,5 +1,5 @@
 'use client';
-import { useUserStats } from "../../../hooks/totalusers";
+import { useUserStats } from "../../../hooks/useFetchTotalUsers";
 import { HiOutlineUsers } from "react-icons/hi2";
 
 

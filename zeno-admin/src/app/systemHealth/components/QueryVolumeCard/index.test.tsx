@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import QueryVolumeCard from '.';
-import { Run } from '../../../utils/types';
+import { Run } from '../../../utils/types/runs';
 
 const mockRuns = [
   { id: 1, started_at: '2025-09-14T10:00:00Z' },

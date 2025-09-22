@@ -2,11 +2,11 @@ import React from "react";
 import { render, screen } from "@testing-library/react";
 import UserStatsContainer from ".";
 
-jest.mock("../../../hooks/totalusers", () => ({
+jest.mock("../../../hooks/useFetchTotalUsers", () => ({
   useUserStats: jest.fn(),
 }));
 
-import { useUserStats } from "../../../hooks/totalusers";
+import { useUserStats } from "../../../hooks/useFetchTotalUsers";
 
 describe("UserStatsContainer", () => {
   afterEach(() => {
