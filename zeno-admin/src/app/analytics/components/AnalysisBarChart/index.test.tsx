@@ -27,4 +27,10 @@ describe('AnalyticsBarChart', () => {
     const barElement = screen.getByTestId('mock-bar');
     expect(barElement).toBeInTheDocument();
   });
+
+  it('renders without crashing when no data is provided', () => {
+    render(<AnalyticsBarChart data={[]} />);
+    const barElement = screen.getByTestId('mock-bar');
+    expect(barElement).toBeInTheDocument();
+  });
 });

@@ -120,4 +120,5 @@ describe('AnalyticsBarChartCard', () => {
     const chartElement = screen.getByTestId('mock-bar-chart');
     expect(chartElement).toHaveTextContent('Chart with 3 total requests');
   });
+  
 });
