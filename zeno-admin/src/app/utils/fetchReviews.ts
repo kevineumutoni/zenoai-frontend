@@ -4,7 +4,7 @@ export async function fetchReviews() {
     throw new Error('Please log in.');
   }
   try {
-    const response = await fetch('https://zeno-ai-be14a438528a.herokuapp.com/reviews/', {
+    const response = await fetch('/api/user_feedback', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
