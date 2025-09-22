@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import AnalyticsBarChartCard from './index';
-import { Step } from '../../utils/types/steps';
+import { Step } from '../../../utils/types/steps';
 
 jest.mock('../AnalysisBarChart', () => {
   return {

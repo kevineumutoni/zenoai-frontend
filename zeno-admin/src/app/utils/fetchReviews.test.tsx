@@ -42,7 +42,7 @@ describe('fetchReviews', () => {
 
     expect(data).toEqual(mockData);
     expect(global.fetch).toHaveBeenCalledWith(
-      'https://zeno-ai-be14a438528a.herokuapp.com/reviews/',
+      '/api/user_feedback', 
       {
         method: 'GET',
         headers: expect.objectContaining({

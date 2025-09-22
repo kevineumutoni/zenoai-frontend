@@ -1,5 +1,5 @@
 'use client';
-import { Step } from '../../utils/types/steps';
+import { Step } from '../../../utils/types/steps';
 import AnalyticsPieChart from '../AnalysisPieChart';
 
 interface AnalyticsPieChartCardProps {

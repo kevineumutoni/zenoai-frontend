@@ -2,8 +2,8 @@
 import { useState } from 'react';
 import { subDays } from 'date-fns';
 import { useFetchAnalytics } from '../hooks/useFetchSteps';
-import AnalyticsBarChartCard from './BarchartCard';
-import AnalyticsPieChartCard from './PieChartCard';
+import AnalyticsBarChartCard from './components/BarchartCard';
+import AnalyticsPieChartCard from './components/PieChartCard';
 import CalendarDropdown from '../sharedComponents/CalendarDropdown';
 
 const AnalyticsPage: React.FC = () => {
