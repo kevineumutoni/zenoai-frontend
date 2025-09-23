@@ -1,11 +1,10 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { fetchCurrentAdmin, updateCurrentAdmin } from '../utils/fetchAdmins';
+import { useEffect, useState } from "react";
+import { fetchCurrentAdmin, updateCurrentAdmin } from "../utils/fetchAdmin";
 
 export interface User {
   id?: number;
-  user_id?: number;
   email?: string;
   first_name?: string;
   last_name?: string;
@@ -15,12 +14,12 @@ export interface User {
   [key: string]: any;
 }
 
-const usefetchAdmins = () => {
+const useFetchCurrentAdmin = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchAdmins = async () => {
+  const fetchAdmin = async () => {
     setLoading(true);
     try {
       const userData = await fetchCurrentAdmin();
@@ -57,7 +56,7 @@ const usefetchAdmins = () => {
   };
 
   useEffect(() => {
-    fetchAdmins();
+    fetchAdmin();
   }, []);
 
   return {
@@ -65,8 +64,8 @@ const usefetchAdmins = () => {
     loading,
     error,
     updateAdmin,
-    refetch: fetchAdmins,
+    refetch: fetchAdmin,
   };
 };
 
-export default usefetchAdmins;
+export default useFetchCurrentAdmin;

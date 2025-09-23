@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import useFetchAdmins from '../hooks/useFetchAdmins';
+import useFetchAdmin from '../hooks/useFetchAdmin';
 import ProfilePage from './page';
 
 jest.mock('next/navigation', () => ({
@@ -16,7 +16,7 @@ jest.mock('next/navigation', () => ({
   useSearchParams: jest.fn(() => new URLSearchParams()),
 }));
 
-jest.mock('../hooks/useFetchAdmins', () => jest.fn());
+jest.mock('../hooks/useFetchAdmin', () => jest.fn());
 
 describe('ProfilePage', () => {
   const mockUser = {
@@ -31,7 +31,7 @@ describe('ProfilePage', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    (useFetchAdmins as jest.Mock).mockReturnValue({
+    (useFetchAdmin as jest.Mock).mockReturnValue({
       user: mockUser,
       loading: false,
       error: null,
@@ -52,7 +52,7 @@ describe('ProfilePage', () => {
     expect(screen.getByText('Tirsit')).toBeInTheDocument();
     expect(screen.getByText('Berihu')).toBeInTheDocument();
     expect(screen.getByText('tirsit@gmail.com')).toBeInTheDocument();
-    expect(screen.getByAltText('User')).toHaveAttribute('src', 'https://example.com/photo.jpg');
+    expect(screen.getByAltText('Admin')).toHaveAttribute('src', 'https://example.com/photo.jpg');
   });
 
   it('shows edit form when Update is clicked', () => {
@@ -104,7 +104,7 @@ describe('ProfilePage', () => {
 
     await waitFor(() => {
       expect(screen.getByText('Profile updated successfully!')).toBeInTheDocument();
-      expect(useFetchAdmins().updateAdmin).toHaveBeenCalledWith(1, {
+      expect(useFetchAdmin().updateAdmin).toHaveBeenCalledWith(1, {
         role: 'Admin',
         first_name: 'Tirsit Updated',
         last_name: 'Berihu',
@@ -119,12 +119,12 @@ describe('ProfilePage', () => {
       expect(screen.getByText('Tirsit Updated')).toBeInTheDocument();
       expect(screen.getByText('Berihu')).toBeInTheDocument();
       expect(screen.getByText('tirsit@gmail.com')).toBeInTheDocument();
-      expect(screen.getByAltText('User')).toHaveAttribute('src', 'https://example.com/photo.jpg');
+      expect(screen.getByAltText('Admin')).toHaveAttribute('src', 'https://example.com/photo.jpg');
     });
   });
 
   it('shows error block if error is present', () => {
-    (useFetchAdmins as jest.Mock).mockReturnValue({
+    (useFetchAdmin as jest.Mock).mockReturnValue({
       user: null,
       loading: false,
       error: 'Failed to fetch!',
@@ -139,7 +139,7 @@ describe('ProfilePage', () => {
   });
 
   it('shows loading spinner when loading', () => {
-    (useFetchAdmins as jest.Mock).mockReturnValue({
+    (useFetchAdmin as jest.Mock).mockReturnValue({
       user: null,
       loading: true,
       error: null,

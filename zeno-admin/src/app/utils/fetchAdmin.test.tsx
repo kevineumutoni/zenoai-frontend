@@ -1,5 +1,5 @@
 import fetchMock from "jest-fetch-mock";
-import { fetchCurrentAdmin, updateCurrentAdmin } from "./fetchAdmins";
+import { fetchCurrentAdmin, updateCurrentAdmin } from "./fetchAdmin";
 
 fetchMock.enableMocks();
 
@@ -19,7 +19,7 @@ describe('fetchCurrentAdmin', () => {
         last_name: 'Berihu',
         email: 'merry@gmail.com',
         role: 'Admin',
-        image: 'fake-url',
+        image: 'img-url',
         created_at: '2025-09-19T21:18:58.271883Z'
       })
     );

@@ -1,12 +1,12 @@
 import { renderHook, act } from '@testing-library/react';
-import usefetchAdmins from './useFetchAdmins';
+import usefetchAdmins from './useFetchAdmin';
 
-jest.mock('../utils/fetchAdmins', () => ({
+jest.mock('../utils/fetchAdmin', () => ({
   fetchCurrentAdmin: jest.fn(),
   updateCurrentAdmin: jest.fn(),
 }));
 
-const { fetchCurrentAdmin, updateCurrentAdmin } = require('../utils/fetchAdmins');
+const { fetchCurrentAdmin, updateCurrentAdmin } = require('../utils/fetchAdmin');
 
 describe('usefetchAdmins hook', () => {
   beforeEach(() => {
@@ -85,4 +85,17 @@ describe('usefetchAdmins hook', () => {
     });
     expect(result.current.error).toBeNull();
   });
+
+  it('sets error if fetchCurrentAdmin returns null or undefined', async () => {
+    fetchCurrentAdmin.mockResolvedValue(null);
+
+    const { result } = renderHook(() => usefetchAdmins());
+
+    await act(async () => { });
+
+    expect(result.current.loading).toBe(false);
+    expect(result.current.user).toBeNull();
+    expect(result.current.error).toMatch(/Cannot read properties of null/)
+  });
+
 });

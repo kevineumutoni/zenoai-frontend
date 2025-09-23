@@ -5,7 +5,7 @@ import { Teachers } from "next/font/google";
 import { usePathname } from "next/navigation";
 import SidebarNav from "./sharedComponents/Navigation";
 import ProfileMenu from "./sharedComponents/ProfileMenu";
-import useFetchAdmins from "./hooks/useFetchAdmins"; 
+import useFetchAdmins from "./hooks/useFetchAdmin"; 
 
 const teachers = Teachers({
   subsets: ["latin"],
