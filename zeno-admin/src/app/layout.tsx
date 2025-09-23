@@ -18,7 +18,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const { user, loading, error } = useFetchAdmins();
   const pathname = usePathname();
   const hideSidebarPaths = ["/", "/welcome", "/signin"];
-  const hideChatInputPaths = ["/","/signin", "/welcome","/analytics","/systemHealth","/user_reviews","/usermanagement","/signup","/dashboard"];
+  const hideChatInputPaths = ["/","/signin", "/welcome","/analytics","/systemHealth","/user_reviews","/usermanagement","/signup","/dashboard","/profile"];
 
   const showSidebar = !hideSidebarPaths.includes(pathname);
   const hideProfileMenuPaths = ["/", "/welcome", "/signin"];
