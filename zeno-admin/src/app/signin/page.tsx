@@ -17,7 +17,7 @@ export default function LoginPage() {
     e.preventDefault();
     const result = await login(email, password);
     if (result && !error) {
-      router.push('/home');
+      router.push('/profile');
     }
   }
 
