@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import DatabaseQuerySection from '../DatabaseQuerySection';
-import { Run } from '../../../utils/types';
+import { Run } from '../../../utils/types/runs';
 
 
 jest.mock('../../../sharedComponents/CalendarDropdown', () => {

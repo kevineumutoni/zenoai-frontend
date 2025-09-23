@@ -68,3 +68,21 @@ export type OutputArtifact = {
   created_at: string;
   title: string | null;
 } & (ChartArtifact | TableArtifact | TextArtifact | PdfReportArtifact);
+
+
+
+
+export  type User = {
+  first_name: string;
+  last_name: string;
+  email: string;
+  created_at: string;
+  role: string;
+  image?: string;
+};
+
+interface CustomDropdownProps {
+  options: string[];
+  selected: string;
+  onSelect: (value: string) => void;
+}

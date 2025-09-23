@@ -36,7 +36,7 @@ describe('SidebarNav', () => {
       }
     });
 
-    expect(pushMock).toHaveBeenCalledWith('/usermanagement');
+    expect(pushMock).toHaveBeenCalledWith('/analytics');
   });
   it('shows tooltip text on nav item hover', () => {
     render(<SidebarNav />);
