@@ -10,7 +10,7 @@ const teachers = Teachers({
 });
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const hideSidebarPaths = ["/", "/welcome", "/signin"];
+  const hideSidebarPaths = ["/", "/welcome", "/signin","/chat"];
   const showSidebar = !hideSidebarPaths.includes(pathname);
   return (
     <html lang="en" >

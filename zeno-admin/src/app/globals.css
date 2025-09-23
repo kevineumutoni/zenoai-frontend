@@ -29,3 +29,14 @@ body {
 * {
   box-sizing: border-box;
 }
+
+
+/* For webkit browsers */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+/* For IE, Edge */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none; /* Firefox */
+}
