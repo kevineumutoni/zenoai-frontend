@@ -1,5 +1,4 @@
 export async function fetchRuns() {
-  // const authtoken=localStorage.setItem('token','45b828b67eed5ddc4099062851ef4db5a2d08074');
   const token = localStorage.getItem('token');
   if (!token) {
     throw new Error('Please log in to access system health data.');

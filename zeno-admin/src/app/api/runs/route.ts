@@ -2,7 +2,7 @@ const BASE_URL = process.env.BASE_URL;
 
 export async function GET(request: Request) {
   if (!BASE_URL) {
-    return new Response('System misconfigured.', { status: 500 });
+    return new Response('The system is not properly configured. Please try again.', { status: 500 });
   }
 
   const authHeader = request.headers.get('Authorization');
