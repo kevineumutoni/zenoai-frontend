@@ -1,5 +1,5 @@
 const baseUrl = '/api/users';
-import type { User } from "./types";
+import type { User } from "./types/runs";
 
 export async function fetchUsers(): Promise<User[]> {
   try {
