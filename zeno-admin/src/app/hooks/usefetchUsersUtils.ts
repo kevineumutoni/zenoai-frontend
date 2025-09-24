@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { fetchUsers } from "../utils/fetchUsers";
-import type { User } from "../utils/types";
+import type { User } from "../utils/types/runs";
 
 export function useUsers() {
   const [users, setUsers] = useState<User[]>([]);

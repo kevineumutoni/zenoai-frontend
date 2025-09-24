@@ -1,8 +1,17 @@
-
 import { useEffect, useRef, useState } from "react";
 import { createRun, fetchRunById } from "../utils/postRuns";
 
-type RunLike = any;
+export interface RunLike {
+  id: string | number;
+  user_input: string;
+  status: string;
+  final_output: string | null;
+  output_artifacts: any[];
+  started_at: string;
+  _optimistic?: boolean;
+  files?: File[];
+  error?: string;
+}
 
 export function useRuns(user?: { id: number; token: string }) {
   const [runs, setRuns] = useState<RunLike[]>([]);
@@ -19,8 +28,17 @@ export function useRuns(user?: { id: number; token: string }) {
     return { ...run, status: run.status?.toLowerCase() };
   }
 
-  async function sendMessage(userInput: string, conversationId?: string | null) {
+  async function sendMessage({
+    conversationId,
+    userInput,
+    files = [],
+  }: {
+    conversationId?: string | null;
+    userInput: string;
+    files?: File[];
+  }): Promise<RunLike> { 
     const tempId = `temp-${Date.now()}`;
+
     setRuns((prev) => [
       ...prev,
       {
@@ -31,16 +49,19 @@ export function useRuns(user?: { id: number; token: string }) {
         output_artifacts: [],
         started_at: new Date().toISOString(),
         _optimistic: true,
+        files,
       },
     ]);
 
     try {
       const backendRun = normalizeRun(
-        await createRun(conversationId ?? null, userInput, user?.token)
+        await createRun(conversationId ?? null, userInput, user?.token, files)
       );
+
       setRuns((prev) => prev.map((r) => (r.id === tempId ? backendRun : r)));
-      startPolling(backendRun.id);
-      return backendRun;
+      startPolling(Number(backendRun.id));
+
+      return backendRun; 
     } catch (err) {
       setRuns((prev) =>
         prev.map((r) =>

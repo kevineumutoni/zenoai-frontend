@@ -2,6 +2,7 @@
 
 import ChatMessage from "../ChatMessage";
 import FeedbackButtons from "../FeedbackButtons";
+import ChatArtifactRenderer from "./components/ArtifactRender";
 import Image from "next/image";
 
 type ChatMessagesProps = {
@@ -10,8 +11,12 @@ type ChatMessagesProps = {
   userId?: number;
 };
 
-export default function ChatMessages({ runs, onRetry, userId }: ChatMessagesProps) {
-  console.log("📩 Rendering ChatMessages with runs:", runs, "userId:", userId);
+export default function ChatMessages({
+  runs,
+  onRetry,
+  userId,
+}: ChatMessagesProps) {
+  console.log("Rendering ChatMessages with runs:", runs);
 
   return (
     <div className="flex-1 overflow-y-auto p-6 space-y-6 w-[60vw] ml-100 scrollbar-hide">
@@ -43,22 +48,19 @@ export default function ChatMessages({ runs, onRetry, userId }: ChatMessagesProp
               )}
 
               {run.output_artifacts?.map((artifact: any) => (
-                <ChatMessage
+                <ChatArtifactRenderer
                   key={artifact.id}
-                  role="agent"
-                  text={artifact.title}
                   artifactType={artifact.artifact_type}
                   artifactData={artifact.data}
-                  runId={run.id}
-                  userId={userId}
+                  text={artifact.title}
                 />
               ))}
 
-              <div className="mt-2 flex ">
+              <div className="mt-2 flex">
                 <FeedbackButtons
                   responseId={String(run.id)}
                   responseText={run.final_output || ""}
-                  userId={userId ?? 0} 
+                  userId={userId ?? 0}
                 />
               </div>
             </div>

@@ -4,6 +4,8 @@ import React, { useState } from 'react';
 import useFetchUserReview from '../hooks/useFetchUserReviews';
 import StatsCard from './components/StatsCard';
 import Comments from './components/Comments';
+
+
 import { Users, ThumbsUp, ThumbsDown, ChevronDown, ChevronUp } from 'lucide-react';
 
 const UserFeedbackPage = () => {
@@ -15,6 +17,8 @@ const UserFeedbackPage = () => {
       <div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">
         <div className="text-xl">Users feedback is loading..</div>
       </div>
+
+      
     );
   }
 
@@ -55,7 +59,8 @@ const UserFeedbackPage = () => {
   const currentLabel = options.find(opt => opt.value === filter)?.label || 'All User Feedback';
 
   return (
-    <div className=" text-white md:w-7/8 md:mx-auto">
+    
+    <div className=" text-white -mt-8 md:w-7/8 md:mx-auto">
       <div className="  sm:pt-25 lg:pt-15 xl:pt-25">
         <div className="mb-8 mt-[-10px] ">
           <h2 className="text-3xl md:text-4xl sm:text-[50px xl:text-[50px] 2xl:font-semibold text-[#9FF8F8] mb-2">User Feedback Analysis</h2>

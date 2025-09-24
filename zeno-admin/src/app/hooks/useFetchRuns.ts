@@ -1,7 +1,7 @@
-
+'use client'
 import { useState, useEffect } from 'react';
 import { fetchRuns } from '../utils/fetchRuns';
-import { Run } from '../utils/types';
+import { Run } from '../utils/types/runs';
 export function useFetchRuns() {
   const [data, setData] = useState<Run[] | null>(null);
   const [isLoading, setIsLoading] = useState(false);

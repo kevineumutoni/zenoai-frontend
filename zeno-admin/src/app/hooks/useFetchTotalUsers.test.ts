@@ -1,6 +1,6 @@
 import { renderHook, waitFor } from "@testing-library/react";
 import { fetchUsers } from "../utils/fetchUsers";
-import { useUserStats } from "./totalusers";
+import { useUserStats } from "./useFetchTotalUsers";
 
 jest.mock("../utils/fetchUsers");
 

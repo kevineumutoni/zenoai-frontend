@@ -24,7 +24,7 @@ jest.mock("../DropDown", () => (props: any) => (
   </select>
 ));
 
-import { useUsers } from "../../../hooks/usefetchUsers";
+import { useUsers } from "../../../hooks/usefetchUsersUtils";
 
 describe("UsersTable component", () => {
   const usersMock = [

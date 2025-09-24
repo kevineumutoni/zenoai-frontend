@@ -9,7 +9,6 @@
 
 html, body {
   font-family: var(--font-teachers);
-  background: #fff;
   color: #222;
 }
 
@@ -35,8 +34,15 @@ body {
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
-/* For IE, Edge */
+
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none; /* Firefox */
+
+input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 30px #374151 inset !important; 
+  -webkit-text-fill-color: #ffffff !important; 
+
+
+}
 }

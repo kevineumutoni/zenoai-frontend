@@ -1,9 +1,8 @@
 "use client";
 import { useEffect, useRef } from "react";
-import Image from "next/image";
 import ChatHeader from "./components/ChatHeader";
 import ChatMessages from "./components/ChatMessages";
-import ChatInput from "./components/ChatInput";
+import ChatInputWrapper from "./components/ChatInputWrapper";
 import { useConversation } from "../hooks/usepostConversations";
 import { useRuns } from "../hooks/usepostRuns";
 
@@ -26,31 +25,9 @@ export default function ChatPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [runs]);
 
-  async function handleSend(input: string) {
-    if (!input.trim()) return;
-
-    let convId = conversationId;
-    if (user?.id && user?.token && !conversationId) {
-      convId = await initConversation();
-    }
-
-    try {
-      await sendMessage(input, convId);
-    } catch (err) {
-      console.error("sendMessage error", err);
-    }
-  }
-
   return (
     <div className="relative flex flex-col h-screen text-white">
-      <Image
-        src="/images/zeno-chat.png"
-        alt="Background"
-        fill
-        style={{ objectFit: "cover" }}
-        priority
-      />
-      <div className="absolute inset-0 bg-black/60" />
+      <div className="absolute inset-0 " />
 
       <div className="relative flex flex-col h-full bg-transparent">
         <ChatHeader
@@ -62,11 +39,24 @@ export default function ChatPage() {
 
         <ChatMessages
           runs={runs}
-          onRetry={(run) => sendMessage(run.user_input, conversationId)}
+          onRetry={(run) =>
+            sendMessage({
+              conversationId,
+              userInput: run.user_input,
+              files: run.files || [],
+            })
+          }
         />
 
         <div ref={messagesEndRef} />
-        <ChatInput onSend={handleSend} />
+
+        {user && (
+          <ChatInputWrapper
+            conversationId={conversationId}
+            user={user}
+            sendMessage={sendMessage} // ✅ pass sendMessage from useRuns
+          />
+        )}
       </div>
     </div>
   );
