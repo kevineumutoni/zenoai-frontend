@@ -1,15 +1,13 @@
 "use client";
 
-import Image from "next/image";
-
 type ChatMessageProps = {
   role: "user" | "agent";
   text?: string;
   artifactType?: "text" | "chart" | "table";
   artifactData?: any;
   loading?: boolean;
-  runId?: string | number; 
-  userId?: number;         
+  runId?: string | number;
+  userId?: number;
 };
 
 export default function ChatMessage({
@@ -18,22 +16,20 @@ export default function ChatMessage({
   artifactType = "text",
   artifactData,
   loading = false,
-  runId,
-  userId,
 }: ChatMessageProps) {
   const isAgent = role === "agent";
 
   return (
     <div
-      className={`max-w-[60%] space-y-2 ${
-        isAgent ? "mr-auto" : "ml-auto text-left"
-      }`}
+      className={`flex w-full ${
+        isAgent ? "justify-start" : "justify-end"
+      }`} // ✅ Align based on role
     >
-      {isAgent}
-
       <div
-        className={`p-3 rounded-2xl shadow-md break-words whitespace-pre-wrap ${
-          isAgent ? "bg-[#131F36] text-gray-200" : "bg-[#39b4b4] text-black"
+        className={`max-w-[60%] text-[18px] p-3 rounded-2xl shadow-md break-words whitespace-pre-wrap ${
+          isAgent
+            ? "bg-[#131F36] text-gray-200" // agent left
+            : "bg-[#39b4b4] text-black" // user right
         }`}
       >
         {loading ? (
@@ -45,7 +41,7 @@ export default function ChatMessage({
         ) : artifactType === "text" ? (
           <p>{text}</p>
         ) : artifactType === "chart" ? (
-          <div className="bg-[#0B182F] p-2 rounded-lg">
+          <div className="bg-white p-2 rounded-lg">
             <pre className="text-xs">{JSON.stringify(artifactData, null, 2)}</pre>
           </div>
         ) : artifactType === "table" && artifactData?.rows ? (
@@ -73,8 +69,6 @@ export default function ChatMessage({
           </table>
         ) : null}
       </div>
-
-      {isAgent && text && userId !== undefined}
     </div>
   );
 }

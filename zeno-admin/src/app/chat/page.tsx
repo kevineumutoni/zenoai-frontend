@@ -15,7 +15,7 @@ export default function ChatPage() {
     ? { id: Number(localStorage.getItem("userId")), token }
     : null;
 
-  const { conversationId, initConversation, resetConversation } = useConversation(
+  const { conversationId, resetConversation } = useConversation(
     user?.id,
     user?.token
   );
@@ -54,7 +54,7 @@ export default function ChatPage() {
           <ChatInputWrapper
             conversationId={conversationId}
             user={user}
-            sendMessage={sendMessage} // ✅ pass sendMessage from useRuns
+            sendMessage={sendMessage} 
           />
         )}
       </div>

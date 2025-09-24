@@ -1,20 +1,26 @@
 "use client";
 
-import {
-  Box,
-  Paper,
-  Typography,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-} from "@mui/material";
 import { BarChart, LineChart, PieChart } from "@mui/x-charts";
+import { Typography } from "@mui/material";
+
+type ChartData = {
+  x: (string | number)[];
+  y: number[];
+  title?: string;
+  chart_type?: "bar" | "line" | "pie";
+};
+
+type TableData = {
+  columns?: string[];
+  rows?: (string | number)[][];
+  x?: (string | number)[];
+  y?: (string | number)[];
+  title?: string;
+};
 
 type ArtifactRendererProps = {
   artifactType: "chart" | "table" | "text";
-  artifactData: any;
+  artifactData: ChartData | TableData;
   text?: string;
 };
 
@@ -24,185 +30,163 @@ export default function ChatArtifactRenderer({
   text,
 }: ArtifactRendererProps) {
   if (artifactType === "chart")
-    return <ChartRenderer data={artifactData} />;
+    return <ChartRenderer data={artifactData as ChartData} />;
   if (artifactType === "table")
-    return <TableRenderer data={artifactData} />;
+    return <TableRenderer data={artifactData as TableData} />;
   if (artifactType === "text")
     return (
-      <Typography
-        variant="body2"
-        sx={{
-          whiteSpace: "pre-wrap",
-          color: "text.primary",
-          maxWidth: "80%",
-        }}
-      >
+      <p className=" max-w-[80%] whitespace-pre-wrap text-sm text-gray-900">
         {text}
-      </Typography>
+      </p>
     );
   return null;
 }
 
-function ChartRenderer({ data }: { data: any }) {
+function ChartRenderer({ data }: { data: ChartData }) {
   if (!data?.x || !data?.y || !Array.isArray(data.x) || !Array.isArray(data.y)) {
     return (
-      <Box sx={{ ml: 6 }}>
-        <Paper
-          sx={{ p: 1, backgroundColor: "background.default", borderRadius: 2 }}
-        >
-          <Typography variant="caption" color="text.secondary">
-            Invalid chart data
-          </Typography>
-          <pre style={{ fontSize: "0.7rem", overflowX: "auto" }}>
+      <div className="">
+        <div className="p-2 rounded-lg bg-white shadow">
+          <p className="text-xs text-gray-500">Invalid chart data</p>
+          <pre className="text-[0.7rem] overflow-x-auto">
             {JSON.stringify(data, null, 2)}
           </pre>
-        </Paper>
-      </Box>
+        </div>
+      </div>
     );
   }
 
-  const chartData = data.x.map((xVal: string | number, idx: number) => ({
-    label: xVal,
-    value: data.y[idx],
-  }));
+  const chartData: { label: string | number; value: number }[] = data.x.map(
+    (xVal, idx) => ({
+      label: xVal,
+      value: data.y[idx] ?? 0,
+    })
+  );
 
   const chartType = data.chart_type || "line";
 
   return (
-    <Box sx={{ display: "flex", justifyContent: "flex-start", ml: 6 }}>
-      <Paper
-        sx={{
-          p: 2,
-          backgroundColor: "#9FF8F8", 
-          borderRadius: 3,
-          maxWidth: 420,
-          width: "100%",
-        }}
-      >
+    <div className="  if (data?.x && data?.y) {
+">
+      <div className=" rounded-2xl shadow  max-w-[480px] w-full">
         {data.title && (
           <Typography
             variant="subtitle1"
             align="center"
-            sx={{ mb: 2, color: "#0A1A2E" }} 
+            className="text-gray-900 mb-2 font-semibold"
           >
             {data.title}
           </Typography>
         )}
 
         {chartType === "bar" && (
-          <BarChart
-            xAxis={[{ data: chartData.map((d) => d.label), scaleType: "band" }]}
-            series={[{ data: chartData.map((d) => d.value), color: "#60a5fa" }]} 
-            width={400}
-            height={220}
-          />
+          <div className="bg-white rounded-xl">
+            <BarChart
+              xAxis={[
+                { data: chartData.map((d) => d.label), scaleType: "band" },
+              ]}
+              series={[
+                { data: chartData.map((d) => d.value), color: "#60a5fa" },
+              ]}
+              width={400}
+              height={220}
+            />
+          </div>
         )}
+
         {chartType === "line" && (
-          <LineChart
-            xAxis={[{ data: chartData.map((d) => d.label) }]}
-            series={[{ data: chartData.map((d) => d.value), color: "#0A1A2E" }]} 
-            width={400}
-            height={220}
-          />
+          <div className="bg-white rounded-xl">
+            <LineChart
+              xAxis={[{ data: chartData.map((d) => d.label) }]}
+              series={[
+                { data: chartData.map((d) => d.value), color: "#3b82f6" },
+              ]}
+              width={400}
+              height={220}
+            />
+          </div>
         )}
+
         {chartType === "pie" && (
-          <PieChart
-            series={[
-              {
-                data: chartData.map((d, i) => ({
-                  id: String(d.label),
-                  value: d.value,
-                  label: String(d.label),
-                  color: ["#60a5fa", "#f472b6", "#a78bfa"][i % 3], 
-                })),
-              },
-            ]}
-            width={400}
-            height={220}
-          />
+          <div className="bg-white rounded-xl">
+            <PieChart
+              series={[
+                {
+                  data: chartData.map((d, i) => ({
+                    id: String(d.label),
+                    value: d.value,
+                    label: String(d.label),
+                    color: ["#60a5fa", "#f472b6", "#a78bfa"][i % 3],
+                  })),
+                },
+              ]}
+              width={400}
+              height={220}
+            />
+          </div>
         )}
-      </Paper>
-    </Box>
+      </div>
+    </div>
   );
 }
 
-function TableRenderer({ data }: { data: any }) {
-  if (!data?.columns || !data?.rows) {
-    if (data?.x && data?.y) {
-      return (
-        <Box sx={{ ml: 6 }}>
-          <Paper
-            sx={{
-              p: 2,
-              borderRadius: 3,
-              backgroundColor: "#9FF8F8", 
-              maxWidth: 400,
-              overflowX: "auto",
-            }}
-          >
-            {data.title && (
-              <Typography
-                variant="subtitle1"
-                sx={{ mb: 1, color: "#0284c7" }}
-              >
-                {data.title}
-              </Typography>
-            )}
-            <Table size="small">
-              <TableHead>
-                <TableRow>
-                  <TableCell sx={{ fontWeight: "bold" }}>Label</TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>Value</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {data.x.map((label: string | number, idx: number) => (
-                  <TableRow key={idx}>
-                    <TableCell>{label}</TableCell>
-                    <TableCell>{data.y[idx]}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </Paper>
-        </Box>
-      );
-    }
-    return null;
+function TableRenderer({ data }: { data: TableData }) {
+  if (data?.x && data?.y) {
+    return (
+      <div className="">
+        <div className="bg-wh rounded-2xl shadow p-4 max-w-[500px] overflow-x-auto">
+          {data.title && (
+            <p className="mb-2 text-blue-600 font-medium">{data.title}</p>
+          )}
+          <table className="w-full text-left text-sm">
+            <thead>
+              <tr>
+                <th className="border-b font-bold p-1">Label</th>
+                <th className="border-b font-bold p-1">Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.x.map((label, idx) => (
+                <tr key={idx}>
+                  <td className="border-b p-1">{label}</td>
+                  <td className="border-b p-1">{data.y?.[idx]}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    );
   }
 
+  if (!data?.columns || !data?.rows) return null;
+
   return (
-    <Box sx={{ ml: 6 }}>
-      <Paper
-        sx={{
-          p: 2,
-          borderRadius: 3,
-          backgroundColor: "#f0f9ff",
-          maxWidth: 400,
-          overflowX: "auto",
-        }}
-      >
-        <Table size="small">
-          <TableHead>
-            <TableRow>
-              {data.columns.map((col: string, idx: number) => (
-                <TableCell key={idx} sx={{ fontWeight: "bold" }}>
+    <div className="">
+      <div className="bg-white rounded-2xl shadow p-4 max-w-[480px]  text-black overflow-x-auto">
+        <table className="w-full text-left text-sm">
+          <thead>
+            <tr>
+              {data.columns.map((col, idx) => (
+                <th key={idx} className="border-b font-bold p-1">
                   {col}
-                </TableCell>
+                </th>
               ))}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {data.rows.map((row: any[], idx: number) => (
-              <TableRow key={idx}>
+            </tr>
+          </thead>
+          <tbody>
+            {data.rows.map((row, idx) => (
+              <tr key={idx}>
                 {row.map((cell, cidx) => (
-                  <TableCell key={cidx}>{cell}</TableCell>
+                  <td key={cidx} className="border-b p-1">
+                    {cell}
+                  </td>
                 ))}
-              </TableRow>
+              </tr>
             ))}
-          </TableBody>
-        </Table>
-      </Paper>
-    </Box>
+          </tbody>
+        </table>
+      </div>
+    </div>
   );
 }

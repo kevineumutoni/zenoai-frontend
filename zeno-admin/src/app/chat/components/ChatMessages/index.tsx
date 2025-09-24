@@ -19,7 +19,7 @@ export default function ChatMessages({
   console.log("Rendering ChatMessages with runs:", runs);
 
   return (
-    <div className="flex-1 overflow-y-auto p-6 space-y-6 w-[60vw] ml-100 scrollbar-hide">
+    <div className="flex-1 overflow-y-auto p-6 space-y-6 w-[50vw] ml-120   scrollbar-hide">
       {runs.map((run) => (
         <div key={run.id} className="space-y-3">
           <ChatMessage role="user" text={run.user_input} />

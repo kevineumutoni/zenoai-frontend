@@ -62,6 +62,7 @@ const { sendMessage } = useRuns(user);
 
 const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
   e.preventDefault();
+  if(isLoading) return;
   if (!input.trim() && files.length === 0) return;
   setIsLoading(true);
   try {
