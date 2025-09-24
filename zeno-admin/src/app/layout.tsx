@@ -41,7 +41,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {showSidebar && <SidebarNav />}
           <div className="flex-1 flex flex-col">
             {showProfileMenu && (
-              <div className="flex items-center justify-end px-8 mt-3 w-full">
+              <div className="absolute top-[-8] right-10 z-30">
                 <ProfileMenu image={profileImage} />
               </div>
             )}

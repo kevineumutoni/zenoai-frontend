@@ -8,7 +8,7 @@ export async function GET(request: Request) {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        ...(token ? { Authorization: `Token ${token}` } : {}),
+        ...(token ? { Authorization: `${token}` } : {}),
       },
     });
     const result = await response.json();
