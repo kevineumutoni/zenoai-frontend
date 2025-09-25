@@ -6,7 +6,7 @@ import { postRun } from '../../utils/fetchRuns';
 import { Run } from '../../utils/types/runs';
 
 interface ChatInputProps {
-  onRunCreated: (run: Run) => void;
+  onRunCreated?: (run: Run) => void;
 }
 
 export default function ChatInput({ onRunCreated }: ChatInputProps) {
@@ -61,7 +61,7 @@ export default function ChatInput({ onRunCreated }: ChatInputProps) {
     setIsLoading(true);
     try {
       const run = await postRun(input.trim(), files);
-      onRunCreated(run);
+      onRunCreated?.(run);
       setInput('');
       setFiles([]);
     } catch (error: unknown) {

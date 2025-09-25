@@ -13,15 +13,14 @@ const teachers = Teachers({
   weight: ["400", "700"],
   variable: "--font-teachers",
 });
-
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const { user, loading, error } = useFetchAdmins();
   const pathname = usePathname();
-  const hideSidebarPaths = ["/", "/welcome", "/signin"];
-  const hideChatInputPaths = ["/","/signin", "/welcome","/analytics","/systemHealth","/user_reviews","/usermanagement","/signup","/dashboard","/profile"];
+  const hideSidebarPaths = ["/", "/welcome", "/signin","/landing_page"];
+  const hideChatInputPaths = ["/","/signin", "/welcome","/analytics","/systemHealth","/user_reviews","/usermanagement",,"/landing_page","/signup","/dashboard","/profile"];
 
   const showSidebar = !hideSidebarPaths.includes(pathname);
-  const hideProfileMenuPaths = ["/", "/welcome", "/signin"];
+  const hideProfileMenuPaths = ["/", "/welcome", "/signin","/landing_page"];
   const showProfileMenu = !hideProfileMenuPaths.includes(pathname);
   const showChatInput = !hideChatInputPaths.includes(pathname);
 
