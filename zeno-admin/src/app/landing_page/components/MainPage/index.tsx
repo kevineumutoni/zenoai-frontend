@@ -1,11 +1,11 @@
 'use client';
 import Image from "next/image";
-import ChatInput from "../../sharedComponents/ChatInput";
-import { Run } from "../../utils/types/runs";
+import ChatInput from "../../../sharedComponents/ChatInput";
+import { Run } from "../../../utils/types/runs";
 
 
 type DashboardMainProps = {
- onRunCreated: (run: Run) => void;
+ onRunCreated?: (run: Run) => void;
 };
 
 

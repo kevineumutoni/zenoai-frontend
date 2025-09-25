@@ -7,7 +7,7 @@ jest.mock('next/image', () => {
   };
 });
 
-jest.mock('../../sharedComponents/ChatInput', () => {
+jest.mock('../../../sharedComponents/ChatInput', () => {
   return ({ onRunCreated }: { onRunCreated: () => void }) => (
     <button
       data-testid="mock-chat-submit"
