@@ -5,14 +5,15 @@ import ChatMessage from "../ChatMessageCard";
 import FeedbackButtons from "../FeedbackButtons";
 import ChatArtifactRenderer from "./components/ArtifactRender";
 import Image from "next/image";
-import type { ChatMessagesProps } from "../../../utils/types/chat";
-import type { RunLike } from "../../../hooks/usepostRuns";
+import type { ChatMessagesProps , Run} from "../../../utils/types/chat";
 
 export default function ChatMessages({
   runs,
   onRetry,
   userId,
 }: ChatMessagesProps) {
+  console.log("Rendering ChatMessages with runs:", runs);
+
   const bottomRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -23,36 +24,38 @@ export default function ChatMessages({
 
   return (
     <div className="flex-1 overflow-y-auto p-6 space-y-6 w-[50vw] ml-110 scrollbar-hide">
-      {runs.map((run: RunLike) => (
+      {runs.map((run) => (
         <div key={run.id} className="space-y-3">
-          {run.files && run.files.length > 0 && (
-            <div className="flex flex-wrap gap-2 justify-end">
-              {run.files.map((file: File, idx: number) => (
-                <div
-                  key={idx}
-                  className="bg-[#9FF8F8] text-black rounded-xl p-2 max-w-[60%]"
-                >
-                  {file.type.startsWith("image/") ? (
-                    <img
-                      src={URL.createObjectURL(file)}
-                      alt={file.name}
-                      className="max-h-32 rounded-lg"
-                      onLoad={(e) =>
-                        URL.revokeObjectURL((e.target as HTMLImageElement).src)
-                      }
-                    />
-                  ) : (
-                    <span className="text-sm">{file.name}</span>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
+          {/* User message */}
+          <ChatMessage role="user" text={run.user_input} />
 
-          {run.user_input && <ChatMessage role="user" text={run.user_input} />}
+          {/* ✅ File Previews (if any) */}
+        {run.files && run.files.length > 0 && (
+  <div className="flex flex-wrap gap-3 ml-auto max-w-[60%]">
+    {run.files.map((file: File, idx: number) => (
+      <div
+        key={idx}
+        className="bg-gray-100 text-gray-900 p-2 rounded-xl text-sm shadow-md flex flex-col items-center"
+      >
+        {file.type.startsWith("image/") ? (
+          <img
+            src={URL.createObjectURL(file)}
+            alt={file.name}
+            className="w-24 h-24 object-cover rounded-md"
+          />
+        ) : (
+          <span className="truncate max-w-[150px]">{file.name}</span>
+        )}
+      </div>
+    ))}
+  </div>
+)}
 
+
+          {/* Agent loading */}
           {run.status === "pending" && <ChatMessage role="agent" loading />}
 
+          {/* Agent response */}
           {run.status === "completed" && (
             <div>
               <div className="flex items-center space-x-2 mb-2">
@@ -92,6 +95,7 @@ export default function ChatMessages({
             </div>
           )}
 
+          {/* Failed message */}
           {run.status === "failed" && (
             <div className="flex items-center gap-2">
               <span className="text-red-500">Failed to send</span>

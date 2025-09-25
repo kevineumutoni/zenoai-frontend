@@ -55,7 +55,6 @@ export default function ChatInput({ onRunCreated,conversationId,user }: ChatInpu
     );
   };
 
-
 const { sendMessage } = useRuns(user);
 
 const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -70,12 +69,16 @@ const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
   if (!input.trim() && files.length === 0) return;
 
   setIsLoading(true);
+
+
   try {
-    await sendMessage({
+    const run = await sendMessage({
       conversationId: conversationId ?? null,
       userInput: input.trim(),
-      files,
+      files: files.length > 0 ? files : [],
     });
+
+    if (onRunCreated) onRunCreated(run);
 
     setInput("");
     setFiles([]);
@@ -85,6 +88,9 @@ const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     setIsLoading(false);
   }
 };
+
+
+
 
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {

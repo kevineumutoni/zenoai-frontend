@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { createRun, fetchRunById } from "../utils/postRuns";
 
 export interface RunLike {
-  id: string | number;
+  id: number | string; // keep union because tempId is a string
   user_input: string;
   status: string;
   final_output: string | null;
@@ -33,7 +33,6 @@ export function useRuns(user?: { id: number; token: string }) {
       output_artifacts: run.output_artifacts ?? [],
       started_at: run.started_at ?? new Date().toISOString(),
       error: run.error,
-      files: run.files ?? [], // ensure array
     };
   }
 
@@ -48,12 +47,14 @@ export function useRuns(user?: { id: number; token: string }) {
   }): Promise<RunLike> {
     const tempId = `temp-${Date.now()}`;
 
-    // :eyes: Add optimistic run
+    const displayInput =
+      files.length > 0 ? files.map((f) => f.name).join(", ") : userInput;
+
     setRuns((prev) => [
       ...prev,
       {
         id: tempId,
-        user_input: userInput,
+        user_input: displayInput,
         status: "pending",
         final_output: null,
         output_artifacts: [],
@@ -64,24 +65,28 @@ export function useRuns(user?: { id: number; token: string }) {
     ]);
 
     try {
-      const backendRun = normalizeRun(
-        await createRun(conversationId ?? null, userInput, user?.token, files)
+      const backendRun = await createRun(
+        conversationId ?? null,
+        userInput,
+        user?.token,
+        files
       );
+
+      const normalized = normalizeRun(backendRun);
 
       setRuns((prev) =>
         prev.map((r) =>
-          r.id === tempId
-            ? { ...backendRun, files: r.files } // :white_check_mark: Keep optimistic files
-            : r
+          r.id === tempId ? { ...normalized, files: r.files } : r
         )
       );
 
       const runId = Number(backendRun.id);
       if (!isNaN(runId)) startPolling(runId);
 
-      return { ...backendRun, files };
+      return normalized;
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Unknown error";
+      const message =
+        err instanceof Error ? err.message : "Unknown error occurred";
 
       setRuns((prev) =>
         prev.map((r) =>
@@ -96,30 +101,28 @@ export function useRuns(user?: { id: number; token: string }) {
   function startPolling(runId: number) {
     if (pollingRef.current.has(runId)) return;
 
-    const id = window.setInterval(async () => {
+    const intervalId = window.setInterval(async () => {
       try {
         const updated = normalizeRun(await fetchRunById(runId, user?.token));
 
         setRuns((prev) =>
           prev.map((r) =>
-            r.id === runId
-              ? { ...r, ...updated, files: r.files } // :white_check_mark: Preserve files
-              : r
+            Number(r.id) === runId ? { ...r, ...updated, files: r.files } : r
           )
         );
 
         if (["completed", "failed"].includes(updated.status)) {
-          clearInterval(id);
+          clearInterval(intervalId);
           pollingRef.current.delete(runId);
         }
       } catch (err) {
         console.error("[useRuns] Polling failed for run", runId, err);
-        clearInterval(id);
+        clearInterval(intervalId);
         pollingRef.current.delete(runId);
       }
     }, 2000);
 
-    pollingRef.current.set(runId, id);
+    pollingRef.current.set(runId, intervalId);
   }
 
   function clearRuns() {
