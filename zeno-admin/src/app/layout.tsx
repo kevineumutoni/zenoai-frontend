@@ -13,7 +13,6 @@ const teachers = Teachers({
   weight: ["400", "700"],
   variable: "--font-teachers",
 });
-
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const { user, loading, error } = useFetchAdmins();
   const pathname = usePathname();
