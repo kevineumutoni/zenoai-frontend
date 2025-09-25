@@ -1,4 +1,3 @@
-
 import WelcomePage from "./welcome/page";
 import TeaserScreen from "./teaser/teaserScreen";
 

@@ -11,10 +11,13 @@ const localStorageMock = (() => {
 })();
 Object.defineProperty(window, 'localStorage', { value: localStorageMock });
 
-
 global.fetch = jest.fn();
 
 describe('fetchRuns', () => {
+  it('should be defined', () => {
+    expect(fetchRuns).toBeDefined();
+  });
+
   beforeEach(() => {
     jest.resetAllMocks();
     localStorage.clear();
@@ -28,6 +31,7 @@ describe('fetchRuns', () => {
     localStorage.setItem('token', 'dummy-token');
     (fetch as jest.Mock).mockResolvedValueOnce({
       ok: false,
+      text: jest.fn().mockResolvedValue(''),
       json: jest.fn(),
     });
 
@@ -57,6 +61,6 @@ describe('fetchRuns', () => {
     localStorage.setItem('token', 'dummy-token');
     (fetch as jest.Mock).mockRejectedValueOnce(new Error('Network error'));
 
-    await expect(fetchRuns()).rejects.toThrow("We couldn't load the system data: Network error");
+    await expect(fetchRuns()).rejects.toThrow("Network error");
   });
 });

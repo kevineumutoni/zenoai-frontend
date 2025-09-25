@@ -25,9 +25,8 @@ const useFetchCurrentAdmin = () => {
       const userData = await fetchCurrentAdmin();
       setUser({
         ...userData,
-        id: userData.id 
-        // ?? userData.user_id,
-        // user_id: userData.user_id ?? userData.id,
+        id: userData.id
+        
       });
       setError(null);
     } catch (error) {
@@ -45,7 +44,7 @@ const useFetchCurrentAdmin = () => {
       setUser({
         ...updatedUser,
         id: updatedUser.id
-        // user_id: updatedUser.user_id ?? updatedUser.id,
+
       });
       setError(null);
       return updatedUser;

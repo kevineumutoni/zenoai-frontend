@@ -17,19 +17,48 @@ const AnalyticsPage: React.FC = () => {
     setDateRange({ start, end });
   };
 
-  if (isLoading) return <div className="text-white text-center p-6">Loading analytics data...</div>;
-  if (error) return <div className="text-red-500 text-center p-6">{error}</div>;
-  if (!steps) return <div className="text-white text-center p-6">No data available</div>;
+  if (isLoading) {
+    return (
+      <section className="min-h-screen w-full flex items-center justify-center">
+        <div className="flex flex-col items-center justify-center">
+          <div className="rounded-full h-12 w-12 border-t-2 border-b-2 border-cyan-500 mb-4 animate-spin"></div>
+          <p className="text-[#A1B1D6] text-base">Loading analytics data...</p>
+        </div>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section className="min-h-screen w-full flex items-center justify-center">
+        <div className="flex flex-col items-center justify-center">
+          <div className="bg-red-600 text-white p-4 rounded-lg mb-4">
+            <h2 className="text-lg font-bold mb-2">Error</h2>
+            <p>{error}</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (!steps) {
+    return (
+      <section className="min-h-screen w-full flex items-center justify-center">
+        <div className="flex flex-col items-center justify-center">
+          <div className="text-white text-base">No data available</div>
+        </div>
+      </section>
+    );
+  }
 
   return (
-    <section className="my-18 mx-5 lg:mx-40 ">
+    <section className="my-16 lg:mx-29 ">
       <div className=" mb-10">
-        <h2 className="text-xl md:text-2xl lg:text-5xl font-bold text-white">Usage Analytics</h2>
-        <p className="text-2xl text-teal-400 my-5 ">Agent and Module Usage</p>
-        <div className='flex justify-end mt-25'>
+        <h2 className="text-3xl md:text-4xl sm:text-[50px] xl:text-[50px] 2xl:font-semibold text-[#9FF8F8] ">Usage Analytics</h2>
+        <p className="sm:text-[24px] lg:text-[20px] xl:text-[34px] my-5 ">Agent and Module Usage</p>
+        <div className='flex justify-end mt-2'>
           <CalendarDropdown onDateChange={handleDateChange} />
         </div>
-        
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <AnalyticsBarChartCard steps={steps} dateRange={dateRange} />

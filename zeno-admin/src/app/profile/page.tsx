@@ -25,7 +25,7 @@ const ProfilePage = () => {
   useEffect(() => {
     if (user) {
       setFormData({
-        role: 'Admin',
+        role: user.role,
         first_name: user.first_name || user.firstName || '',
         last_name: user.last_name || user.lastName || '',
         email: user.email || '',
@@ -43,7 +43,7 @@ const ProfilePage = () => {
     setStatus(null);
     if (user) {
       setFormData({
-        role: 'Admin',
+        role: user.role,
         first_name: user.first_name || user.firstName || '',
         last_name: user.last_name || user.lastName || '',
         email: user.email || '',
@@ -65,6 +65,7 @@ const ProfilePage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
+    console.log("User object in handleSubmit:", user);
 
     if (!formData.password || formData.password.trim() === '') {
       setStatus('Password is required to update the profile.');
@@ -73,7 +74,7 @@ const ProfilePage = () => {
 
     try {
       const snakeCaseData: any = {
-        role: formData.role ?? user.role ?? 'Admin',
+        role: formData.role ?? user.role,
         first_name: formData.first_name ?? user.first_name ?? user.firstName ?? '',
         last_name: formData.last_name ?? user.last_name ?? user.lastName ?? '',
         email: formData.email ?? user.email ?? '',
@@ -87,7 +88,7 @@ const ProfilePage = () => {
         const updatedUser = await updateAdmin(safeId, snakeCaseData);
 
         setFormData({
-          role: updatedUser.role || 'Admin',
+          role: updatedUser.role,
           first_name: updatedUser.first_name || '',
           last_name: updatedUser.last_name || '',
           email: updatedUser.email || '',
@@ -121,6 +122,7 @@ const ProfilePage = () => {
     );
   }
 
+  
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8">
@@ -142,14 +144,14 @@ const ProfilePage = () => {
 
   if (!user) {
     return (
-      <div className="min-h-screen w-full flex items-center justify-center px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen w-full flex items-center justify-center px-4 sm:px-6 lg:px-8 lg:py-1">
         <div className="text-white text-base sm:text-lg">User not found</div>
       </div>
     );
   }
 
   return (
-    <div className="relative overflow-hidden bg-cover bg-center -mt-4 sm:-mt-6 lg:-mt-8">
+    <div className="relative overflow-hidden bg-cover xl:mt-20 lg:mt- 2xl:mt-40 bg-center -mt-4 sm:-mt-6 lg:-mt-8">
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <header className="mt-8 sm:mt-12 flex flex-col sm:flex-row justify-between items-center mb-4 sm:mb-6 lg:mb-8">
           <div className="text-center sm:text-left">
