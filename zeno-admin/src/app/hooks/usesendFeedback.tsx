@@ -1,14 +1,13 @@
+
 import { useState } from "react";
 import { sendFeedback } from "../utils/sendfeedback";
 
 export function useSendFeedback() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
+  const [success, setSuccess] = useState<string | null>(null);
 
   async function submitFeedback(options: {
-    responseId?: string;
-    responseText?: string;
     feedbackType: "like" | "dislike";
     comment?: string;
     userId: number;
@@ -16,14 +15,14 @@ export function useSendFeedback() {
   }) {
     setLoading(true);
     setError(null);
-    setSuccess(false);
+    setSuccess(null);
     try {
-      await sendFeedback(options);
-      setSuccess(true);
-      return true;
-    } catch (err) {
-      setError((err as Error).message || "Failed to send feedback");
-      return false;
+      const response = await sendFeedback(options);
+      setSuccess("Feedback submitted successfully");
+      return response;
+    } catch (err: any) {
+      setError(err.message || "Failed to send feedback");
+      return null;
     } finally {
       setLoading(false);
     }
@@ -31,7 +30,7 @@ export function useSendFeedback() {
 
   function clear() {
     setError(null);
-    setSuccess(false);
+    setSuccess(null);
   }
 
   return { submitFeedback, loading, error, success, clear };

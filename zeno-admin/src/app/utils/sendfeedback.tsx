@@ -1,18 +1,18 @@
 export async function sendFeedback({
-  responseId,
-  responseText,
   feedbackType,
   comment,
   userId,
   token,
 }: {
-  responseId?: string;
-  responseText?: string;
   feedbackType: "like" | "dislike";
   comment?: string;
   userId: number;
   token?: string;
 }) {
+  if (!comment || !comment.trim()) {
+    throw new Error("Review cannot be empty");
+  }
+
   try {
     const res = await fetch("/api/feedback", {
       method: "POST",
@@ -20,7 +20,11 @@ export async function sendFeedback({
         "Content-Type": "application/json",
         ...(token ? { Authorization: `Token ${token}` } : {}),
       },
-      body: JSON.stringify({ responseId, responseText, feedbackType, comment, userId }),
+      body: JSON.stringify({
+        review_text: comment.trim(),
+        rating: feedbackType === "like" ? 1 : 0,
+        user: userId,
+      }),
     });
 
     const data = await res.json().catch(() => ({}));

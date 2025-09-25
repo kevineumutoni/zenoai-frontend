@@ -2,7 +2,7 @@ import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import UsersTable from ".";
 
-jest.mock("../../../hooks/usefetchUsers", () => ({
+jest.mock("../../../hooks/usefetchUsersUtils", () => ({
   useUsers: jest.fn(),
 }));
 

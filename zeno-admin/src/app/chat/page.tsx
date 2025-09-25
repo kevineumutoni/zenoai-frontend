@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useRef } from "react";
-import ChatHeader from "./components/ChatHeader";
 import ChatMessages from "./components/ChatMessages";
 import ChatInputWrapper from "./components/ChatInputWrapper";
 import { useConversation } from "../hooks/usepostConversations";
@@ -15,11 +14,11 @@ export default function ChatPage() {
     ? { id: Number(localStorage.getItem("userId")), token }
     : null;
 
-  const { conversationId, resetConversation } = useConversation(
+  const { conversationId } = useConversation(
     user?.id,
     user?.token
   );
-  const { runs, sendMessage, clearRuns } = useRuns(user ?? undefined);
+  const { runs, sendMessage } = useRuns(user ?? undefined);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -30,12 +29,7 @@ export default function ChatPage() {
       <div className="absolute inset-0 " />
 
       <div className="relative flex flex-col h-full bg-transparent">
-        <ChatHeader
-          onNewChat={() => {
-            resetConversation();
-            clearRuns();
-          }}
-        />
+       
 
         <ChatMessages
           runs={runs}
@@ -48,14 +42,15 @@ export default function ChatPage() {
           }
         />
 
-        <div ref={messagesEndRef} />
+        <div ref={messagesEndRef} className="ml-460 " />
 
         {user && (
           <ChatInputWrapper
             conversationId={conversationId}
-            user={user}
-            sendMessage={sendMessage} 
+            user={user} 
+            sendMessage={sendMessage}
           />
+
         )}
       </div>
     </div>

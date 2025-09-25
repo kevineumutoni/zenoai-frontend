@@ -1,14 +1,6 @@
 "use client";
+import type { ChatMessageProps } from "../../../utils/types/chat";
 
-type ChatMessageProps = {
-  role: "user" | "agent";
-  text?: string;
-  artifactType?: "text" | "chart" | "table";
-  artifactData?: any;
-  loading?: boolean;
-  runId?: string | number;
-  userId?: number;
-};
 
 export default function ChatMessage({
   role,
@@ -21,22 +13,16 @@ export default function ChatMessage({
 
   return (
     <div
-      className={`flex w-full ${
-        isAgent ? "justify-start" : "justify-end"
-      }`} // ✅ Align based on role
-    >
+      className={`flex w-full ${isAgent ? "justify-start" : "justify-end"  }`} >
       <div
         className={`max-w-[60%] text-[18px] p-3 rounded-2xl shadow-md break-words whitespace-pre-wrap ${
-          isAgent
-            ? "bg-[#131F36] text-gray-200" // agent left
-            : "bg-[#39b4b4] text-black" // user right
-        }`}
+          isAgent ? "bg-[#131F36] text-gray-200" : "bg-[#9FF8F8] text-black "  }`}
       >
         {loading ? (
           <span className="flex space-x-1">
-            <span className="w-2 h-2 bg-gray-300 rounded-full animate-bounce [animation-delay:-0.3s]" />
-            <span className="w-2 h-2 bg-gray-300 rounded-full animate-bounce [animation-delay:-0.15s]" />
-            <span className="w-2 h-2 bg-gray-300 rounded-full animate-bounce" />
+            <span role="presentation" className="w-2 h-2 bg-gray-300 rounded-full animate-bounce [animation-delay:-0.3s]" />
+            <span role="presentation" className="w-2 h-2 bg-gray-300 rounded-full animate-bounce [animation-delay:-0.15s]" />
+            <span  role="presentation" className="w-2 h-2 bg-gray-300 rounded-full animate-bounce" />
           </span>
         ) : artifactType === "text" ? (
           <p>{text}</p>

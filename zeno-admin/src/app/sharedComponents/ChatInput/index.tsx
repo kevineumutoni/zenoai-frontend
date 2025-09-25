@@ -2,9 +2,6 @@
 
 import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react';
 import { FaPaperclip, FaCamera, FaTimes, FaFilePdf, FaFileAlt } from 'react-icons/fa';
-import { postRun } from '../../utils/fetchRuns';
-import { Run } from '../../utils/types/runs';
-import { createRun } from '../../utils/postRuns';
 import { RunLike, useRuns } from '../../hooks/usepostRuns';
 interface ChatInputProps {
   onRunCreated: (run: RunLike) => void;
@@ -58,28 +55,36 @@ export default function ChatInput({ onRunCreated,conversationId,user }: ChatInpu
     );
   };
 
+
 const { sendMessage } = useRuns(user);
 
 const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
   e.preventDefault();
-  if(isLoading) return;
+
+  if (!user?.token) {
+    alert("You must be logged in to send a message.");
+    return;
+  }
+
+  if (isLoading) return;
   if (!input.trim() && files.length === 0) return;
+
   setIsLoading(true);
   try {
-    const run = await sendMessage({
-      conversationId,
+    await sendMessage({
+      conversationId: conversationId ?? null,
       userInput: input.trim(),
       files,
     });
 
-   if (onRunCreated) onRunCreated(run);
-    setInput('');
+    setInput("");
     setFiles([]);
+  } catch (err) {
+    console.error(err);
   } finally {
     setIsLoading(false);
   }
 };
-
 
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -143,9 +148,9 @@ const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
           onClick={() => document.getElementById('file-upload')?.click()}
           disabled={isLoading}
           title="Upload File"
-          className="text-cyan-400 hover:text-cyan-300 transition-colors rounded-full p-2 mr-1"
+          className="text-cyan-400 hover:text-cyan-300 transition-colors rounded-full p-2 mr-1 cursor-pointer"
         >
-          <FaPaperclip size={18} />
+          <FaPaperclip size={18}  />
         </button>
 
         <button
@@ -165,7 +170,7 @@ const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
           }}
           disabled={isLoading}
           title="Take Photo"
-          className="text-cyan-400 hover:text-cyan-300 transition-colors rounded-full p-2"
+          className="text-cyan-400 hover:text-cyan-300 transition-colors rounded-full p-2 cursor-pointer"
         >
           <FaCamera size={18} />
         </button>
@@ -201,7 +206,7 @@ const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         <button
           type="submit"
           disabled={isLoading || (!input.trim() && files.length === 0)}
-          className="mr-2 bg-cyan-500 rotate-45 hover:bg-cyan-400 text-white p-2 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="mr-2 bg-cyan-500 rotate-45 hover:bg-cyan-400 text-white p-2 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           title="Send"
         >
           {isLoading ? (

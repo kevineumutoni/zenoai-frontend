@@ -7,7 +7,10 @@ export async function POST(req: NextRequest) {
     const token = req.headers.get("authorization");
 
     if (!token) {
-      return NextResponse.json({ message: "Missing authorization token" }, { status: 401 });
+      return NextResponse.json(
+        { message: "Missing authorization token" },
+        { status: 401 }
+      );
     }
 
     const res = await fetch(`${BASE_URL}/reviews/`, {
@@ -17,14 +20,18 @@ export async function POST(req: NextRequest) {
         Authorization: token,
       },
       body: JSON.stringify({
-        review_text: body.comment ?? body.responseText ?? "",
-        rating: body.feedbackType === "like" ? 1 : 0,
-        user: body.userId,
+        review_text: body.review_text ?? "",
+        rating: body.rating,
+        user: body.user,
       }),
     });
 
     let data: any = {};
-    try { data = await res.json(); } catch { data = {}; }
+    try {
+      data = await res.json();
+    } catch {
+      data = {};
+    }
 
     if (!res.ok) {
       console.error("Backend feedback error:", data);

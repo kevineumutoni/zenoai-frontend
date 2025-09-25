@@ -2,27 +2,20 @@
 
 import { BarChart, LineChart, PieChart } from "@mui/x-charts";
 import { Typography } from "@mui/material";
+import type { TableData } from "../../../../../utils/types/chat";
+import type { ArtifactRendererProps } from "../../../../../utils/types/chat";
 
-type ChartData = {
+
+export  type ChartData = {
   x: (string | number)[];
   y: number[];
   title?: string;
   chart_type?: "bar" | "line" | "pie";
 };
 
-type TableData = {
-  columns?: string[];
-  rows?: (string | number)[][];
-  x?: (string | number)[];
-  y?: (string | number)[];
-  title?: string;
-};
 
-type ArtifactRendererProps = {
-  artifactType: "chart" | "table" | "text";
-  artifactData: ChartData | TableData;
-  text?: string;
-};
+
+
 
 export default function ChatArtifactRenderer({
   artifactType,
@@ -95,7 +88,7 @@ function ChartRenderer({ data }: { data: ChartData }) {
         )}
 
         {chartType === "line" && (
-          <div className="bg-white rounded-xl">
+          <div className=" bg-[#dbe4e4] ">
             <LineChart
               xAxis={[{ data: chartData.map((d) => d.label) }]}
               series={[
@@ -134,7 +127,7 @@ function TableRenderer({ data }: { data: TableData }) {
   if (data?.x && data?.y) {
     return (
       <div className="">
-        <div className="bg-wh rounded-2xl shadow p-4 max-w-[500px] overflow-x-auto">
+        <div className="rounded-2xl shadow p-4 max-w-[500px] overflow-x-auto">
           {data.title && (
             <p className="mb-2 text-blue-600 font-medium">{data.title}</p>
           )}
@@ -163,9 +156,9 @@ function TableRenderer({ data }: { data: TableData }) {
 
   return (
     <div className="">
-      <div className="bg-white rounded-2xl shadow p-4 max-w-[480px]  text-black overflow-x-auto">
+      <div className="  shadow p-4 max-w-[480px]    overflow-x-auto">
         <table className="w-full text-left text-sm">
-          <thead>
+          <thead className="bg-[#020a18]">
             <tr>
               {data.columns.map((col, idx) => (
                 <th key={idx} className="border-b font-bold p-1">

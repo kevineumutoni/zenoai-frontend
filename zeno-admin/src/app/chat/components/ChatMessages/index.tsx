@@ -1,34 +1,61 @@
 "use client";
 
-import ChatMessage from "../ChatMessage";
+import { useEffect, useRef } from "react";
+import ChatMessage from "../ChatMessageCard";
 import FeedbackButtons from "../FeedbackButtons";
 import ChatArtifactRenderer from "./components/ArtifactRender";
 import Image from "next/image";
-
-type ChatMessagesProps = {
-  runs: any[];
-  onRetry?: (run: any) => void;
-  userId?: number;
-};
+import type { ChatMessagesProps } from "../../../utils/types/chat";
+import type { RunLike } from "../../../hooks/usepostRuns";
 
 export default function ChatMessages({
   runs,
   onRetry,
   userId,
 }: ChatMessagesProps) {
-  console.log("Rendering ChatMessages with runs:", runs);
+  const bottomRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (bottomRef.current) {
+      bottomRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [runs]);
 
   return (
-    <div className="flex-1 overflow-y-auto p-6 space-y-6 w-[50vw] ml-120   scrollbar-hide">
-      {runs.map((run) => (
+    <div className="flex-1 overflow-y-auto p-6 space-y-6 w-[50vw] ml-110 scrollbar-hide">
+      {runs.map((run: RunLike) => (
         <div key={run.id} className="space-y-3">
-          <ChatMessage role="user" text={run.user_input} />
+          {run.files && run.files.length > 0 && (
+            <div className="flex flex-wrap gap-2 justify-end">
+              {run.files.map((file: File, idx: number) => (
+                <div
+                  key={idx}
+                  className="bg-[#9FF8F8] text-black rounded-xl p-2 max-w-[60%]"
+                >
+                  {file.type.startsWith("image/") ? (
+                    <img
+                      src={URL.createObjectURL(file)}
+                      alt={file.name}
+                      className="max-h-32 rounded-lg"
+                      onLoad={(e) =>
+                        URL.revokeObjectURL((e.target as HTMLImageElement).src)
+                      }
+                    />
+                  ) : (
+                    <span className="text-sm">{file.name}</span>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {run.user_input && <ChatMessage role="user" text={run.user_input} />}
 
           {run.status === "pending" && <ChatMessage role="agent" loading />}
 
           {run.status === "completed" && (
-            <div className="space-y-3">
-              <div className="flex items-center space-x-2">
+            <div>
+              <div className="flex items-center space-x-2 mb-2">
                 <Image
                   src="/images/zeno-logo-icon.png"
                   alt="Zeno AI Logo"
@@ -56,11 +83,10 @@ export default function ChatMessages({
                 />
               ))}
 
-              <div className="mt-2 flex">
+              <div className="flex">
                 <FeedbackButtons
-                  responseId={String(run.id)}
-                  responseText={run.final_output || ""}
                   userId={userId ?? 0}
+                  textToCopy={run.final_output || ""}
                 />
               </div>
             </div>
@@ -81,6 +107,7 @@ export default function ChatMessages({
           )}
         </div>
       ))}
+      <div ref={bottomRef} />
     </div>
   );
 }

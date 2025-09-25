@@ -24,8 +24,17 @@ export function useRuns(user?: { id: number; token: string }) {
     };
   }, []);
 
-  function normalizeRun(run: RunLike): RunLike {
-    return { ...run, status: run.status?.toLowerCase() };
+  function normalizeRun(run: Partial<RunLike>): RunLike {
+    return {
+      id: run.id ?? `unknown-${Date.now()}`,
+      user_input: run.user_input ?? "",
+      status: run.status?.toLowerCase() ?? "pending",
+      final_output: run.final_output ?? null,
+      output_artifacts: run.output_artifacts ?? [],
+      started_at: run.started_at ?? new Date().toISOString(),
+      error: run.error,
+      files: run.files ?? [], // ensure array
+    };
   }
 
   async function sendMessage({
@@ -36,9 +45,10 @@ export function useRuns(user?: { id: number; token: string }) {
     conversationId?: string | null;
     userInput: string;
     files?: File[];
-  }): Promise<RunLike> { 
+  }): Promise<RunLike> {
     const tempId = `temp-${Date.now()}`;
 
+    // :eyes: Add optimistic run
     setRuns((prev) => [
       ...prev,
       {
@@ -58,18 +68,27 @@ export function useRuns(user?: { id: number; token: string }) {
         await createRun(conversationId ?? null, userInput, user?.token, files)
       );
 
-      setRuns((prev) => prev.map((r) => (r.id === tempId ? backendRun : r)));
-      startPolling(Number(backendRun.id));
-
-      return backendRun; 
-    } catch (err) {
       setRuns((prev) =>
         prev.map((r) =>
           r.id === tempId
-            ? { ...r, status: "failed", error: (err as Error).message }
+            ? { ...backendRun, files: r.files } // :white_check_mark: Keep optimistic files
             : r
         )
       );
+
+      const runId = Number(backendRun.id);
+      if (!isNaN(runId)) startPolling(runId);
+
+      return { ...backendRun, files };
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Unknown error";
+
+      setRuns((prev) =>
+        prev.map((r) =>
+          r.id === tempId ? { ...r, status: "failed", error: message } : r
+        )
+      );
+
       throw err;
     }
   }
@@ -80,15 +99,21 @@ export function useRuns(user?: { id: number; token: string }) {
     const id = window.setInterval(async () => {
       try {
         const updated = normalizeRun(await fetchRunById(runId, user?.token));
+
         setRuns((prev) =>
-          prev.map((r) => (r.id === runId ? { ...r, ...updated } : r))
+          prev.map((r) =>
+            r.id === runId
+              ? { ...r, ...updated, files: r.files } // :white_check_mark: Preserve files
+              : r
+          )
         );
 
         if (["completed", "failed"].includes(updated.status)) {
           clearInterval(id);
           pollingRef.current.delete(runId);
         }
-      } catch {
+      } catch (err) {
+        console.error("[useRuns] Polling failed for run", runId, err);
         clearInterval(id);
         pollingRef.current.delete(runId);
       }
