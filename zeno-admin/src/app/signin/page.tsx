@@ -5,6 +5,24 @@ import { useFetchLogin } from '../hooks/useFetchLogin';
 import MailOutlineIcon from '@mui/icons-material/MailOutline';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
+import VisibilityOffOutlinedIcon from '@mui/icons-material/VisibilityOffOutlined';
+
+function getFriendlyErrorMessage(error: any) {
+  if (!error) return null;
+  if (typeof error === 'string') {
+    if (error.includes('Invalid credentials')) {
+      return 'The email or password you entered is incorrect.';
+    }
+    return error;
+  }
+  if (error.message && error.message.includes('Invalid credentials')) {
+    return 'The email or password you entered is incorrect.';
+  }
+  if (error?.error && error.error === 'Invalid credentials') {
+    return 'The email or password you entered is incorrect.';
+  }
+  return 'An unknown error occurred. Please try again.';
+}
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -17,14 +35,31 @@ export default function LoginPage() {
     e.preventDefault();
     const result = await login(email, password);
     if (result && !error) {
-      router.push('/profile');
+      if (result.role === 'Admin') {
+        router.push('/dashboard');
+      } else if (result.role === 'User') {
+        router.push('/profile');
+      } else {
+        alert('Unknown user role!');
+      }
     }
+  }
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen w-full flex items-center justify-center px-4">
+        <div className="text-center">
+          <div className="rounded-full h-12 w-12 border-t-2 border-b-2 border-cyan-500 mx-auto mb-4 animate-spin"></div>
+          <p className="text-white text-base">Loading...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-[url('/images/background.png')] bg-cover">
-      <div className="w-250 h-170 rounded-2xl flex flex-col items-center px-30 py-14 bg-black/0 border border-gray-600 shadow-lg shadow-gray-600">
-        <h2 className="text-[40px] font-bold text-cyan-200 mb-28 w-full text-left">Sign In</h2>
+      <div className="2xl:w-250 xl:w-150  xl:px-10 2xl:px-30  2xl:h-170  rounded-2xl flex flex-col items-center px-30 py-14 bg-black/0 border border-gray-600 shadow-lg shadow-gray-600">
+        <h2 className="2xl:text-[50px] lg:text-[30px] xl:text-[40px] lg:mb-10 xl:mb-10 font-bold text-cyan-200 2xl:mb-28 w-full text-left">Sign In</h2>
         <form onSubmit={handleSubmit} className="w-full flex flex-col gap-7">
           <div className="relative flex items-center border-b border-white/60">
             <MailOutlineIcon className="text-white mr-3 " />
@@ -47,8 +82,17 @@ export default function LoginPage() {
               placeholder="Password"
               required
             />
-            <button type="button" onClick={() => setShow(v => !v)}>
-              <VisibilityOutlinedIcon className="text-white" />
+            <button
+              type="button"
+              onClick={() => setShow(v => !v)}
+              tabIndex={-1}
+              aria-label={show ? "Hide password" : "Show password"}
+            >
+              {show ? (
+                <VisibilityOffOutlinedIcon className="text-white" />
+              ) : (
+                <VisibilityOutlinedIcon className="text-white" />
+              )}
             </button>
           </div>
           <div className="flex w-full justify-center">
@@ -57,12 +101,12 @@ export default function LoginPage() {
               disabled={isLoading || !email || !password}
               className="bg-cyan-200 w-100 text-[#0B182F] rounded-[10px] py-3 text-[22px] font-semibold  mt-2 transition-all flex justify-center"
             >
-              {isLoading ? 'Loading...' : 'Sign In'}
+              Sign In
             </button>
           </div>
           {error && (
-            <div className="text-red-400 text-center text-sm" data-testid="error-message">
-              {typeof error === 'string' ? error : error?.message}
+            <div className="text-red-400 text-center text-sm mt-2" data-testid="error-message">
+              {getFriendlyErrorMessage(error)}
             </div>
           )}
         </form>
