@@ -20,10 +20,7 @@ export async function fetchLogin(email: string, password: string) {
     if (result.token) {
       localStorage.setItem('token', result.token);
     }
-    if (result.user_id) {
-      localStorage.setItem('user_id', result.user_id.toString());
-      localStorage.setItem('id', result.user_id.toString()); 
-    }
+
     if (result.id) {
       localStorage.setItem('id', result.id.toString());
     }

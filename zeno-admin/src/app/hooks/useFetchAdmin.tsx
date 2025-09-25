@@ -44,7 +44,7 @@ const useFetchCurrentAdmin = () => {
       setUser({
         ...updatedUser,
         id: updatedUser.id
-      
+
       });
       setError(null);
       return updatedUser;

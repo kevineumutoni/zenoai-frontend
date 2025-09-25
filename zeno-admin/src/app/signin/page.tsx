@@ -30,8 +30,7 @@ export default function LoginPage() {
   const [show, setShow] = useState(false);
   const { login, isLoading, error } = useFetchLogin();
   const router = useRouter();
-
-  async function handleSubmit(e: React.FormEvent) { 
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const result = await login(email, password);
     if (result && !error) {

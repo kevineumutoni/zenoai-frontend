@@ -12,7 +12,6 @@ export function useFetchLogin() {
       const data = await fetchLogin(email, password);
       if (data && data.token) {
         localStorage.setItem('token', data.token);
-
         if (data.id) {
           localStorage.setItem('id', data.id.toString());
         }
