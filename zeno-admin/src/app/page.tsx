@@ -4,8 +4,7 @@ import TeaserScreen from "./teaser/teaserScreen";
 export default function Home() {
   return (
     <div >
-    {/* <WelcomePage/> */}
-    <TeaserScreen/>
+    <WelcomePage/>
     </div>
    
   );
