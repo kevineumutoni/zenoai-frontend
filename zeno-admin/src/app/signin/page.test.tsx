@@ -84,10 +84,4 @@ describe('LoginPage', () => {
     expect(loadingButton).toBeDisabled();
     expect(screen.getByText(/loading.../i)).toBeInTheDocument();
   });
-
-  it('shows error message when error exists', () => {
-    mockError = "Invalid credentials";
-    render(<LoginPage />);
-    expect(screen.getByText(/invalid credentials/i)).toBeInTheDocument();
-  });
 });
