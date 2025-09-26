@@ -1,24 +1,31 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { Conversation } from "../utils/types/runs";
+import { getConversationsWithRuns } from "../utils/fetchConversationWithRuns";
 
-export function useUserConversations(token: string) {
-  const [conversations, setConversations] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+export function useConversationsWithRuns(token?: string) {
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [selectedConversationId, setSelectedConversationId] = useState<number | null>(null);
 
-  const fetchConversations = () => {
-    setLoading(true);
-    fetch("http://127.0.0.1:8000/conversations/with_runs/", {
-      headers: { Authorization: `Token ${token}` },
-    })
-      .then(res => res.json())
-      .then(data => setConversations(data))
-      .catch(e => setError(e.message))
-      .finally(() => setLoading(false));
+  const fetchConvos = async () => {
+    if (!token) return;
+    try {
+      const data = await getConversationsWithRuns(token);
+      setConversations(data);
+      if (data.length > 0 && !selectedConversationId) {
+        setSelectedConversationId(data[0].conversation_id);
+      }
+    } catch (err) {}
   };
 
   useEffect(() => {
-    if (token) fetchConversations();
+    fetchConvos();
   }, [token]);
 
-  return { conversations, loading, error, refetch: fetchConversations };
+  return {
+    conversations,
+    selectedConversationId,
+    setSelectedConversationId,
+    fetchConvos,
+    setConversations,
+  };
 }
