@@ -2,20 +2,39 @@
 
 import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react';
 import { FaPaperclip, FaCamera, FaTimes, FaFilePdf, FaFileAlt } from 'react-icons/fa';
-import { RunLike, useRuns } from '../../hooks/usepostRuns';
-interface ChatInputProps {
-  onRunCreated: (run: RunLike) => void;
-  conversationId?: string | null;
-  user?: {id:number; token:string}
+import { RunLike } from '../../hooks/usepostRuns';
+
+interface FileWithPreview {
+  file: File;
+  previewUrl: string;
 }
 
-export default function ChatInput({ onRunCreated,conversationId,user }: ChatInputProps) {
+interface ChatInputProps {
+  conversationId?: string | null;
+  user?: { id: number; token: string };
+  sendMessage: (params: {
+    conversationId?: string | null;
+    userInput: string;
+    files?: File[];
+    filePreviews?: { file: File; previewUrl: string }[];
+  }) => Promise<RunLike>;
+}
+
+export default function ChatInput({ conversationId, user, sendMessage }: ChatInputProps) {
   const [input, setInput] = useState<string>('');
-  const [files, setFiles] = useState<File[]>([]);
+  const [filePreviews, setFilePreviews] = useState<FileWithPreview[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [cameraSupported, setCameraSupported] = useState<boolean>(true);
 
-  const renderFilePreview = (file: File, index: number) => {
+
+  useEffect(() => {
+    return () => {
+      filePreviews.forEach(item => URL.revokeObjectURL(item.previewUrl));
+    };
+  }, [filePreviews]);
+
+  const renderFilePreview = (item: FileWithPreview, index: number) => {
+    const { file, previewUrl } = item;
     const isImage = file.type.startsWith('image/');
 
     return (
@@ -25,7 +44,7 @@ export default function ChatInput({ onRunCreated,conversationId,user }: ChatInpu
       >
         {isImage ? (
           <img
-            src={URL.createObjectURL(file)}
+            src={previewUrl}
             alt={file.name}
             className="w-10 h-10 object-cover rounded-md border border-gray-600"
           />
@@ -42,9 +61,11 @@ export default function ChatInput({ onRunCreated,conversationId,user }: ChatInpu
         <button
           type="button"
           onClick={() => {
-            setFiles((currentFiles) =>
-              currentFiles.filter((file, fileIndex) => fileIndex !== index)
-            );
+            setFilePreviews((current) => {
+              const removed = current[index];
+              URL.revokeObjectURL(removed.previewUrl);
+              return current.filter((_, i) => i !== index);
+            });
           }}
           className="text-gray-400 hover:text-red-400 p-1 rounded-full transition-colors"
           aria-label="Remove file"
@@ -55,46 +76,38 @@ export default function ChatInput({ onRunCreated,conversationId,user }: ChatInpu
     );
   };
 
-const { sendMessage } = useRuns(user);
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
 
-const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-  e.preventDefault();
+    if (!user?.token) {
+      alert("You must be logged in to send a message.");
+      return;
+    }
 
-  if (!user?.token) {
-    alert("You must be logged in to send a message.");
-    return;
-  }
+    if (isLoading) return;
+    if (!input.trim() && filePreviews.length === 0) return;
 
-  if (isLoading) return;
-  if (!input.trim() && files.length === 0) return;
+    setIsLoading(true);
 
-  setIsLoading(true);
+    try {
+      await sendMessage({
+        conversationId: conversationId ?? null,
+        userInput: input.trim(),
+        files: filePreviews.length > 0 ? filePreviews.map(p => p.file) : [],
+        filePreviews: filePreviews.length > 0 ? filePreviews : undefined,
+      });
 
-
-  try {
-    const run = await sendMessage({
-      conversationId: conversationId ?? null,
-      userInput: input.trim(),
-      files: files.length > 0 ? files : [],
-    });
-
-    if (onRunCreated) onRunCreated(run);
-
-    setInput("");
-    setFiles([]);
-  } catch (err) {
-    console.error(err);
-  } finally {
-    setIsLoading(false);
-  }
-};
-
-
-
-
+      setInput("");
+      setFilePreviews([]);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const selectedFiles = Array.from(e.target.files ?? []) as File[];
+    const selectedFiles = Array.from(e.target.files ?? []);
     const validFiles = selectedFiles.filter((file) => {
       const isValidType = ['application/pdf', 'image/jpeg', 'image/png', 'text/plain'].includes(file.type);
       const isUnderLimit = file.size <= 10 * 1024 * 1024;
@@ -103,21 +116,29 @@ const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     if (validFiles.length !== selectedFiles.length) {
       alert('Some files are invalid. Only PDF, JPEG, PNG, or text files under 10MB are allowed.');
     }
-    setFiles((prev) => [...prev, ...validFiles]);
+    const newPreviews = validFiles.map(file => ({
+      file,
+      previewUrl: URL.createObjectURL(file)
+    }));
+    setFilePreviews(prev => [...prev, ...newPreviews]);
     e.target.value = '';
   };
 
   const handleCameraCapture = (e: ChangeEvent<HTMLInputElement>) => {
-    const selectedFiles = Array.from(e.target.files ?? []) as File[];
+    const selectedFiles = Array.from(e.target.files ?? []);
     const validFiles = selectedFiles.filter((file) => {
       const isValidType = file.type.startsWith('image/');
       const isUnderLimit = file.size <= 2 * 1024 * 1024;
       return isValidType && isUnderLimit;
     });
     if (validFiles.length !== selectedFiles.length) {
-      alert('Some images are invalid. Only JPEG or PNG files under 10MB are allowed from the camera.');
+      alert('Some images are invalid. Only JPEG or PNG files under 2MB are allowed from the camera.');
     }
-    setFiles((prev) => [...prev, ...validFiles]);
+    const newPreviews = validFiles.map(file => ({
+      file,
+      previewUrl: URL.createObjectURL(file)
+    }));
+    setFilePreviews(prev => [...prev, ...newPreviews]);
     e.target.value = '';
   };
 
@@ -139,9 +160,9 @@ const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
 
   return (
     <div className="w-full max-w-3xl mx-auto space-y-1">
-      {files.length > 0 && (
+      {filePreviews.length > 0 && (
         <div className="flex flex-wrap gap-2 px-4">
-          {files.map((file, index) => renderFilePreview(file, index))}
+          {filePreviews.map((item, index) => renderFilePreview(item, index))}
         </div>
       )}
 
@@ -156,7 +177,7 @@ const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
           title="Upload File"
           className="text-cyan-400 hover:text-cyan-300 transition-colors rounded-full p-2 mr-1 cursor-pointer"
         >
-          <FaPaperclip size={18}  />
+          <FaPaperclip size={18} />
         </button>
 
         <button
@@ -211,7 +232,7 @@ const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
 
         <button
           type="submit"
-          disabled={isLoading || (!input.trim() && files.length === 0)}
+          disabled={isLoading || (!input.trim() && filePreviews.length === 0)}
           className="mr-2 bg-cyan-500 rotate-45 hover:bg-cyan-400 text-white p-2 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           title="Send"
         >

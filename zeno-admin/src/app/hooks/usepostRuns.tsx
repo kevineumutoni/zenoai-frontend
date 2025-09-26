@@ -1,15 +1,20 @@
 import { useEffect, useRef, useState } from "react";
 import { createRun, fetchRunById } from "../utils/postRuns";
 
+export interface RunFile {
+  file: File;
+  previewUrl: string; 
+}
+
 export interface RunLike {
-  id: number | string; // keep union because tempId is a string
+  id: number | string;
   user_input: string;
   status: string;
   final_output: string | null;
   output_artifacts: any[];
   started_at: string;
   _optimistic?: boolean;
-  files?: File[];
+  files?: RunFile[]; 
   error?: string;
 }
 
@@ -40,12 +45,19 @@ export function useRuns(user?: { id: number; token: string }) {
     conversationId,
     userInput,
     files = [],
+    filePreviews, 
   }: {
     conversationId?: string | null;
     userInput: string;
     files?: File[];
+    filePreviews?: RunFile[];
   }): Promise<RunLike> {
     const tempId = `temp-${Date.now()}`;
+
+    const optimisticFiles = filePreviews ?? files.map(file => ({
+      file,
+      previewUrl: '',
+    }));
 
     const displayInput =
       files.length > 0 ? files.map((f) => f.name).join(", ") : userInput;
@@ -60,7 +72,7 @@ export function useRuns(user?: { id: number; token: string }) {
         output_artifacts: [],
         started_at: new Date().toISOString(),
         _optimistic: true,
-        files,
+        files: optimisticFiles, 
       },
     ]);
 
