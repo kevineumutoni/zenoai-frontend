@@ -13,6 +13,7 @@ export default function FeedbackButtons({
   const [feedbackType, setFeedbackType] = useState<"like" | "dislike" | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
+  const [copyError, setCopyError] = useState(false);
 
   const token =
     typeof window !== "undefined" ? localStorage.getItem("token") ?? "" : "";
@@ -26,9 +27,12 @@ export default function FeedbackButtons({
     try {
       await navigator.clipboard.writeText(textToCopy);
       setCopySuccess(true);
+      setCopyError(false);
       setTimeout(() => setCopySuccess(false), 2000);
-    } catch (err) {
-      console.error("Failed to copy text:", err);
+    } catch {
+      setCopyError(true);
+      setCopySuccess(false);
+      setTimeout(() => setCopyError(false), 2000);
     }
   };
 
@@ -59,9 +63,10 @@ export default function FeedbackButtons({
       </div>
 
       {copySuccess && (
-        <span className="text-sm text-[#9FF8F8] select-none">
-          Copied successfully!
-        </span>
+        <span className="text-sm text-[#9FF8F8] select-none">Copied successfully!</span>
+      )}
+      {copyError && (
+        <span className="text-sm text-red-400 select-none">Failed to copy</span>
       )}
 
       {showModal && feedbackType && (

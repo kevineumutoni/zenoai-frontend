@@ -13,12 +13,10 @@ export async function createRun(
     headers['Authorization'] = `Token ${token}`;
   }
 
-  if (files?.length) {
+  if (files && files.length > 0) {
     const formData = new FormData();
     formData.append('userInput', userInput);
-    if (conversationId) {
-      formData.append('conversationId', conversationId);
-    }
+    if (conversationId) formData.append('conversationId', conversationId);
     files.forEach(file => formData.append('files', file));
     body = formData;
   } else {
@@ -33,24 +31,14 @@ export async function createRun(
   });
 
   const contentType = response.headers.get('content-type') || '';
-  let data: any;
 
-  if (contentType.includes('application/json')) {
-    try {
-      data = await response.json();
-    } catch {
-      data = {};
-    }
-  } else {
-    const text = await response.text();
-    data = text ? { message: text } : {};
-  }
+  let data = contentType.includes('application/json') 
+    ? await response.json().catch(() => ({}))
+    : (await response.text()).trim() ? { message: await response.text() } : {};
 
   if (!response.ok) {
-    const errorMessage = 
-      data?.message || 
-      data?.detail || 
-      `Failed to create run (status ${response.status})`;
+    const errorMessage =
+      data?.message || data?.detail || `Failed to create run (status ${response.status})`;
     throw new Error(errorMessage);
   }
 
@@ -66,29 +54,16 @@ export async function fetchRunById(runId: number, token?: string): Promise<any> 
     headers['Authorization'] = `Token ${token}`;
   }
 
-  const response = await fetch(`${API_BASE}/run?id=${runId}`, {
-    headers,
-  });
+  const response = await fetch(`${API_BASE}/run?id=${runId}`, { headers });
 
   const contentType = response.headers.get('content-type') || '';
-  let data: any;
 
-  if (contentType.includes('application/json')) {
-    try {
-      data = await response.json();
-    } catch {
-      data = {};
-    }
-  } else {
-    const text = await response.text();
-    data = text ? { message: text } : {};
-  }
+  let data = contentType.includes('application/json') 
+    ? await response.json().catch(() => ({}))
+    : (await response.text()).trim() ? { message: await response.text() } : {};
 
   if (!response.ok) {
-    const errorMessage = 
-      data?.message || 
-      data?.detail || 
-      `Failed to fetch run (status ${response.status})`;
+    const errorMessage = data.message || `Failed to fetch run (status ${response.status})`;
     throw new Error(errorMessage);
   }
 

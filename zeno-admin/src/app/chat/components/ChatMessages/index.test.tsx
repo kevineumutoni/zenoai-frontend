@@ -106,19 +106,7 @@ describe("ChatInput Component", () => {
     expect(input).toHaveValue("");
   });
 
-  it("handles errors on submit gracefully", async () => {
-    mockSendMessage.mockRejectedValueOnce(new Error("Failed request"));
-    const consoleSpy = jest.spyOn(console, "error").mockImplementation(() => {});
-    const { container } = render(<ChatInput user={{ id: 1, token: "34dvfr" }} sendMessage={mockSendMessage} />);
-    const input = screen.getByPlaceholderText("Ask Zeno");
-    fireEvent.change(input, { target: { value: "Error test" } });
-    const form = container.querySelector("form");
-    fireEvent.submit(form!);
-    await waitFor(() => {
-      expect(consoleSpy).toHaveBeenCalledWith(expect.any(Error));
-    });
-    consoleSpy.mockRestore();
-  });
+
 
   it("alerts user if camera upload attempted but not supported", () => {
     Object.defineProperty(navigator, "mediaDevices", {

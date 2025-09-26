@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useSendFeedback } from "../../../hooks/usesendFeedback";
+import { useSendFeedback } from "../../../hooks/useFetchFeedback";
 
 function SuccessPopup({ message }: { message: string }) {
   return (

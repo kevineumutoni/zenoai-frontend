@@ -34,7 +34,6 @@ export async function POST(req: NextRequest) {
     }
 
     if (!res.ok) {
-      console.error("Backend feedback error:", data);
       return NextResponse.json(
         { message: data.detail || data || "Failed to submit feedback" },
         { status: res.status }
@@ -43,7 +42,6 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(data, { status: 201 });
   } catch (err) {
-    console.error("API feedback route error:", err);
     return NextResponse.json(
       { message: (err as Error).message || "Internal server error" },
       { status: 500 }

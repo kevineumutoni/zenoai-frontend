@@ -1,4 +1,4 @@
-import { createRun, fetchRunById } from '../utils/postRuns';
+import { createRun, fetchRunById } from './fetchPostRuns';
 
 global.fetch = jest.fn();
 
@@ -15,14 +15,14 @@ describe('postRuns', () => {
       json: () => Promise.resolve(mockResponse),
     });
 
-    const result = await createRun('conv-123', 'hello');
-    
+    const result = await createRun('c001', 'hello');
+
     expect(fetch).toHaveBeenCalledWith(
       '/api/conversationruns',
       expect.objectContaining({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ conversationId: 'conv-123', userInput: 'hello' }),
+        body: JSON.stringify({ conversationId: 'c001', userInput: 'hello' }),
       })
     );
     expect(result).toEqual(mockResponse);
@@ -31,7 +31,7 @@ describe('postRuns', () => {
   it('should create a run with file upload successfully', async () => {
     const mockFile = new File(['test'], 'test.pdf', { type: 'application/pdf' });
     const mockResponse = { id: 2, user_input: '(file upload)', status: 'pending' };
-    
+
     (fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,
       headers: { get: () => 'application/json' },
@@ -39,16 +39,15 @@ describe('postRuns', () => {
     });
 
     const result = await createRun(null, 'file msg', undefined, [mockFile]);
-    
+
     const callArgs = (fetch as jest.Mock).mock.calls[0];
     const formData = callArgs[1].body as FormData;
-    
+
     expect(formData.get('userInput')).toBe('file msg');
     expect(formData.getAll('files')).toHaveLength(1);
     expect(result).toEqual(mockResponse);
   });
 
-  // Test 3: createRun with authentication token
   it('should include authorization header when token is provided', async () => {
     (fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,
@@ -56,19 +55,17 @@ describe('postRuns', () => {
       json: () => Promise.resolve({ id: 1 }),
     });
 
-    await createRun('conv-123', 'hello', 'my-token');
-    
+    await createRun('c001', 'hello', 'token');
+
     expect(fetch).toHaveBeenCalledWith(
       expect.any(String),
       expect.objectContaining({
         headers: expect.objectContaining({
-          'Authorization': 'Token my-token',
+          'Authorization': 'Token token',
         }),
       })
     );
   });
-
-
 
   it('should fetch run by ID successfully', async () => {
     const mockResponse = { id: 1, status: 'completed', final_output: 'Hello my name is Zeno' };
@@ -79,7 +76,7 @@ describe('postRuns', () => {
     });
 
     const result = await fetchRunById(123);
-    
+
     expect(fetch).toHaveBeenCalledWith('/api/run?id=123', {
       headers: { 'Content-Type': 'application/json' },
     });
@@ -94,7 +91,7 @@ describe('postRuns', () => {
     });
 
     await fetchRunById(456, 'fetch-token');
-    
+
     expect(fetch).toHaveBeenCalledWith(
       expect.any(String),
       expect.objectContaining({
@@ -113,8 +110,20 @@ describe('postRuns', () => {
     });
 
     const result = await fetchRunById(789);
-    
+
     expect(result).toEqual({});
+  });
+
+  it('should handle backend text response', async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      headers: { get: () => 'text/plain' },
+      text: () => Promise.resolve('Some text response'),
+    });
+
+    const result = await fetchRunById(101112);
+
+    expect(result).toEqual({ message: 'Some text response' });
   });
 
 });

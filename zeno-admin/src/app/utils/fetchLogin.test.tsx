@@ -1,4 +1,4 @@
-import { fetchLogin } from './fetchlogin';
+import { fetchLogin } from './fetchLogin';
 
 global.fetch = jest.fn();
 

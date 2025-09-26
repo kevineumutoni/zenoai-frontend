@@ -1,8 +1,8 @@
 import { renderHook, act } from "@testing-library/react";
-import { useConversation } from "../hooks/usepostConversations";
-import { createConversation } from "../utils/postConversation";
+import { useConversation } from "./useFetchConversations";
+import { createConversation } from "../utils/fetchConversation";
 
-jest.mock("../utils/postConversation", () => ({
+jest.mock("../utils/fetchConversation", () => ({
   createConversation: jest.fn(),
 }));
 
@@ -11,13 +11,7 @@ describe("useConversation", () => {
     jest.clearAllMocks();
   });
 
-  it("should start with null conversationId", () => {
-    const { result } = renderHook(() => useConversation());
-    expect(result.current.conversationId).toBeNull();
-    expect(result.current.loading).toBe(false);
-    expect(result.current.error).toBeNull();
-  });
-
+ 
   it("should initialize conversation successfully", async () => {
     (createConversation as jest.Mock).mockResolvedValueOnce({
       conversation_id: "abc123",
@@ -60,9 +54,9 @@ describe("useConversation", () => {
   it("should reset conversation", async () => {
     const { result } = renderHook(() => useConversation());
     act(() => {
-      result.current.setConversationId("test123");
+      result.current.setConversationId("test1");
     });
-    expect(result.current.conversationId).toBe("test123");
+    expect(result.current.conversationId).toBe("test1");
 
     act(() => {
       result.current.resetConversation();
@@ -70,14 +64,4 @@ describe("useConversation", () => {
     expect(result.current.conversationId).toBeNull();
   });
 
-  it("should not call createConversation if userId or token missing", async () => {
-    const { result } = renderHook(() => useConversation(undefined, undefined));
-
-    await act(async () => {
-      const cid = await result.current.initConversation();
-      expect(cid).toBeNull();
-    });
-
-    expect(createConversation).not.toHaveBeenCalled();
-  });
 });

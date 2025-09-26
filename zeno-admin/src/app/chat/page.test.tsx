@@ -1,6 +1,6 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import * as useConversationModule from '../hooks/usepostConversations';
-import * as useRunsModule from '../hooks/usepostRuns';
+import * as useConversationModule from '../hooks/useFetchConversations';
+import * as useRunsModule from '../hooks/useFetchPostRuns';
 import ChatPage from './page';
 
 const mockLocalStorage = {
@@ -34,7 +34,7 @@ jest.mock('./components/ChatMessages', () => {
 });
 
 const mockUseConversation = {
-  conversationId: 'conv-123',
+  conversationId: 'c001',
   initConversation: jest.fn(),
   resetConversation: jest.fn(),
   loading: false,
@@ -47,7 +47,7 @@ const mockUseRuns = {
   runs: [
     {
       id: '1',
-      user_input: 'Test message',
+      user_input: 'Hey Zeno',
       status: 'completed',
       final_output: 'Response',
       files: undefined,
@@ -132,7 +132,7 @@ describe('ChatPage', () => {
     fireEvent.click(screen.getByTestId('retry-button'));
 
     expect(mockSendMessage).toHaveBeenCalledWith({
-      conversationId: 'conv-123',
+      conversationId: 'c001',
       userInput: 'Message with files',
       files: [mockFiles[0].file],
       filePreviews: mockFiles,
@@ -144,7 +144,6 @@ describe('ChatPage', () => {
 
     const { rerender } = render(<ChatPage />);
 
-    // Reset mock call count after initial render
     scrollIntoViewMock.mockClear();
 
     expect(scrollIntoViewMock).not.toHaveBeenCalled();
@@ -201,7 +200,7 @@ describe('ChatPage', () => {
   it('passes conversationId to ChatInput', () => {
     render(<ChatPage />);
 
-    expect(screen.getByTestId('chat-input')).toHaveTextContent('conv-123');
+    expect(screen.getByTestId('chat-input')).toHaveTextContent('c001');
   });
 
   it('uses correct user object structure', () => {

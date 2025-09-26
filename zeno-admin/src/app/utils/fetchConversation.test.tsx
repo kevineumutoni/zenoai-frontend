@@ -1,5 +1,5 @@
 import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
-import { createConversation } from './postConversation';
+import { createConversation } from './fetchConversation';
 
 global.fetch = jest.fn() as jest.MockedFunction<typeof fetch>;
 
@@ -12,7 +12,6 @@ describe('createConversation', () => {
 
   afterEach(() => {
     jest.clearAllMocks();
-    (console.error as jest.Mock).mockRestore();
   });
 
   it('calls fetch with correct parameters and returns data when response is ok', async () => {

@@ -1,6 +1,5 @@
-
 import { useState } from "react";
-import { sendFeedback } from "../utils/sendfeedback";
+import { sendFeedback } from "../utils/fetchFeedback";
 
 export function useSendFeedback() {
   const [loading, setLoading] = useState(false);
@@ -9,20 +8,21 @@ export function useSendFeedback() {
 
   async function submitFeedback(options: {
     feedbackType: "like" | "dislike";
-    comment?: string;
+    comment: string;
     userId: number;
     token?: string;
   }) {
     setLoading(true);
     setError(null);
     setSuccess(null);
+
     try {
       const response = await sendFeedback(options);
       setSuccess("Feedback submitted successfully");
       return response;
     } catch (err: any) {
       setError(err.message || "Failed to send feedback");
-      return null;
+      throw err;
     } finally {
       setLoading(false);
     }

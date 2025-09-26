@@ -1,7 +1,7 @@
 import { renderHook, waitFor, act } from '@testing-library/react';
 import { fetchUsers } from '../utils/fetchUsers';
 import type { User } from '../utils/types/runs';
-import { useUsers } from './usefetchUsersUtils';
+import { useUsers } from './useFetchUsers';
 
 jest.mock('../utils/fetchUsers');
 

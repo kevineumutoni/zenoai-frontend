@@ -1,5 +1,5 @@
 import { render, screen, waitFor } from '@testing-library/react';
-import useFetchUsers, { User } from './useFetchUsers';
+import useFetchUsers, { User } from './useFetchUsersById';
 import * as fetchModule from '../utils/fetchUser';
 
 function TestComponent({ ids }: { ids: number[] }) {

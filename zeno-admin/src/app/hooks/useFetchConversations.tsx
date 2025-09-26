@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { createConversation } from "../utils/postConversation";
+import { createConversation } from "../utils/fetchConversation";
 
 export function useConversation(userId?: number, token?: string) {
   const [conversationId, setConversationId] = useState<string | null>(null);

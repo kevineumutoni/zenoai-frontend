@@ -1,8 +1,8 @@
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { useFetchLogin } from './useFetchLogin';
-import { fetchLogin } from '../utils/fetchlogin';
+import { fetchLogin } from '../utils/fetchLogin';
 
-jest.mock('../utils/fetchlogin', () => ({
+jest.mock('../utils/fetchLogin', () => ({
   fetchLogin: jest.fn(),
 }));
 

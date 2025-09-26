@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react';
 import { FaPaperclip, FaCamera, FaTimes, FaFilePdf, FaFileAlt } from 'react-icons/fa';
-import { useRuns } from '../../hooks/usepostRuns';
+import { useRuns } from '../../hooks/useFetchPostRuns';
 import { ChatInputProps } from '../../utils/types/chat';
 import { FileWithPreview } from '../../utils/types/chat';
 
@@ -102,7 +102,6 @@ export default function ChatInput({ conversationId, user, sendMessage }: ChatInp
       setInput("");
       setFilePreviews([]);
     } catch (err) {
-      console.error(err);
     } finally {
       setIsLoading(false);
     }

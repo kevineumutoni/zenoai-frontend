@@ -3,105 +3,83 @@ import { NextRequest, NextResponse } from "next/server";
 const BASE_URL = process.env.BASE_URL;
 
 export async function POST(req: NextRequest) {
-  try {
-    if (!BASE_URL) {
-      console.error("BASE_URL is not configured");
-      return NextResponse.json(
-        { message: "Server misconfiguration" },
-        { status: 500 }
-      );
-    }
+  if (!BASE_URL) {
+    return NextResponse.json({ message: "Server misconfiguration" }, { status: 500 });
+  }
 
+  try {
+    const token = req.headers.get("authorization") || "";
     const contentType = req.headers.get("content-type") || "";
-    const token = req.headers.get("authorization");
+
+    let fetchBody: any;
+    let fetchHeaders: Record<string, string> = {};
 
     if (contentType.includes("multipart/form-data")) {
       const formData = await req.formData();
-      const conversationId = formData.get("conversationId");
+      const conversationId = formData.get("conversationId")?.toString() ?? "";
       const userInput = formData.get("userInput")?.toString() || "(file upload)";
-      const files = formData.getAll("files").filter(file => file instanceof File);
+      const files = formData
+        .getAll("files")
+        .filter(file => file && typeof (file as any).name === "string");
 
       if (files.length === 0) {
-        return NextResponse.json(
-          { message: "No valid files provided" },
-          { status: 400 }
-        );
+        return NextResponse.json({ message: "No valid files provided" }, { status: 400 });
       }
 
-      const backendForm = new FormData();
-      backendForm.append("user_input", userInput);
-      backendForm.append("conversation_id", conversationId ? String(conversationId) : "");
-      files.forEach(file => backendForm.append("files", file));
+      fetchBody = new FormData();
+      fetchBody.append("user_input", userInput);
+      fetchBody.append("conversation_id", conversationId);
+      files.forEach(file => fetchBody.append("files", file));
 
-      const res = await fetch(`${BASE_URL}/runs/`, {
-        method: "POST",
-        headers: token ? { Authorization: token } : {},
-        body: backendForm,
-      });
-
-      let data: any = {};
+      if (token) {
+        fetchHeaders["Authorization"] = token;
+      }
+    } else {
+      let bodyJson: any;
       try {
-        data = await res.json();
+        bodyJson = await req.json();
       } catch {
+        return NextResponse.json({ message: "Invalid JSON in request body" }, { status: 400 });
       }
 
-      if (!res.ok) {
-        const errorMessage = data?.detail || data?.message || `Backend error ${res.status}`;
-        console.error("[conversationruns] Backend error:", errorMessage);
-        return NextResponse.json({ message: errorMessage }, { status: res.status });
+      const { conversationId, userInput } = bodyJson;
+
+      if (typeof userInput !== "string") {
+        return NextResponse.json({ message: "userInput must be a string" }, { status: 400 });
       }
 
-      return NextResponse.json(data, { status: 201 });
-    }
-
-    let body;
-    try {
-      body = await req.json();
-    } catch {
-      return NextResponse.json(
-        { message: "Invalid JSON in request body" },
-        { status: 400 }
-      );
-    }
-
-    const { conversationId, userInput } = body;
-
-    if (typeof userInput !== 'string') {
-      return NextResponse.json(
-        { message: "userInput must be a string" },
-        { status: 400 }
-      );
-    }
-
-    const res = await fetch(`${BASE_URL}/runs/`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...(token ? { Authorization: token } : {}),
-      },
-      body: JSON.stringify({
+      fetchBody = JSON.stringify({
         conversation_id: conversationId ?? null,
         user_input: userInput,
-      }),
+      });
+
+      fetchHeaders = {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: token } : {}),
+      };
+    }
+
+    const response = await fetch(`${BASE_URL}/runs/`, {
+      method: "POST",
+      headers: fetchHeaders,
+      body: fetchBody,
     });
 
-    let data: any = {};
-    try {
-      data = await res.json();
-    } catch {
+    if (!response.ok) {
+      const message = await response.text();
+      return NextResponse.json(
+        { message: message || `Failed to process request: ${response.statusText}` },
+        { status: response.status }
+      );
     }
 
-    if (!res.ok) {
-      const errorMessage = data?.detail || data?.message || `Backend error ${res.status}`;
-      console.error("[conversationruns] Backend error:", errorMessage);
-      return NextResponse.json({ message: errorMessage }, { status: res.status });
-    }
+    const data = await response.json();
 
     return NextResponse.json(data, { status: 201 });
-
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "Internal server error";
-    console.error("[conversationruns API] Unexpected error:", message);
-    return NextResponse.json({ message }, { status: 500 });
+  } catch (error: any) {
+    return NextResponse.json(
+      { message: error?.message || "Internal server error" },
+      { status: 500 }
+    );
   }
 }

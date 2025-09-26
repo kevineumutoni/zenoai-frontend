@@ -31,7 +31,6 @@ export async function sendFeedback({
     if (!res.ok) throw new Error(data.message || "Failed to submit feedback");
     return data;
   } catch (err) {
-    console.error("sendFeedback error:", err);
     throw err;
   }
 }

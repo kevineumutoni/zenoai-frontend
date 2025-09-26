@@ -2,8 +2,8 @@
 import { useEffect, useRef } from "react";
 import ChatMessages from "./components/ChatMessages";
 import ChatInput from "../sharedComponents/ChatInput";
-import { useConversation } from "../hooks/usepostConversations";
-import { useRuns } from "../hooks/usepostRuns"; 
+import { useConversation } from "../hooks/useFetchConversations";
+import { useRuns } from "../hooks/useFetchPostRuns"; 
 import { RunFile } from "../utils/types/chat";
 
 

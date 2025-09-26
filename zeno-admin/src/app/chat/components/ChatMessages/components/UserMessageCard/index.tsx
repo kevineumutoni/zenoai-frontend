@@ -1,14 +1,13 @@
 import React from 'react';
 import { FaFilePdf, FaFileAlt } from 'react-icons/fa';
 import { UserMessageProps } from '../../../../../utils/types/chat';
-
-
 export default function UserMessage({ text, files }: UserMessageProps) {
   return (
     <div className="flex justify-end">
-      <div className="max-w-[70%]">
+      <div className="max-w-[30%] inline-block">
         {text && (
-          <div className="bg-[#9FF8F8] text-black p-3 rounded-2xl rounded-br-none whitespace-pre-wrap">
+          <div className=" bg-[#9FF8F8] text-black p-3 rounded-2xl rounded-br-none  break-words overflow-x-auto whitespace-pre-line
+    max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg ">
             {text}
           </div>
         )}

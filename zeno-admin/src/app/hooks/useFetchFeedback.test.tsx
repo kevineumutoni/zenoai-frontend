@@ -1,6 +1,6 @@
 import { renderHook, act } from "@testing-library/react";
-import { useSendFeedback } from "./usesendFeedback";
-import * as sendFeedbackModule from "../utils/sendfeedback";
+import { useSendFeedback } from "./useFetchFeedback";
+import * as sendFeedbackModule from "../utils/fetchFeedback";
 
 describe("useSendFeedback", () => {
   afterEach(() => {
@@ -23,7 +23,6 @@ describe("useSendFeedback", () => {
     });
 
     expect(response).toEqual(mockResponse);
-
     expect(result.current.success).toBe("Feedback submitted successfully");
     expect(result.current.error).toBeNull();
     expect(result.current.loading).toBe(false);
@@ -36,16 +35,15 @@ describe("useSendFeedback", () => {
 
     const { result } = renderHook(() => useSendFeedback());
 
-    let response: any;
     await act(async () => {
-      response = await result.current.submitFeedback({
-        feedbackType: "dislike",
-        comment: "Bad experience",
-        userId: 1,
-      });
+      await expect(
+        result.current.submitFeedback({
+          feedbackType: "dislike",
+          comment: "Bad experience",
+          userId: 1,
+        })
+      ).rejects.toThrow("Failed");
     });
-
-    expect(response).toBeNull();
 
     expect(result.current.success).toBeNull();
     expect(result.current.error).toBe("Failed");

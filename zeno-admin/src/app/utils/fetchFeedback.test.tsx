@@ -1,4 +1,4 @@
-import { sendFeedback } from "../utils/sendfeedback";
+import { sendFeedback } from "./fetchFeedback";
 
 global.fetch = jest.fn();
 
