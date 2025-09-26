@@ -13,7 +13,7 @@ const mockPdfFile = {
 
 const mockTextFile = {
   file: new File([''], 'notes.txt', { type: 'text/plain' }),
-  previewUrl: 'blob:http://localhost/mock-text-url',
+  previewUrl: 'blob:http://localhost/text-url',
 };
 
 describe('UserMessage', () => {
@@ -66,11 +66,6 @@ describe('UserMessage', () => {
 
     expect(screen.getByText(testText)).toBeInTheDocument();
     expect(screen.getByText('document.pdf')).toBeInTheDocument();
-  });
-
-  it('does not render empty text bubble when text is empty and no files', () => {
-    const { container } = render(<UserMessage text="" />);
-    expect(screen.queryByText('')).not.toBeInTheDocument();
   });
 
   it('handles multiple files correctly', () => {

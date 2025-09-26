@@ -3,7 +3,9 @@ import { useEffect, useRef } from "react";
 import ChatMessages from "./components/ChatMessages";
 import ChatInput from "../sharedComponents/ChatInput";
 import { useConversation } from "../hooks/usepostConversations";
-import { useRuns, RunFile } from "../hooks/usepostRuns"; 
+import { useRuns } from "../hooks/usepostRuns"; 
+import { RunFile } from "../utils/types/chat";
+
 
 export default function ChatPage() {
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
@@ -32,8 +34,8 @@ export default function ChatPage() {
             sendMessage({
               conversationId,
               userInput: run.user_input,
-              files: run.files?.map((f: RunFile) => f.file) || [], // ✅ Typed!
-              filePreviews: run.files, // ✅ Already RunFile[] | undefined
+              files: run.files?.map((f: RunFile) => f.file) || [], 
+              filePreviews: run.files, 
             })
           }
           userId={user?.id}

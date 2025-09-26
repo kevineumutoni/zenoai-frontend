@@ -49,4 +49,41 @@ export type ArtifactRendererProps = {
   text?: string;
 };
 
+export interface RunFile {
+  file: File;
+  previewUrl: string; 
+}
 
+export interface RunLike {
+  id: number | string;
+  user_input: string;
+  status: string;
+  final_output: string | null;
+  output_artifacts: any[];
+  started_at: string;
+  _optimistic?: boolean;
+  files?: RunFile[]; 
+  error?: string;
+}
+
+
+export interface FileWithPreview {
+  file: File;
+  previewUrl: string;
+}
+
+export interface ChatInputProps {
+  conversationId?: string | null;
+  user?: { id: number; token: string };
+  sendMessage: (params: {
+    conversationId?: string | null;
+    userInput: string;
+    files?: File[];
+    filePreviews?: { file: File; previewUrl: string }[];
+  }) => Promise<RunLike>;
+}
+
+export interface UserMessageProps {
+  text: string;
+  files?: RunFile[];
+}

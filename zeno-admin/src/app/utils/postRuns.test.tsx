@@ -1,90 +1,120 @@
-// import { createRun, fetchRunById } from "../utils/postRuns";
+import { createRun, fetchRunById } from '../utils/postRuns';
 
-// describe("createRun", () => {
-//   beforeEach(() => {
-//     jest.resetAllMocks();
-//   });
+global.fetch = jest.fn();
 
-//   it("should send POST request with JSON body when no files are provided", async () => {
-//     const mockResponse = { id: 1, userInput: "Hello" };
-//     global.fetch = jest.fn().mockResolvedValueOnce({
-//       ok: true,
-//       json: async () => mockResponse,
-//     } as Response);
+describe('postRuns', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
 
-//     const result = await createRun("123", "Hello", "fake-token");
+  it('should create a text-only run successfully', async () => {
+    const mockResponse = { id: 1, user_input: 'hello', status: 'pending' };
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      headers: { get: () => 'application/json' },
+      json: () => Promise.resolve(mockResponse),
+    });
 
-//     expect(global.fetch).toHaveBeenCalledWith("/api/conversationruns", {
-//       method: "POST",
-//       headers: {
-//         "Content-Type": "application/json",
-//         Authorization: "Token fake-token",
-//       },
-//       body: JSON.stringify({ conversationId: "123", userInput: "Hello" }),
-//     });
+    const result = await createRun('conv-123', 'hello');
+    
+    expect(fetch).toHaveBeenCalledWith(
+      '/api/conversationruns',
+      expect.objectContaining({
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ conversationId: 'conv-123', userInput: 'hello' }),
+      })
+    );
+    expect(result).toEqual(mockResponse);
+  });
 
-//     expect(result).toEqual(mockResponse);
-//   });
+  it('should create a run with file upload successfully', async () => {
+    const mockFile = new File(['test'], 'test.pdf', { type: 'application/pdf' });
+    const mockResponse = { id: 2, user_input: '(file upload)', status: 'pending' };
+    
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      headers: { get: () => 'application/json' },
+      json: () => Promise.resolve(mockResponse),
+    });
 
-//   it("should send POST request with FormData when files are provided", async () => {
-//     const mockResponse = { id: 2, userInput: "File test" };
-//     global.fetch = jest.fn().mockResolvedValueOnce({
-//       ok: true,
-//       json: async () => mockResponse,
-//     } as Response);
+    const result = await createRun(null, 'file msg', undefined, [mockFile]);
+    
+    const callArgs = (fetch as jest.Mock).mock.calls[0];
+    const formData = callArgs[1].body as FormData;
+    
+    expect(formData.get('userInput')).toBe('file msg');
+    expect(formData.getAll('files')).toHaveLength(1);
+    expect(result).toEqual(mockResponse);
+  });
 
-//     const mockFile = new File(["test content"], "test.txt", { type: "text/plain" });
+  // Test 3: createRun with authentication token
+  it('should include authorization header when token is provided', async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      headers: { get: () => 'application/json' },
+      json: () => Promise.resolve({ id: 1 }),
+    });
 
-//     const result = await createRun(null, "File test", "fake-token", [mockFile]);
+    await createRun('conv-123', 'hello', 'my-token');
+    
+    expect(fetch).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({
+        headers: expect.objectContaining({
+          'Authorization': 'Token my-token',
+        }),
+      })
+    );
+  });
 
-//     expect(global.fetch).toHaveBeenCalledTimes(1);
-//     const call = (global.fetch as jest.Mock).mock.calls[0];
-//     const requestInit = call[1];
 
-//     expect(requestInit.body instanceof FormData).toBe(true);
-//     expect(result).toEqual(mockResponse);
-//   });
 
-//   it("should throw error if response is not ok", async () => {
-//     global.fetch = jest.fn().mockResolvedValueOnce({
-//       ok: false,
-//       json: async () => ({ message: "Something went wrong" }),
-//     } as Response);
+  it('should fetch run by ID successfully', async () => {
+    const mockResponse = { id: 1, status: 'completed', final_output: 'Hello my name is Zeno' };
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      headers: { get: () => 'application/json' },
+      json: () => Promise.resolve(mockResponse),
+    });
 
-//     await expect(createRun(null, "Bad request")).rejects.toThrow("Something went wrong");
-//   });
-// });
+    const result = await fetchRunById(123);
+    
+    expect(fetch).toHaveBeenCalledWith('/api/run?id=123', {
+      headers: { 'Content-Type': 'application/json' },
+    });
+    expect(result).toEqual(mockResponse);
+  });
 
-// describe("fetchRunById", () => {
-//   beforeEach(() => {
-//     jest.resetAllMocks();
-//   });
+  it('should include token in fetchRunById request', async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      headers: { get: () => 'application/json' },
+      json: () => Promise.resolve({ id: 1 }),
+    });
 
-//   it("should fetch run by ID with proper headers", async () => {
-//     const mockResponse = { id: 123, userInput: "Fetched" };
-//     global.fetch = jest.fn().mockResolvedValueOnce({
-//       ok: true,
-//       json: async () => mockResponse,
-//     } as Response);
+    await fetchRunById(456, 'fetch-token');
+    
+    expect(fetch).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({
+        headers: expect.objectContaining({
+          'Authorization': 'Token fetch-token',
+        }),
+      })
+    );
+  });
 
-//     const result = await fetchRunById(123, "fake-token");
+  it('should handle empty backend response', async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      headers: { get: () => 'text/plain' },
+      text: () => Promise.resolve(''),
+    });
 
-//     expect(global.fetch).toHaveBeenCalledWith("/api/run?id=123", {
-//       headers: {
-//         "Content-Type": "application/json",
-//         Authorization: "Token fake-token",
-//       },
-//     });
+    const result = await fetchRunById(789);
+    
+    expect(result).toEqual({});
+  });
 
-//     expect(result).toEqual(mockResponse);
-//   });
-
-//   it("should throw error if run fetch fails", async () => {
-//     global.fetch = jest.fn().mockResolvedValueOnce({
-//       ok: false,
-//       json: async () => ({ message: "Run not found" }),
-//     } as Response);
-
-//     await expect(fetchRunById(999)).rejects.toThrow("Run not found");
-//   });
-// });
+});

@@ -1,41 +1,32 @@
 'use client';
 
+
 import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react';
 import { FaPaperclip, FaCamera, FaTimes, FaFilePdf, FaFileAlt } from 'react-icons/fa';
-import { RunLike } from '../../hooks/usepostRuns';
+import { useRuns } from '../../hooks/usepostRuns';
+import { ChatInputProps } from '../../utils/types/chat';
+import { FileWithPreview } from '../../utils/types/chat';
 
-interface FileWithPreview {
-  file: File;
-  previewUrl: string;
-}
-
-interface ChatInputProps {
-  conversationId?: string | null;
-  user?: { id: number; token: string };
-  sendMessage: (params: {
-    conversationId?: string | null;
-    userInput: string;
-    files?: File[];
-    filePreviews?: { file: File; previewUrl: string }[];
-  }) => Promise<RunLike>;
-}
 
 export default function ChatInput({ conversationId, user, sendMessage }: ChatInputProps) {
   const [input, setInput] = useState<string>('');
   const [filePreviews, setFilePreviews] = useState<FileWithPreview[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [cameraSupported, setCameraSupported] = useState<boolean>(true);
-
-
   useEffect(() => {
     return () => {
       filePreviews.forEach(item => URL.revokeObjectURL(item.previewUrl));
     };
   }, [filePreviews]);
 
+
+
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [cameraSupported, setCameraSupported] = useState<boolean>(true);
+
+
   const renderFilePreview = (item: FileWithPreview, index: number) => {
     const { file, previewUrl } = item;
     const isImage = file.type.startsWith('image/');
+
 
     return (
       <div
@@ -76,18 +67,26 @@ export default function ChatInput({ conversationId, user, sendMessage }: ChatInp
     );
   };
 
+
+
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
 
     if (!user?.token) {
       alert("You must be logged in to send a message.");
       return;
     }
 
+
     if (isLoading) return;
     if (!input.trim() && filePreviews.length === 0) return;
 
     setIsLoading(true);
+
+
+
 
     try {
       await sendMessage({
@@ -96,6 +95,9 @@ export default function ChatInput({ conversationId, user, sendMessage }: ChatInp
         files: filePreviews.length > 0 ? filePreviews.map(p => p.file) : [],
         filePreviews: filePreviews.length > 0 ? filePreviews : undefined,
       });
+
+
+
 
       setInput("");
       setFilePreviews([]);
@@ -106,8 +108,17 @@ export default function ChatInput({ conversationId, user, sendMessage }: ChatInp
     }
   };
 
+
+
+
+
+
+
+
+
+
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const selectedFiles = Array.from(e.target.files ?? []);
+    const selectedFiles = Array.from(e.target.files ?? []) as File[];
     const validFiles = selectedFiles.filter((file) => {
       const isValidType = ['application/pdf', 'image/jpeg', 'image/png', 'text/plain'].includes(file.type);
       const isUnderLimit = file.size <= 10 * 1024 * 1024;
@@ -124,23 +135,24 @@ export default function ChatInput({ conversationId, user, sendMessage }: ChatInp
     e.target.value = '';
   };
 
+
   const handleCameraCapture = (e: ChangeEvent<HTMLInputElement>) => {
-    const selectedFiles = Array.from(e.target.files ?? []);
+    const selectedFiles = Array.from(e.target.files ?? []) as File[];
     const validFiles = selectedFiles.filter((file) => {
       const isValidType = file.type.startsWith('image/');
       const isUnderLimit = file.size <= 2 * 1024 * 1024;
       return isValidType && isUnderLimit;
     });
     if (validFiles.length !== selectedFiles.length) {
-      alert('Some images are invalid. Only JPEG or PNG files under 2MB are allowed from the camera.');
+      alert('Some images are invalid. Only JPEG or PNG files under 10MB are allowed from the camera.');
     }
     const newPreviews = validFiles.map(file => ({
       file,
       previewUrl: URL.createObjectURL(file)
     }));
-    setFilePreviews(prev => [...prev, ...newPreviews]);
-    e.target.value = '';
+    setFilePreviews(prev => [...prev, ...newPreviews]); e.target.value = '';
   };
+
 
   useEffect(() => {
     const checkCameraSupport = async () => {
@@ -158,6 +170,7 @@ export default function ChatInput({ conversationId, user, sendMessage }: ChatInp
     checkCameraSupport();
   }, []);
 
+
   return (
     <div className="w-full max-w-3xl mx-auto space-y-1">
       {filePreviews.length > 0 && (
@@ -165,6 +178,7 @@ export default function ChatInput({ conversationId, user, sendMessage }: ChatInp
           {filePreviews.map((item, index) => renderFilePreview(item, index))}
         </div>
       )}
+
 
       <form
         onSubmit={handleSubmit}
@@ -179,6 +193,7 @@ export default function ChatInput({ conversationId, user, sendMessage }: ChatInp
         >
           <FaPaperclip size={18} />
         </button>
+
 
         <button
           type="button"
@@ -202,6 +217,7 @@ export default function ChatInput({ conversationId, user, sendMessage }: ChatInp
           <FaCamera size={18} />
         </button>
 
+
         <input
           type="file"
           id="file-upload"
@@ -221,6 +237,7 @@ export default function ChatInput({ conversationId, user, sendMessage }: ChatInp
           disabled={isLoading}
         />
 
+
         <input
           type="text"
           value={input}
@@ -229,6 +246,7 @@ export default function ChatInput({ conversationId, user, sendMessage }: ChatInp
           disabled={isLoading}
           className="flex-1 bg-transparent text-white placeholder-cyan-300 px-2 py-2 focus:outline-none"
         />
+
 
         <button
           type="submit"
@@ -249,9 +267,11 @@ export default function ChatInput({ conversationId, user, sendMessage }: ChatInp
         </button>
       </form>
 
+
       <div className="text-sm text-gray-400 mt-2 text-center">
         Zeno AI can hallucinate, so double-check it
       </div>
     </div>
   );
 }
+

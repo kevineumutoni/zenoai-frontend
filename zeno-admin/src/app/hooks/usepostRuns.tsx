@@ -1,22 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { createRun, fetchRunById } from "../utils/postRuns";
+import { RunLike } from "../utils/types/chat";
+import { RunFile } from "../utils/types/chat";
 
-export interface RunFile {
-  file: File;
-  previewUrl: string; 
-}
 
-export interface RunLike {
-  id: number | string;
-  user_input: string;
-  status: string;
-  final_output: string | null;
-  output_artifacts: any[];
-  started_at: string;
-  _optimistic?: boolean;
-  files?: RunFile[]; 
-  error?: string;
-}
+
 
 export function useRuns(user?: { id: number; token: string }) {
   const [runs, setRuns] = useState<RunLike[]>([]);

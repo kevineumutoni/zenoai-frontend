@@ -1,11 +1,7 @@
 import React from 'react';
 import { FaFilePdf, FaFileAlt } from 'react-icons/fa';
-import { RunFile } from '../../../../../hooks/usepostRuns';
+import { UserMessageProps } from '../../../../../utils/types/chat';
 
-interface UserMessageProps {
-  text: string;
-  files?: RunFile[];
-}
 
 export default function UserMessage({ text, files }: UserMessageProps) {
   return (
