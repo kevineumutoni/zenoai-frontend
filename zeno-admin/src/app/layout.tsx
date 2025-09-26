@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import SidebarNav from "./sharedComponents/Navigation";
 import ProfileMenu from "./sharedComponents/ProfileMenu";
 import useFetchAdmins from "./hooks/useFetchAdmin"; 
-import ChatInput from "./sharedComponents/ChatInput";
 import Background from "./sharedComponents/Background";
 
 const teachers = Teachers({
@@ -13,16 +12,17 @@ const teachers = Teachers({
   weight: ["400", "700"],
   variable: "--font-teachers",
 });
-
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const { user, loading, error } = useFetchAdmins();
   const pathname = usePathname();
-  const hideSidebarPaths = ["/", "/welcome", "/signin","/chat"]
-  const hideChatInputPaths = ["/","/signin", "/welcome","/analytics","/systemHealth","/user_reviews","/usermanagement","/signup","/dashboard","/profile"];
+
+  const hideSidebarPaths = ["/", "/welcome", "/signin","/landing_page", "/signup","/chat"];
+  const hideChatInputPaths = ["/","/signin", "/welcome","/analytics","/systemHealth","/user_reviews","/usermanagement",,"/landing_page","/signup","/dashboard","/profile", "/signup","/chat"];
 
 
   const showSidebar = !hideSidebarPaths.includes(pathname);
-  const hideProfileMenuPaths = ["/", "/welcome", "/signin","/chat"];
+
+  const hideProfileMenuPaths = ["/", "/welcome", "/signin","/landing_page", "/signup","/chat"];
   const showProfileMenu = !hideProfileMenuPaths.includes(pathname);
   const showChatInput = !hideChatInputPaths.includes(pathname);
 
@@ -42,15 +42,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {showSidebar && <SidebarNav />}
           <div className="flex-1 flex flex-col">
             {showProfileMenu && (
-              <div className="flex items-center justify-end px-8 mt-3 w-full">
+              <div className="absolute top-[-8] right-10 z-30">
                 <ProfileMenu image={profileImage} />
               </div>
             )}
-             {/* {showChatInput && (
-          <div className="fixed bottom-5 left-0 right-0 py-2 px-4 z-50">
-            <ChatInput onRunCreated={handleRunCreated} />
-          </div>
-        )} */}
+          
             <main>{children}</main>
           </div>
        </div>

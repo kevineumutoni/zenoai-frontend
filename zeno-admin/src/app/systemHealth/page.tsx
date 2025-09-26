@@ -5,14 +5,39 @@ import SystemHealthSection from './components/SystemHealthSection';
 import DatabaseQuerySection from './components/DatabaseQuerySection';
 import { useFetchRuns } from '../hooks/useFetchRuns';
 
-
 export default function HealthDashboard() {
     const { data: runs, isLoading, error } = useFetchRuns();
 
-    if (isLoading) return <div className="text-white text-center p-6">Loading system health analytics...</div>;
-    if (error) return <div className="text-red-500 text-center p-6">{error}</div>;
+    if (isLoading) {
+        return (
+            <div className="min-h-screen w-full flex items-center justify-center px-4">
+                <div className="text-center">
+                    <div className="rounded-full h-12 w-12 border-t-2 border-b-2 border-cyan-500 mx-auto mb-4 animate-spin"></div>
+                    <p className="text-white text-base">Loading system health analytics...</p>
+                </div>
+            </div>
+        );
+    }
+    if (error) {
+        return (
+            <div className="min-h-screen w-full flex items-center justify-center px-4">
+                <div className="text-center">
+                    <div className="bg-red-600 text-white p-4 rounded-lg mb-4">
+                        <h2 className="text-lg font-bold mb-2">Error</h2>
+                        <p>{error}</p>
+                    </div>
+                </div>
+            </div>
+        );
+    }
     if (!runs || !Array.isArray(runs) || runs.length === 0) {
-        return <div className="text-white text-center p-6">Sorry, No data available</div>;
+        return (
+            <div className="min-h-screen w-full flex items-center justify-center px-4">
+                <div className="text-white text-center text-base">
+                    Sorry, No data available
+                </div>
+            </div>
+        );
     }
 
     return (

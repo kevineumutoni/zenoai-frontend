@@ -11,8 +11,6 @@ function capitalizeFirstLetter(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 }
 
-
-
 export default function UsersTable() {
   const { users, loading, error } = useUsers();
   const [search, setSearch] = useState("");
@@ -49,42 +47,46 @@ export default function UsersTable() {
 
   if (loading)
     return (
-      <div className="text-teal-400 text-center mt-50">
-        <p>Loading users...</p>
+      <div className="flex flex-col items-center justify-center min-h-screen w-full ">
+        <div className="rounded-full h-12 w-12 border-t-2 border-b-2 border-cyan-500 mb-4 animate-spin"></div>
+        <div className="text-[#A1B1D6] text-base">Loading users...</div>
       </div>
     );
   if (error)
     return (
-      <div className="text-red-500 text-center">
-        <p>Error loading users: {error}</p>
+      <div className="flex flex-col items-center justify-center min-h-screen w-full ">
+        <div className="bg-red-600 text-white p-4 rounded-lg mb-4">
+          <h2 className="text-lg font-bold mb-2">Error</h2>
+          <p>Error loading users: {error}</p>
+        </div>
       </div>
     );
 
   return (
     <div className="mx-20">
-      <div className="flex justify-between w-[75vw]">
-        <div className="flex gap-4 mb-4 mt-10 items-center ml-50">
+      <div className="flex justify-between w-[79vw]">
+        <div className="flex gap-4 items-center ml-20">
           <input
             type="text"
             placeholder="Search by name or email"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="p-2 rounded border border-gray-400 w-72"
+            className="p-2 rounded border border-gray-400 w-92"
           />
 
             <CustomDropdown options={roles} selected={roleFilter} onSelect={setRoleFilter} />
         </div>
-        <div className="mt-10">
+        <div className="mt-8">
           <CalendarDropdown onDateChange={handleDateChange} />
         </div>
       </div>
-      <div className="overflow-auto max-h-[450px] shadow-md border-2 border-gray-600 rounded-md w-[65vw] ml-50 mt-6">
+      <div className="overflow-auto max-h-[450px] shadow-md border-2 border-gray-600 rounded-md w-[75vw] ml-20 mt-6">
         <table className="w-full border-collapse">
           <thead className="sticky top-0 bg-[#091326]">
             <tr className="pl-10" >
-              <th className="p-2 pl-5 w-[350px] text-white text-left text-2xl font-bold ">Users </th>
-              <th className="p-2  pl-18 w-[350px] text-white text-left text-2xl font-bold"> Roles </th>
-              <th className="p-2 w-[150px] text-white text-left text-2xl">Sign up date </th>
+              <th className="p-4 pl-9 w-[350px] text-white text-left text-3xl font-medium">Users </th>
+              <th className="p-4  pl-18 w-[350px] text-white text-left text-3xl font-medium"> Roles </th>
+              <th className="p-4 w-[150px] text-white text-left text-3xl font-medium">Sign up date </th>
             </tr>
           </thead>
           <tbody>
@@ -101,7 +103,7 @@ export default function UsersTable() {
                   className="border-b border-gray-700 last:border-none hover:bg-gray-800"
                 >
                   <td className="p-1 ">
-                    <div className="flex items-center gap-2 ml-3 ">
+                    <div className="flex items-center gap-2 ml-5 ">
                       {user.image ? (
                         <img
                           src={user.image}
@@ -125,7 +127,7 @@ export default function UsersTable() {
                   <td>
                     <div className="text-white text-2xl ml-16">{user.role}</div>
                   </td>
-                  <td className="p-2 text-white text-[20px] ml-5 ">
+                  <td className="p-8 text-white text-[20px] ml-5 ">
                     {dayjs(user.created_at).format("YYYY-MM-DD")}
                   </td>
                 </tr>

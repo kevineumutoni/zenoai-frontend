@@ -45,8 +45,7 @@ describe("fetchRuns", () => {
     localStorage.setItem("token", "dummy-token");
     (fetch as jest.Mock).mockResolvedValueOnce({
       ok: false,
-      text: jest.fn().mockResolvedValue(""),
-    });
+  });
 
     await expect(fetchRuns()).rejects.toThrow(
       "Unable to fetch system data. Please try again later."

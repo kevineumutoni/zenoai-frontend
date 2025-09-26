@@ -80,16 +80,17 @@ export default function ChatInput({ conversationId, user, sendMessage }: ChatInp
 
     setIsLoading(true);
 
-    try {
+  try {
       await sendMessage({
         conversationId: conversationId ?? null,
         userInput: input.trim(),
-        files: filePreviews.length > 0 ? filePreviews.map(p => p.file) : [],
+        files: filePreviews.length > 0 ? filePreviews.map(preview => preview.file) : [],
         filePreviews: filePreviews.length > 0 ? filePreviews : undefined,
       });
       setInput("");
       setFilePreviews([]);
     } catch (err) {
+
     } finally {
       setIsLoading(false);
     }

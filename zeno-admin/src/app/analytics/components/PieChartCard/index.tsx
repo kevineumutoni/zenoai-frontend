@@ -41,8 +41,8 @@ export default function AnalyticsPieChartCard({ steps, dateRange }: AnalyticsPie
 
   return (
     <div className=" border border-teal-400/30 rounded-xl p-6">
-      <h3 className="text-xl xl:text-2xl font-semibold text-teal-400 mb-2">Module Usage</h3>
-      <p className="text-sm xl:text-lg text-gray-300 mb-4">Most frequent used specialized modules.</p>
+      <h3 className="text-xl xl:text-3xl font-semibold text-white mb-2">Module Usage</h3>
+      <p className="text-sm xl:text-xl text-gray-300 mb-10">Most frequent used specialized modules.</p>
       <div className="h-60 flex items-center">
         <AnalyticsPieChart data={moduleUsage} />
       </div>

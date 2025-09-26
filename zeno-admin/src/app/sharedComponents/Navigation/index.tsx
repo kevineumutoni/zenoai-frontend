@@ -5,18 +5,16 @@ import { useRouter } from 'next/navigation';
 import { AiOutlineComment } from 'react-icons/ai';
 import { HiOutlineUsers } from 'react-icons/hi2';
 import { BsBarChart } from 'react-icons/bs';
-import { FiDatabase } from 'react-icons/fi';
 import { TbActivityHeartbeat } from 'react-icons/tb';
 import { LuLayoutDashboard } from 'react-icons/lu';
 
 import Image from 'next/image';
 
 const navItems = [
-  { Icon: LuLayoutDashboard , label: 'Dashboard', path: '/usermanagement'  },
+  { Icon: LuLayoutDashboard , label: 'Dashboard', path: '/dashboard'  },
   { Icon: TbActivityHeartbeat, label: 'System Health', path: '/systemHealth' },
   { Icon: BsBarChart , label: 'Usage Analytics', path: '/analytics' },
   { Icon: AiOutlineComment, label: 'User Feedback', path: '/user_reviews' },
-  { Icon: FiDatabase  , label: 'Resource Management', path: '/usermanagement' },
   { Icon: HiOutlineUsers , label: 'User Management', path: '/usermanagement' },
 ];
 
@@ -31,9 +29,18 @@ const [activeIndex, setActiveIndex] = useState<number>(0);
 
   return (
     <div>
-      <Image src="/images/zeno-logo-icon.png" alt="Zeno Logo" width={70} height={100} className=" mt-10 ml-2" />
+      <div className="sticky top-0 w-full flex justify-center bg-transparent py-6">
+        <Image
+          src="/images/zeno-logo-icon.png"
+          alt="Zeno Logo"
+          width={70}
+          height={100}
+          className="w-12 sm:w-16 md:w-20 lg:w-[70px] h-auto"
+          priority
+        />
+      </div>
       <nav
-        className="fixed top-1/2 left-0 transform -translate-y-1/2 flex flex-col bg-cyan-400 rounded-tr-[4rem] rounded-br-[4rem] py-8  items-center gap-10 w-25"
+        className="fixed top-1/2 left-0 transform -translate-y-1/2 flex flex-col bg-cyan-400 rounded-tr-[4rem] rounded-br-[4rem] py-8 lg:mt-10 lg:w-20  items-center gap-10 xl:w-25"
         aria-label="Sidebar navigation"
       >
         {navItems.map(({ Icon, label, path }, i) => {

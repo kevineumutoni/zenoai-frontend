@@ -35,8 +35,7 @@ export async function POST(request: Request) {
 
     const responseData = {
       token: result.token,
-      user_id: result.user_id,
-      id: result.user_id, 
+      id: result.id, 
       email: result.email,
       role: result.role
     };

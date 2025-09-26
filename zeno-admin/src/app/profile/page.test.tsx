@@ -25,6 +25,7 @@ describe('ProfilePage', () => {
     last_name: 'Berihu',
     email: 'tirsit@gmail.com',
     image: 'https://example.com/photo.jpg',
+    role: 'Admin',
     date_joined: '2025-01-01T00:00:00Z',
     registeredDate: '2025-01-01T00:00:00Z',
   };
