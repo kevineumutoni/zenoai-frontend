@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    const backendRes = await fetch(`${BASE_URL}/runs/${runId}/`, {
+    const response = await fetch(`${BASE_URL}/runs/${runId}/`, {
       headers: {
         "Content-Type": "application/json",
         ...(token ? { Authorization: token } : {}), 
@@ -24,23 +24,22 @@ export async function GET(req: NextRequest) {
 
     let data: any = {};
     try {
-      data = await backendRes.json();
+      data = await response.json();
     } catch {
-      data = { message: "Invalid JSON returned by backend" };
+      data = { message: "Invalid JSON " };
     }
 
-    if (!backendRes.ok) {
+    if (!response.ok) {
       return NextResponse.json(
         { message: data?.detail || data?.message || "Failed to fetch run" },
-        { status: backendRes.status }
+        { status: response.status }
       );
     }
 
     return NextResponse.json(data, { status: 200 });
   } catch (err) {
-    console.error("API /run failed:", err);
     return NextResponse.json(
-      { message: err instanceof Error ? err.message : "Internal server error" },
+      { message: (err as Error).message || "Internal server error" },
       { status: 500 }
     );
   }
