@@ -2,7 +2,6 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import UserFeedbackPage from './page';
 
-
 jest.mock('../hooks/useFetchUserReviews', () => ({
   __esModule: true,
   default: jest.fn(),
@@ -15,7 +14,6 @@ jest.mock('./components/StatsCard', () => (props: any) => (
 jest.mock('./components/Comments', () => (props: any) => (
   <div data-testid="comments">{props.comments.map((comment: any) => comment.text).join(', ')}</div>
 ));
-
 
 const mockData = {
   totalReview: 10,
@@ -41,9 +39,8 @@ describe('UserFeedbackPage', () => {
       error: null,
     });
     render(<UserFeedbackPage />);
-    expect(screen.getByText(/feedback is loading/i)).toBeInTheDocument();
+    expect(screen.getByText(/loading user feedback/i)).toBeInTheDocument();
   });
-
 
   it('renders error state and retry button', async () => {
     useFetchUserFeedback.mockReturnValue({
@@ -52,11 +49,10 @@ describe('UserFeedbackPage', () => {
       error: 'Network error',
     });
     render(<UserFeedbackPage />);
-    expect(screen.getByText(/failed to load feedback/i)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /error/i })).toBeInTheDocument();
     expect(screen.getByText(/network error/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /retry/i })).toBeInTheDocument();
   });
-
 
   it('renders feedback stats and comments', () => {
     useFetchUserFeedback.mockReturnValue({
@@ -70,7 +66,6 @@ describe('UserFeedbackPage', () => {
     expect(screen.getByTestId('stats-dislike')).toHaveTextContent('Dislikes: 3');
     expect(screen.getByTestId('comments')).toHaveTextContent('Great one, Bad one, Okay');
   });
-
 
   it('filters comments by sentiment', async () => {
     useFetchUserFeedback.mockReturnValue({
@@ -97,6 +92,3 @@ describe('UserFeedbackPage', () => {
     });
   });
 });
-
-
-

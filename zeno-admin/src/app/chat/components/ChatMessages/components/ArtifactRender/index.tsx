@@ -50,9 +50,9 @@ function ChartRenderer({ data }: { data: ChartData }) {
   }
 
   const chartData: { label: string | number; value: number }[] = data.x.map(
-    (xVal, idx) => ({
-      label: xVal,
-      value: data.y[idx] ?? 0,
+    (xValue, index) => ({
+      label: xValue,
+      value: data.y[index] ?? 0,
     })
   );
 
@@ -76,10 +76,10 @@ function ChartRenderer({ data }: { data: ChartData }) {
           <div className="bg-white rounded-xl">
             <BarChart
               xAxis={[
-                { data: chartData.map((d) => d.label), scaleType: "band" },
+                { data: chartData.map(data => data.label), scaleType: "band" },
               ]}
               series={[
-                { data: chartData.map((d) => d.value), color: "#60a5fa" },
+                { data: chartData.map(data => data.value), color: "#60a5fa" },
               ]}
               width={400}
               height={220}
@@ -90,9 +90,9 @@ function ChartRenderer({ data }: { data: ChartData }) {
         {chartType === "line" && (
           <div className=" bg-[#dbe4e4] ">
             <LineChart
-              xAxis={[{ data: chartData.map((d) => d.label) }]}
+              xAxis={[{ data: chartData.map(data => data.label) }]}
               series={[
-                { data: chartData.map((d) => d.value), color: "#3b82f6" },
+                { data: chartData.map(data => data.value), color: "#3b82f6" },
               ]}
               width={400}
               height={220}
@@ -105,11 +105,11 @@ function ChartRenderer({ data }: { data: ChartData }) {
             <PieChart
               series={[
                 {
-                  data: chartData.map((d, i) => ({
-                    id: String(d.label),
-                    value: d.value,
-                    label: String(d.label),
-                    color: ["#60a5fa", "#f472b6", "#a78bfa"][i % 3],
+                  data: chartData.map((data, index) => ({
+                    id: String(data.label),
+                    value: data.value,
+                    label: String(data.label),
+                    color: ["#60a5fa", "#f472b6", "#a78bfa"][index % 3],
                   })),
                 },
               ]}
@@ -139,10 +139,10 @@ function TableRenderer({ data }: { data: TableData }) {
               </tr>
             </thead>
             <tbody>
-              {data.x.map((label, idx) => (
-                <tr key={idx}>
+              {data.x.map((label, index) => (
+                <tr key={index}>
                   <td className="border-b p-1">{label}</td>
-                  <td className="border-b p-1">{data.y?.[idx]}</td>
+                  <td className="border-b p-1">{data.y?.[index]}</td>
                 </tr>
               ))}
             </tbody>
@@ -160,18 +160,18 @@ function TableRenderer({ data }: { data: TableData }) {
         <table className="w-full text-left text-sm">
           <thead className="bg-[#020a18]">
             <tr>
-              {data.columns.map((col, idx) => (
-                <th key={idx} className="border-b font-bold p-1">
+              {data.columns.map((col, index) => (
+                <th key={index} className="border-b font-bold p-1">
                   {col}
                 </th>
               ))}
             </tr>
           </thead>
           <tbody>
-            {data.rows.map((row, idx) => (
-              <tr key={idx}>
-                {row.map((cell, cidx) => (
-                  <td key={cidx} className="border-b p-1">
+            {data.rows.map((row, index) => (
+              <tr key={index}>
+                {row.map((cell, cellindex) => (
+                  <td key={cellindex} className="border-b p-1">
                     {cell}
                   </td>
                 ))}

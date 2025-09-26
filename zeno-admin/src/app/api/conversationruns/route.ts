@@ -4,7 +4,7 @@ const BASE_URL = process.env.BASE_URL;
 
 export async function POST(req: NextRequest) {
   if (!BASE_URL) {
-    return NextResponse.json({ message: "Server misconfiguration" }, { status: 500 });
+    return NextResponse.json({ message: "Server Error" }, { status: 500 });
   }
 
   try {

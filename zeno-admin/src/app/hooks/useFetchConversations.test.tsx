@@ -23,7 +23,7 @@ describe("useConversation", () => {
 
     let returnedId: string | null = null;
     await act(async () => {
-      returnedId = await result.current.initConversation();
+      returnedId = await result.current.startConversation();
     });
 
     expect(createConversation).toHaveBeenCalledWith(1, "fake-token");
@@ -43,7 +43,7 @@ describe("useConversation", () => {
     );
 
     await act(async () => {
-      const cid = await result.current.initConversation();
+      const cid = await result.current.startConversation();
       expect(cid).toBeNull();
     });
 

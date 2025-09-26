@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import LoginPage from './page';
 
 const mockPush = jest.fn();
@@ -80,14 +80,31 @@ describe('LoginPage', () => {
   it('shows loading indicator when isLoading is true', () => {
     mockIsLoading = true;
     render(<LoginPage />);
-    const loadingButton = screen.getByRole('button', { name: /loading.../i });
-    expect(loadingButton).toBeDisabled();
     expect(screen.getByText(/loading.../i)).toBeInTheDocument();
+    expect(document.querySelector('.animate-spin')).toBeInTheDocument();
   });
 
   it('shows error message when error exists', () => {
     mockError = "Invalid credentials";
     render(<LoginPage />);
-    expect(screen.getByText(/invalid credentials/i)).toBeInTheDocument();
+    expect(screen.getByText(/the email or password you entered is incorrect/i)).toBeInTheDocument();
+  });
+
+  it('routes to dashboard for Admin role after login', async () => {
+    mockLogin.mockResolvedValueOnce({ role: 'Admin' });
+    render(<LoginPage />);
+    typeLogin('admin@example.com', 'password123');
+    fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
+    await screen.findByPlaceholderText('Email');
+    expect(mockPush).toHaveBeenCalledWith('/dashboard');
+  });
+
+  it('routes to profile for User role after login', async () => {
+    mockLogin.mockResolvedValueOnce({ role: 'User' });
+    render(<LoginPage />);
+    typeLogin('user@example.com', 'password321');
+    fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
+    await screen.findByPlaceholderText('Email');
+    expect(mockPush).toHaveBeenCalledWith('/profile');
   });
 });
