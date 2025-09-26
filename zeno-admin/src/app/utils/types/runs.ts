@@ -1,4 +1,4 @@
-
+import { RunLike } from "./chat";
 export interface Run {
   id: number;
   conversation: number | null;
@@ -79,6 +79,7 @@ export  type User = {
   created_at: string;
   role: string;
   image?: string;
+  id: number;
 };
 
 interface CustomDropdownProps {
@@ -87,5 +88,11 @@ interface CustomDropdownProps {
   onSelect: (value: string) => void;
 }
 
+export type Conversation = {
+  conversation_id: number;
+  title: string;
+  created_at: string;
+  runs?: RunLike[];
+};
 
 

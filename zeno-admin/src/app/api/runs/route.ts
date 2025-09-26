@@ -11,7 +11,7 @@ export async function GET(request: Request) {
   }
 
   try {
-    const response = await fetch(`${BASE_URL}/runs`, {
+    const response = await fetch(`${BASE_URL}/runs/`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -40,7 +40,7 @@ const authHeader = request.headers.get('Authorization');
   try {
     const formData = await request.formData();
 
-    const response = await fetch(`${BASE_URL}/runs`, {
+    const response = await fetch(`${BASE_URL}/runs/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

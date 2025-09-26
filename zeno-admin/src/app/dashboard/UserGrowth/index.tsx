@@ -1,7 +1,7 @@
 'use client';
 
 import { LineChart, ResponsiveContainer, CartesianGrid, XAxis, YAxis, Tooltip, Legend, Line } from "recharts";
-import { useUsers } from "../../hooks/usefetchUsers";
+import { useUsers } from "../../hooks/useFetchUsers";
 
 function getLast7DayNames(): string[] {
   const days = [];

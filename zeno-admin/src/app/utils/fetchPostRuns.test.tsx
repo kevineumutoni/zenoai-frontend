@@ -18,7 +18,7 @@ describe('postRuns', () => {
     const result = await createRun('c001', 'hello');
 
     expect(fetch).toHaveBeenCalledWith(
-      '/api/conversationruns',
+      '/api/runs',
       expect.objectContaining({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

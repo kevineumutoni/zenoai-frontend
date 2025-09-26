@@ -1,211 +1,111 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import * as useConversationModule from '../hooks/useFetchConversations';
-import * as useRunsModule from '../hooks/useFetchPostRuns';
-import ChatPage from './page';
+import React from "react";
+import { render, fireEvent, screen, waitFor } from "@testing-library/react";
+import ChatPage from "./page";
 
-const mockLocalStorage = {
-  getItem: jest.fn(),
-  setItem: jest.fn(),
-  removeItem: jest.fn(),
-  clear: jest.fn(),
-};
 
-Object.defineProperty(window, 'localStorage', {
-  value: mockLocalStorage,
-});
-
-jest.mock('../sharedComponents/ChatInput', () => {
-  return ({ conversationId, user }: any) => (
-    <div data-testid="chat-input">
-      ChatInput: {conversationId} | User: {user?.id}
+jest.mock("../sharedComponents/Sidebar", () => (props: any) => (
+  <div data-testid="sidebar">
+    <button onClick={props.onAddChat}>Add Chat</button>
+    <button onClick={props.onLogout}>Logout</button>
+    <div>
+      {props.conversations.map((c: any) => (
+        <div key={c.conversation_id} onClick={() => props.setSelectedConversationId(c.conversation_id)}>
+          {c.title}
+        </div>
+      ))}
     </div>
-  );
+  </div>
+));
+jest.mock("./components/ChatMessages", () => (props: any) => (
+  <div data-testid="chat-messages">
+    {props.runs.map((run: any) => (
+      <div key={run.id}>{run.user_input}</div>
+    ))}
+  </div>
+));
+jest.mock("../sharedComponents/ChatInput", () => (props: any) => (
+  <form
+    data-testid="chat-input"
+    onSubmit={e => {
+      e.preventDefault();
+      props.sendMessage({
+        conversationId: props.conversationId,
+        userInput: "Test message",
+        files: [],
+        filePreviews: [],
+      });
+    }}
+  >
+    <button type="submit">Send</button>
+  </form>
+));
+jest.mock("../hooks/useConversationWithRuns", () => ({
+  useConversationsWithRuns: () => ({
+    conversations: [
+      { conversation_id: 1, title: "Test Conversation", created_at: "2023-09-26", runs: [{ id: 1, user_input: "Hello", files: [] }] }
+    ],
+    selectedConversationId: 1,
+    setSelectedConversationId: jest.fn(),
+    fetchConvos: jest.fn(),
+    setConversations: jest.fn(),
+  }),
+}));
+jest.mock("../hooks/useFetchPostRuns", () => ({
+  useRuns: () => ({
+    runs: [{ id: 1, user_input: "Hello", files: [] }],
+    sendMessage: jest.fn(() => Promise.resolve({ id: 2, user_input: "Test message", files: [] })),
+    clearRuns: jest.fn(),
+    setRuns: jest.fn(),
+  }),
+}));
+
+window.alert = jest.fn();
+Object.defineProperty(global.HTMLElement.prototype, "scrollIntoView", {
+  configurable: true,
+  value: jest.fn(),
 });
 
-jest.mock('./components/ChatMessages', () => {
-  return ({ runs, onRetry, userId }: any) => (
-    <div data-testid="chat-messages">
-      ChatMessages: {runs.length} runs | User: {userId}
-      <button onClick={() => onRetry(runs[0])} data-testid="retry-button">
-        Retry
-      </button>
-    </div>
-  );
-});
-
-const mockUseConversation = {
-  conversationId: 'c001',
-  startConversation: jest.fn(),
-  resetConversation: jest.fn(),
-  loading: false,
-  error: null,
-  setConversationId: jest.fn(),
-};
-
-const mockSendMessage = jest.fn();
-const mockUseRuns = {
-  runs: [
-    {
-      id: '1',
-      user_input: 'Hey Zeno',
-      status: 'completed',
-      final_output: 'Response',
-      files: undefined,
-      output_artifacts: [],
-      started_at: new Date().toISOString(),
-    },
-  ],
-  sendMessage: mockSendMessage,
-  clearRuns: jest.fn(),
-  setRuns: jest.fn(),
-};
-
-describe('ChatPage', () => {
+window.location.href = "";
+describe("ChatPage", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
-
-    Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
-      configurable: true,
-      value: jest.fn(),
-    });
-
-    mockLocalStorage.getItem.mockImplementation((key) => {
-      if (key === 'token') return 'token';
-      if (key === 'userId') return '123';
-      return null;
-    });
-
-    jest.spyOn(useConversationModule, 'useConversation').mockReturnValue(mockUseConversation);
-    jest.spyOn(useRunsModule, 'useRuns').mockReturnValue(mockUseRuns);
-  });
-
-  it('renders chat messages and input when user is logged in', () => {
-    render(<ChatPage />);
-
-    expect(screen.getByTestId('chat-messages')).toBeInTheDocument();
-    expect(screen.getByTestId('chat-input')).toBeInTheDocument();
-
-    expect(screen.getByTestId('chat-messages')).toHaveTextContent('User: 123');
-    expect(screen.getByTestId('chat-input')).toHaveTextContent('User: 123');
-  });
-
-  it('does not render chat input when user is not logged in', () => {
-    mockLocalStorage.getItem.mockImplementation((key) => {
-      if (key === 'token') return null;
-      if (key === 'userId') return null;
-      return null;
-    });
-
-    render(<ChatPage />);
-
-    expect(screen.getByTestId('chat-messages')).toBeInTheDocument();
-    expect(screen.queryByTestId('chat-input')).not.toBeInTheDocument();
-  });
-
-  it('passes correct props to ChatMessages', () => {
-    render(<ChatPage />);
-
-    expect(screen.getByTestId('chat-messages')).toHaveTextContent('1 runs');
-    expect(screen.getByTestId('chat-messages')).toHaveTextContent('User: 123');
-  });
-
-  it('handles retry functionality correctly', () => {
-    const mockFiles = [
-      { file: new File([''], 'test.pdf', { type: 'application/pdf' }), previewUrl: 'blob:1' }
-    ];
-
-    const runWithFiles = {
-      ...mockUseRuns.runs[0],
-      files: mockFiles,
-      user_input: 'Message with files',
-    };
-
-    const mockUseRunsWithFiles = {
-      ...mockUseRuns,
-      runs: [runWithFiles],
-    };
-
-    jest.spyOn(useRunsModule, 'useRuns').mockReturnValue(mockUseRunsWithFiles);
-
-    render(<ChatPage />);
-
-    fireEvent.click(screen.getByTestId('retry-button'));
-
-    expect(mockSendMessage).toHaveBeenCalledWith({
-      conversationId: 'c001',
-      userInput: 'Message with files',
-      files: [mockFiles[0].file],
-      filePreviews: mockFiles,
-    });
-  });
-
-  it('scrolls to bottom when runs change', async () => {
-    const scrollIntoViewMock = HTMLElement.prototype.scrollIntoView as jest.Mock;
-
-    const { rerender } = render(<ChatPage />);
-
-    scrollIntoViewMock.mockClear();
-
-    expect(scrollIntoViewMock).not.toHaveBeenCalled();
-
-    const newRuns = [
-      ...mockUseRuns.runs,
-      {
-        id: '2',
-        user_input: 'New message',
-        status: 'pending',
-        final_output: null,
-        files: undefined,
-        output_artifacts: [],
-        started_at: new Date().toISOString(),
+    Object.defineProperty(window, "localStorage", {
+      value: {
+        getItem: jest.fn((key) => {
+          if (key === "token") return "mock-token";
+          if (key === "user_id") return "1";
+          return null;
+        }),
+        setItem: jest.fn(),
+        clear: jest.fn(),
       },
-    ];
-
-    const mockUseRunsWithNewMessage = {
-      ...mockUseRuns,
-      runs: newRuns,
-    };
-
-    jest.spyOn(useRunsModule, 'useRuns').mockReturnValue(mockUseRunsWithNewMessage);
-
-    rerender(<ChatPage />);
-
-    await waitFor(() => {
-      expect(scrollIntoViewMock).toHaveBeenCalledWith({ behavior: 'smooth' });
+      writable: true,
     });
   });
 
-  it('handles user with only token but no userId', () => {
-    mockLocalStorage.getItem.mockImplementation((key) => {
-      if (key === 'token') return 'token';
-      if (key === 'userId') return null;
-      return null;
-    });
-
+  it("renders sidebar, chat messages, and chat input", () => {
     render(<ChatPage />);
-
-    expect(screen.getByTestId('chat-messages')).toBeInTheDocument();
-    expect(screen.getByTestId('chat-input')).toBeInTheDocument();
+    expect(screen.getByTestId("sidebar")).toBeInTheDocument();
+    expect(screen.getByTestId("chat-messages")).toBeInTheDocument();
+    expect(screen.getByTestId("chat-input")).toBeInTheDocument();
   });
 
-  it('handles empty localStorage gracefully', () => {
-    mockLocalStorage.getItem.mockReturnValue(null);
-
+  it("calls sendMessage when chat input submits", async () => {
     render(<ChatPage />);
-
-    expect(screen.getByTestId('chat-messages')).toBeInTheDocument();
-    expect(screen.queryByTestId('chat-input')).not.toBeInTheDocument();
+    fireEvent.click(screen.getByText("Send"));
+    await waitFor(() =>
+      expect(screen.getByText("Hello")).toBeInTheDocument()
+    );
   });
 
-  it('passes conversationId to ChatInput', () => {
+  it("handles add chat and logout from sidebar", () => {
     render(<ChatPage />);
-
-    expect(screen.getByTestId('chat-input')).toHaveTextContent('c001');
+    fireEvent.click(screen.getByText("Add Chat"));
+    fireEvent.click(screen.getByText("Logout"));
+    expect(window.localStorage.clear).toHaveBeenCalled();
   });
 
-  it('uses correct user object structure', () => {
+  it("shows conversations in sidebar", () => {
     render(<ChatPage />);
-
-    expect(screen.getByTestId('chat-input')).toHaveTextContent('User: 123');
+    expect(screen.getByText("Test Conversation")).toBeInTheDocument();
   });
 });

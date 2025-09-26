@@ -24,7 +24,7 @@ export async function createRun(
     body = JSON.stringify({ conversationId, userInput });
   }
 
-  const response = await fetch(`${API_BASE}/conversationruns`, {
+  const response = await fetch(`${API_BASE}/runs`, {
     method: 'POST',
     headers,
     body,
