@@ -175,7 +175,7 @@ export default function Sidebar({
           {isCollapsed ? collapsedSidebar : expandedSidebar}
         </div>
       ) : isCollapsed ? collapsedSidebar : expandedSidebar}
-      <style jsx global>{`
+      <style>{`
         .sidebar-conversations {
           scrollbar-width: none;
           -ms-overflow-style: none;
