@@ -1,6 +1,6 @@
 'use client';
 
-import { useUsers } from "../../hooks/usefetchUsers";
+import { useUsers } from "../../hooks/useFetchUsers";
 import { FaUserCircle } from "react-icons/fa";
 
 export default function RecentSignupsCard() {

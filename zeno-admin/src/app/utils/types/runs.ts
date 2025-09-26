@@ -79,6 +79,7 @@ export  type User = {
   created_at: string;
   role: string;
   image?: string;
+  id: number;
 };
 
 interface CustomDropdownProps {

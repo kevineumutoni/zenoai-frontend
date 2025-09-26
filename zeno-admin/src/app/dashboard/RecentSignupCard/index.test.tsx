@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import RecentSignupsCard from '.';
 
-jest.mock('../../hooks/usefetchUsers', () => ({
+jest.mock('../../hooks/useFetchUsers', () => ({
   useUsers: jest.fn(),
 }));
 
