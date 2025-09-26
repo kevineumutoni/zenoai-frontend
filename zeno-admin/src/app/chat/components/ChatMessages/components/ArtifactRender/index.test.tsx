@@ -3,12 +3,12 @@ import ChatArtifactRenderer from "./index";
 
 jest.mock("@mui/x-charts", () => ({
   BarChart: (props: any) => (
-    <div data-testid="bar-chart" data-color={props.series?.[0]?.color} {...props} />
+    <div data-testid="bar-chart" data-color={props.series?.[0]?.color} />
   ),
   LineChart: (props: any) => (
-    <div data-testid="line-chart" data-color={props.series?.[0]?.color} {...props} />
+    <div data-testid="line-chart" data-color={props.series?.[0]?.color} />
   ),
-  PieChart: (props: any) => <div data-testid="pie-chart" {...props} />,
+  PieChart: (props: any) => <div data-testid="pie-chart" />,
 }));
 
 describe("ChatArtifactRenderer", () => {
