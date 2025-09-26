@@ -2,7 +2,7 @@ import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import UsersTable from ".";
 
-jest.mock("../../../hooks/usefetchUsers", () => ({
+jest.mock("../../../hooks/useFetchUsers", () => ({
   useUsers: jest.fn(),
 }));
 
@@ -24,7 +24,7 @@ jest.mock("../DropDown", () => (props: any) => (
   </select>
 ));
 
-import { useUsers } from "../../../hooks/usefetchUsers";
+import { useUsers } from "../../../hooks/useFetchUsers";
 
 describe("UsersTable component", () => {
   const usersMock = [

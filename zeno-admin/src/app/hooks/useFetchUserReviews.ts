@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from 'react';
 import useFetchReviews from './useFetchReviews';
-import useFetchUsers from './useFetchUsers';
+import useFetchUsers from './useFetchUsersById';
 
 
 export interface ReviewItem {

@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import SidebarNav from "./sharedComponents/Navigation";
 import ProfileMenu from "./sharedComponents/ProfileMenu";
 import useFetchAdmins from "./hooks/useFetchAdmin"; 
-import ChatInput from "./sharedComponents/ChatInput";
 import Background from "./sharedComponents/Background";
 
 const teachers = Teachers({
@@ -16,11 +15,14 @@ const teachers = Teachers({
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const { user, loading, error } = useFetchAdmins();
   const pathname = usePathname();
-  const hideSidebarPaths = ["/", "/welcome", "/signin","/landing_page", "/signup"];
-  const hideChatInputPaths = ["/","/signin", "/welcome","/analytics","/systemHealth","/user_reviews","/usermanagement",,"/landing_page","/signup","/dashboard","/profile", "/signup"];
+
+  const hideSidebarPaths = ["/", "/welcome", "/signin","/landing_page", "/signup","/chat"];
+  const hideChatInputPaths = ["/","/signin", "/welcome","/analytics","/systemHealth","/user_reviews","/usermanagement",,"/landing_page","/signup","/dashboard","/profile", "/signup","/chat"];
+
 
   const showSidebar = !hideSidebarPaths.includes(pathname);
-  const hideProfileMenuPaths = ["/", "/welcome", "/signin","/landing_page", "/signup"];
+
+  const hideProfileMenuPaths = ["/", "/welcome", "/signin","/landing_page", "/signup","/chat"];
   const showProfileMenu = !hideProfileMenuPaths.includes(pathname);
   const showChatInput = !hideChatInputPaths.includes(pathname);
 
@@ -44,11 +46,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <ProfileMenu image={profileImage} />
               </div>
             )}
-             {showChatInput && (
-          <div className="fixed bottom-5 left-0 right-0 py-2 px-4 z-50">
-            <ChatInput onRunCreated={handleRunCreated} />
-          </div>
-        )}
+          
             <main>{children}</main>
           </div>
        </div>

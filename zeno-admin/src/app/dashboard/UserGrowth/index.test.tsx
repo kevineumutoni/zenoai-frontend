@@ -6,7 +6,7 @@ jest.mock('../../hooks/usefetchUsers', () => ({
   useUsers: jest.fn(),
 }));
 
-import { useUsers } from '../../hooks/usefetchUsers';
+import { useUsers } from '../../hooks/useFetchUsers';
 
 describe('UserGrowthLineChart', () => {
   beforeEach(() => {

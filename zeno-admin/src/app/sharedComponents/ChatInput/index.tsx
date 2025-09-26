@@ -1,22 +1,32 @@
 'use client';
 
+
 import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react';
 import { FaPaperclip, FaCamera, FaTimes, FaFilePdf, FaFileAlt } from 'react-icons/fa';
-import { postRun } from '../../utils/fetchRuns';
-import { Run } from '../../utils/types/runs';
+import { useRuns } from '../../hooks/useFetchPostRuns';
+import { ChatInputProps } from '../../utils/types/chat';
+import { FileWithPreview } from '../../utils/types/chat';
 
-interface ChatInputProps {
-  onRunCreated?: (run: Run) => void;
-}
 
-export default function ChatInput({ onRunCreated }: ChatInputProps) {
+export default function ChatInput({ conversationId, user, sendMessage }: ChatInputProps) {
   const [input, setInput] = useState<string>('');
-  const [files, setFiles] = useState<File[]>([]);
+  const [filePreviews, setFilePreviews] = useState<FileWithPreview[]>([]);
+  useEffect(() => {
+    return () => {
+      filePreviews.forEach(item => URL.revokeObjectURL(item.previewUrl));
+    };
+  }, [filePreviews]);
+
+
+
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [cameraSupported, setCameraSupported] = useState<boolean>(true);
 
-  const renderFilePreview = (file: File, index: number) => {
+
+  const renderFilePreview = (item: FileWithPreview, index: number) => {
+    const { file, previewUrl } = item;
     const isImage = file.type.startsWith('image/');
+
 
     return (
       <div
@@ -25,7 +35,7 @@ export default function ChatInput({ onRunCreated }: ChatInputProps) {
       >
         {isImage ? (
           <img
-            src={URL.createObjectURL(file)}
+            src={previewUrl}
             alt={file.name}
             className="w-10 h-10 object-cover rounded-md border border-gray-600"
           />
@@ -42,9 +52,11 @@ export default function ChatInput({ onRunCreated }: ChatInputProps) {
         <button
           type="button"
           onClick={() => {
-            setFiles((currentFiles) =>
-              currentFiles.filter((file, fileIndex) => fileIndex !== index)
-            );
+            setFilePreviews((current) => {
+              const removed = current[index];
+              URL.revokeObjectURL(removed.previewUrl);
+              return current.filter((_, i) => i !== index);
+            });
           }}
           className="text-gray-400 hover:text-red-400 p-1 rounded-full transition-colors"
           aria-label="Remove file"
@@ -55,26 +67,34 @@ export default function ChatInput({ onRunCreated }: ChatInputProps) {
     );
   };
 
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!input.trim() && files.length === 0) return;
+
+    if (!user?.token) {
+      alert("You must be logged in to send a message.");
+      return;
+    }
+    if (isLoading) return;
+    if (!input.trim() && filePreviews.length === 0) return;
+
     setIsLoading(true);
-    try {
-      const run = await postRun(input.trim(), files);
-      onRunCreated?.(run);
-      setInput('');
-      setFiles([]);
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        console.error(error.message);
-      } else {
-        console.error('Unexpected error', error);
-      }
+
+  try {
+      await sendMessage({
+        conversationId: conversationId ?? null,
+        userInput: input.trim(),
+        files: filePreviews.length > 0 ? filePreviews.map(preview => preview.file) : [],
+        filePreviews: filePreviews.length > 0 ? filePreviews : undefined,
+      });
+      setInput("");
+      setFilePreviews([]);
+    } catch (err) {
+
     } finally {
       setIsLoading(false);
     }
   };
-
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(e.target.files ?? []) as File[];
     const validFiles = selectedFiles.filter((file) => {
@@ -85,9 +105,14 @@ export default function ChatInput({ onRunCreated }: ChatInputProps) {
     if (validFiles.length !== selectedFiles.length) {
       alert('Some files are invalid. Only PDF, JPEG, PNG, or text files under 10MB are allowed.');
     }
-    setFiles((prev) => [...prev, ...validFiles]);
+    const newPreviews = validFiles.map(file => ({
+      file,
+      previewUrl: URL.createObjectURL(file)
+    }));
+    setFilePreviews(prev => [...prev, ...newPreviews]);
     e.target.value = '';
   };
+
 
   const handleCameraCapture = (e: ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(e.target.files ?? []) as File[];
@@ -99,9 +124,13 @@ export default function ChatInput({ onRunCreated }: ChatInputProps) {
     if (validFiles.length !== selectedFiles.length) {
       alert('Some images are invalid. Only JPEG or PNG files under 10MB are allowed from the camera.');
     }
-    setFiles((prev) => [...prev, ...validFiles]);
-    e.target.value = '';
+    const newPreviews = validFiles.map(file => ({
+      file,
+      previewUrl: URL.createObjectURL(file)
+    }));
+    setFilePreviews(prev => [...prev, ...newPreviews]); e.target.value = '';
   };
+
 
   useEffect(() => {
     const checkCameraSupport = async () => {
@@ -119,13 +148,15 @@ export default function ChatInput({ onRunCreated }: ChatInputProps) {
     checkCameraSupport();
   }, []);
 
+
   return (
     <div className="w-full max-w-3xl mx-auto space-y-1">
-      {files.length > 0 && (
+      {filePreviews.length > 0 && (
         <div className="flex flex-wrap gap-2 px-4">
-          {files.map((file, index) => renderFilePreview(file, index))}
+          {filePreviews.map((item, index) => renderFilePreview(item, index))}
         </div>
       )}
+
 
       <form
         onSubmit={handleSubmit}
@@ -136,10 +167,11 @@ export default function ChatInput({ onRunCreated }: ChatInputProps) {
           onClick={() => document.getElementById('file-upload')?.click()}
           disabled={isLoading}
           title="Upload File"
-          className="text-cyan-400 hover:text-cyan-300 transition-colors rounded-full p-2 mr-1"
+          className="text-cyan-400 hover:text-cyan-300 transition-colors rounded-full p-2 mr-1 cursor-pointer"
         >
           <FaPaperclip size={18} />
         </button>
+
 
         <button
           type="button"
@@ -158,10 +190,11 @@ export default function ChatInput({ onRunCreated }: ChatInputProps) {
           }}
           disabled={isLoading}
           title="Take Photo"
-          className="text-cyan-400 hover:text-cyan-300 transition-colors rounded-full p-2"
+          className="text-cyan-400 hover:text-cyan-300 transition-colors rounded-full p-2 cursor-pointer"
         >
           <FaCamera size={18} />
         </button>
+
 
         <input
           type="file"
@@ -182,6 +215,7 @@ export default function ChatInput({ onRunCreated }: ChatInputProps) {
           disabled={isLoading}
         />
 
+
         <input
           type="text"
           value={input}
@@ -191,10 +225,11 @@ export default function ChatInput({ onRunCreated }: ChatInputProps) {
           className="flex-1 bg-transparent text-white placeholder-cyan-300 px-2 py-2 focus:outline-none"
         />
 
+
         <button
           type="submit"
-          disabled={isLoading || (!input.trim() && files.length === 0)}
-          className="mr-2 bg-cyan-500 rotate-45 hover:bg-cyan-400 text-white p-2 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled={isLoading || (!input.trim() && filePreviews.length === 0)}
+          className="mr-2 bg-cyan-500 rotate-45 hover:bg-cyan-400 text-white p-2 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           title="Send"
         >
           {isLoading ? (
@@ -210,9 +245,11 @@ export default function ChatInput({ onRunCreated }: ChatInputProps) {
         </button>
       </form>
 
+
       <div className="text-sm text-gray-400 mt-2 text-center">
         Zeno AI can hallucinate, so double-check it
       </div>
     </div>
   );
 }
+

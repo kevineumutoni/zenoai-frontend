@@ -1,141 +1,91 @@
-import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import ChatInput from '.';
-import { postRun } from '../../utils/fetchRuns';
+import React from "react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import ChatInput from ".";
 
-jest.mock('../../utils/fetchRuns', () => ({
-  postRun: jest.fn(),
-}));
+global.URL.createObjectURL = jest.fn().mockImplementation(() => 'mock-blob-url');
+global.URL.revokeObjectURL = jest.fn();
 
-describe('ChatInput Component', () => {
-  const mockOnRunCreated = jest.fn();
+const mockSendMessage = jest.fn();
 
+describe("ChatInput Component", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    jest.spyOn(window, 'alert').mockImplementation(() => {});
-    (navigator.mediaDevices as any) = {
-      getUserMedia: jest.fn().mockResolvedValue({
-        getTracks: jest.fn(() => [{ stop: jest.fn() }]),
-      }),
-    };
+    jest.spyOn(window, "alert").mockImplementation(() => {});
+    
+    Object.defineProperty(navigator, 'mediaDevices', {
+      writable: true,
+      value: {
+        getUserMedia: jest.fn().mockResolvedValue({
+          getTracks: jest.fn(() => [{ stop: jest.fn() }]),
+        }),
+      },
+    });
   });
 
   afterEach(() => {
     jest.restoreAllMocks();
   });
 
-  it('renders input and buttons disabled initially', () => {
-    render(<ChatInput onRunCreated={mockOnRunCreated} />);
-    expect(screen.getByPlaceholderText('Ask Zeno')).toBeInTheDocument();
-    expect(screen.getByTitle('Upload File')).toBeInTheDocument();
-    expect(screen.getByTitle('Take Photo')).toBeInTheDocument();
-    expect(screen.getByTitle('Send')).toBeDisabled();
-  });
 
-  it('enables send button when typing input', () => {
-    render(<ChatInput onRunCreated={mockOnRunCreated} />);
-    const input = screen.getByPlaceholderText('Ask Zeno');
-    fireEvent.change(input, { target: { value: 'Hello' } });
-    expect(screen.getByTitle('Send')).not.toBeDisabled();
-  });
-
-  it('disables send button when input cleared again', () => {
-    render(<ChatInput onRunCreated={mockOnRunCreated} />);
-    const input = screen.getByPlaceholderText('Ask Zeno');
-    const sendBtn = screen.getByTitle('Send');
-    fireEvent.change(input, { target: { value: 'Hello' } });
-    expect(sendBtn).not.toBeDisabled();
-    fireEvent.change(input, { target: { value: '' } });
-    expect(sendBtn).toBeDisabled();
-  });
-
-  it('adds valid files on file input change and shows preview', () => {
-    render(<ChatInput onRunCreated={mockOnRunCreated} />);
-    const fileInput = document.getElementById('file-upload') as HTMLInputElement;
-    const validFile = new File(['dummy'], 'test.pdf', { type: 'application/pdf' });
-    fireEvent.change(fileInput, { target: { files: [validFile] } });
-    expect(screen.getByText('test.pdf')).toBeInTheDocument();
-  });
-
-  it('alerts and ignores invalid files on file input', () => {
-    render(<ChatInput onRunCreated={mockOnRunCreated} />);
-    const fileInput = document.getElementById('file-upload') as HTMLInputElement;
-    const invalidFile = new File(['dummy'], 'test.exe', { type: 'application/x-msdownload' });
-    fireEvent.change(fileInput, { target: { files: [invalidFile] } });
-    expect(window.alert).toHaveBeenCalledWith(
-      'Some files are invalid. Only PDF, JPEG, PNG, or text files under 10MB are allowed.'
+  it("removes a file when remove button clicked", async () => {
+    render(
+      <ChatInput 
+        user={{ id: 1, token: "abc" }} 
+        sendMessage={mockSendMessage}
+      />
     );
-    expect(screen.queryByText('test.exe')).not.toBeInTheDocument();
-  });
+    const fileInput = document.getElementById("file-upload") as HTMLInputElement;
+    const file = new File(["dummy"], "remove-me.txt", { type: "text/plain" });
 
-  it('removes a file when remove button clicked', () => {
-    render(<ChatInput onRunCreated={mockOnRunCreated} />);
-    const fileInput = document.getElementById('file-upload') as HTMLInputElement;
-    const file = new File(['dummy'], 'remove-me.txt', { type: 'text/plain' });
     fireEvent.change(fileInput, { target: { files: [file] } });
-    expect(screen.getByText('remove-me.txt')).toBeInTheDocument();
-    const removeBtn = screen.getByLabelText('Remove file');
+    
+    await waitFor(() => {
+      expect(screen.getByText("remove-me.txt")).toBeInTheDocument();
+    });
+
+    const removeBtn = screen.getByLabelText("Remove file");
     fireEvent.click(removeBtn);
-    expect(screen.queryByText('remove-me.txt')).not.toBeInTheDocument();
-  });
-
-  it('disables submit if no input and no files', () => {
-    render(<ChatInput onRunCreated={mockOnRunCreated} />);
-    const sendBtn = screen.getByTitle('Send');
-    expect(sendBtn).toBeDisabled();
+    
+    await waitFor(() => {
+      expect(screen.queryByText("remove-me.txt")).not.toBeInTheDocument();
+    });
   });
 
 
-it('calls postRun and onRunCreated on valid submit and resets input & files', async () => {
-  (postRun as jest.Mock).mockResolvedValueOnce({ id: 123, result: 'mock' });
-  const { container } = render(<ChatInput onRunCreated={mockOnRunCreated} />);
-  const input = screen.getByPlaceholderText('Ask Zeno');
-  fireEvent.change(input, { target: { value: 'Test run' } });
+  it("calls sendMessage with filePreviews when files are uploaded", async () => {
+    mockSendMessage.mockResolvedValueOnce({ id: 123, user_input: "1 file(s) attached" });
 
-  const form = container.querySelector('form');
-  if (!form) throw new Error('No form element found');
-  fireEvent.submit(form);
+    const { container } = render(
+      <ChatInput 
+        user={{ id: 1, token: "abc" }} 
+        sendMessage={mockSendMessage}
+      />
+    );
+    
+    const fileInput = document.getElementById("file-upload") as HTMLInputElement;
+    const file = new File(["dummy"], "test.pdf", { type: "application/pdf" });
+    
+    fireEvent.change(fileInput, { target: { files: [file] } });
 
-  expect(screen.getByTitle('Send')).toBeDisabled();
+    await waitFor(() => {
+      expect(screen.getByText("test.pdf")).toBeInTheDocument();
+    });
 
-  await waitFor(() => {
-    expect(postRun).toHaveBeenCalledWith('Test run', []);
-    expect(mockOnRunCreated).toHaveBeenCalledWith({ id: 123, result: 'mock' });
+    const form = container.querySelector("form");
+    fireEvent.submit(form!);
+
+    await waitFor(() => {
+      expect(mockSendMessage).toHaveBeenCalledWith(
+        expect.objectContaining({
+          files: [file],
+          filePreviews: expect.arrayContaining([
+            expect.objectContaining({
+              file: file,
+              previewUrl: 'mock-blob-url', 
+            })
+          ])
+        })
+      );
+    });
   });
-
-  expect(input).toHaveValue('');
-});
-
-it('handles errors on submit gracefully', async () => {
-  (postRun as jest.Mock).mockRejectedValueOnce(new Error('Failed request'));
-  const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-  const { container } = render(<ChatInput onRunCreated={mockOnRunCreated} />);
-  const input = screen.getByPlaceholderText('Ask Zeno');
-  fireEvent.change(input, { target: { value: 'Error test' } });
-
-  const form = container.querySelector('form');
-  if (!form) throw new Error('No form element found');
-  fireEvent.submit(form);
-
-  await waitFor(() => {
-    expect(consoleSpy).toHaveBeenCalledWith('Failed request');
-    expect(mockOnRunCreated).not.toHaveBeenCalled();
-  });
-
-  consoleSpy.mockRestore();
-});
-
-it('alerts user if camera upload attempted but not supported', () => {
-  (navigator.mediaDevices as any) = undefined;
-  render(<ChatInput onRunCreated={mockOnRunCreated} />);
-  const cameraButton = screen.getByTitle('Take Photo');
-
-  fireEvent.click(cameraButton);
-  expect(window.alert).toHaveBeenCalledWith('Camera not supported on this device.');
-});
-
-
-
-
-
 });

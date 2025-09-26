@@ -1,6 +1,6 @@
-'use client';
-import React, { useState, useMemo } from "react";
-import { useUsers } from "../../../hooks/usefetchUsers";
+'use client'
+import React, { useState, useMemo, useRef, useEffect } from "react";
+import { useUsers } from "../../../hooks/useFetchUsers";
 import { FaUserCircle } from "react-icons/fa";
 import dayjs from "dayjs";
 import CalendarDropdown from "../../../sharedComponents/CalendarDropdown";

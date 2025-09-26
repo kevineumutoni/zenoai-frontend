@@ -1,40 +1,29 @@
-import { useEffect, useState } from 'react';
-import { fetchUsers } from '../utils/fetchUser';
+import { useState, useEffect } from "react";
+import { fetchUsers } from "../utils/fetchUsers";
+import type { User } from "../utils/types/runs";
 
-export interface User {
-  id: number;
-  first_name: string;
-  last_name: string;
-  email: string;
-  image: string | null;
-}
-
-const useFetchUsers = (ids: number[]) => {
+export function useUsers() {
   const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (ids.length === 0) {
-      setLoading(false);
-      return;
+  async function loadUsers() {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const data = await fetchUsers();
+      setUsers(data);
+    } catch (err) {
+      const message = (err as Error).message || "An unknown error occurred";
+      setError(message);
+    } finally {
+      setIsLoading(false);
     }
+  }
 
-    const fetchData = async () => {
-      try {
-        const data = await fetchUsers(ids);
-        setUsers(data);
-      } catch (error) {
-        setError((error as Error).message);
-      } finally {
-        setLoading(false);
-      }
-    };
+  useEffect(() => {
+    loadUsers();
+  }, []);
 
-    fetchData();
-  }, [ids]);
-
-  return { users, loading, error };
-};
-
-export default useFetchUsers;
+  return { users, loadUsers, loading, error };
+}
