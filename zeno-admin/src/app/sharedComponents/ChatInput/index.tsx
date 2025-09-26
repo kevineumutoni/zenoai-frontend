@@ -68,25 +68,17 @@ export default function ChatInput({ conversationId, user, sendMessage }: ChatInp
   };
 
 
-
-
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
 
     if (!user?.token) {
       alert("You must be logged in to send a message.");
       return;
     }
-
-
     if (isLoading) return;
     if (!input.trim() && filePreviews.length === 0) return;
 
     setIsLoading(true);
-
-
-
 
     try {
       await sendMessage({
@@ -95,10 +87,6 @@ export default function ChatInput({ conversationId, user, sendMessage }: ChatInp
         files: filePreviews.length > 0 ? filePreviews.map(p => p.file) : [],
         filePreviews: filePreviews.length > 0 ? filePreviews : undefined,
       });
-
-
-
-
       setInput("");
       setFilePreviews([]);
     } catch (err) {
@@ -106,16 +94,6 @@ export default function ChatInput({ conversationId, user, sendMessage }: ChatInp
       setIsLoading(false);
     }
   };
-
-
-
-
-
-
-
-
-
-
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(e.target.files ?? []) as File[];
     const validFiles = selectedFiles.filter((file) => {

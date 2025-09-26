@@ -6,7 +6,7 @@ export function useConversation(userId?: number, token?: string) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function initConversation() {
+  async function startConversation() {
     if (!userId || !token) return null;
     if (conversationId) return conversationId;
 
@@ -30,5 +30,5 @@ export function useConversation(userId?: number, token?: string) {
     setConversationId(null);
   }
 
-  return { conversationId, initConversation, resetConversation, loading, error, setConversationId };
+  return { conversationId, startConversation, resetConversation, loading, error, setConversationId };
 }

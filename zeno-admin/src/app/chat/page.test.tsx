@@ -35,7 +35,7 @@ jest.mock('./components/ChatMessages', () => {
 
 const mockUseConversation = {
   conversationId: 'c001',
-  initConversation: jest.fn(),
+  startConversation: jest.fn(),
   resetConversation: jest.fn(),
   loading: false,
   error: null,
