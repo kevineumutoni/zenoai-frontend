@@ -1,6 +1,6 @@
 'use client';
 
-import { LineChart, ResponsiveContainer, CartesianGrid, XAxis, YAxis, Tooltip, Legend, Line } from "recharts";
+import { LineChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, Line } from "recharts";
 import { useUsers } from "../../hooks/useFetchUsers";
 
 function getLast7DayNames(): string[] {
@@ -90,30 +90,28 @@ export default function UserGrowthLineChart() {
         User Growth (This Week)
       </h2>
       <div className="w-full flex justify-center group">
-        <div className="w-full h-52 xl:h-72 lg:h-70">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={cumulativeData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#A1B1D6" />
-              <XAxis dataKey="day" stroke="#A1B1D6" />
-              <YAxis stroke="#A1B1D6" allowDecimals={false} />
-              <Tooltip />
-              <Legend
-                wrapperStyle={{
-                  color: "#A1B1D6",
-                  fontWeight: 600
-                }}
-              />
-              <Line
-                type="monotone"
-                dataKey="users"
-                stroke="#22d3ee"
-                name="" 
-                dot={{ stroke: "#22d3ee", strokeWidth: 2 }}
-                strokeWidth={3}
-                activeDot={{ r: 8, fill: "#fff", stroke: "#22d3ee", strokeWidth: 4 }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
+        <div style={{ width: 800, height: 400 }}>
+          <LineChart width={800} height={400} data={cumulativeData}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#A1B1D6" />
+            <XAxis dataKey="day" stroke="#A1B1D6" />
+            <YAxis stroke="#A1B1D6" allowDecimals={false} />
+            <Tooltip />
+            <Legend
+              wrapperStyle={{
+                color: "#A1B1D6",
+                fontWeight: 600
+              }}
+            />
+            <Line
+              type="monotone"
+              dataKey="users"
+              stroke="#22d3ee"
+              name=""
+              dot={{ stroke: "#22d3ee", strokeWidth: 2 }}
+              strokeWidth={3}
+              activeDot={{ r: 8, fill: "#fff", stroke: "#22d3ee", strokeWidth: 4 }}
+            />
+          </LineChart>
         </div>
       </div>
     </section>

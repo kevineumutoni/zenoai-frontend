@@ -20,8 +20,12 @@ describe('UserGrowthLineChart', () => {
       error: null,
     });
 
-    render(<UserGrowthLineChart />);
-    expect(screen.getByText(/Loading.../i)).toBeInTheDocument();
+    render(
+      <div style={{ width: 800, height: 400 }}>
+        <UserGrowthLineChart />
+      </div>
+    );
+    expect(screen.getByText(/Loading user growth/i)).toBeInTheDocument();
   });
 
   it('renders error state', () => {
@@ -31,7 +35,11 @@ describe('UserGrowthLineChart', () => {
       error: 'Failed to fetch users',
     });
 
-    render(<UserGrowthLineChart />);
+    render(
+      <div style={{ width: 800, height: 400 }}>
+        <UserGrowthLineChart />
+      </div>
+    );
     expect(screen.getByText(/Failed to fetch users/i)).toBeInTheDocument();
   });
 
@@ -42,9 +50,13 @@ describe('UserGrowthLineChart', () => {
       error: null,
     });
 
-    render(<UserGrowthLineChart />);
+    render(
+      <div style={{ width: 800, height: 400 }}>
+        <UserGrowthLineChart />
+      </div>
+    );
     expect(screen.getByText(/User Growth \(This Week\)/i)).toBeInTheDocument();
-    expect(screen.queryByText(/Loading.../i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Loading user growth/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Failed to fetch users/i)).not.toBeInTheDocument();
   });
 
@@ -123,7 +135,11 @@ describe('UserGrowthLineChart', () => {
       error: null,
     });
 
-    render(<UserGrowthLineChart />);
+    render(
+      <div style={{ width: 800, height: 400 }}>
+        <UserGrowthLineChart />
+      </div>
+    );
     expect(screen.getByText(/User Growth \(This Week\)/i)).toBeInTheDocument();
     expect(screen.queryByText(/Arsu Aregawi/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Judy Gikuni/i)).not.toBeInTheDocument();

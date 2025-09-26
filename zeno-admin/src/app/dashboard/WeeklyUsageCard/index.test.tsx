@@ -20,8 +20,12 @@ describe('WeeklyAnalyticsLineChart', () => {
       error: null,
     });
 
-    render(<WeeklyAnalyticsLineChart />);
-    expect(screen.getByText(/Loading.../i)).toBeInTheDocument();
+    render(
+      <div style={{ width: 800, height: 400 }}>
+        <WeeklyAnalyticsLineChart />
+      </div>
+    );
+    expect(screen.getByText(/Loading weekly analytics/i)).toBeInTheDocument();
   });
 
   it('renders error state', () => {
@@ -31,7 +35,11 @@ describe('WeeklyAnalyticsLineChart', () => {
       error: 'Failed to fetch analytics',
     });
 
-    render(<WeeklyAnalyticsLineChart />);
+    render(
+      <div style={{ width: 800, height: 400 }}>
+        <WeeklyAnalyticsLineChart />
+      </div>
+    );
     expect(screen.getByText(/Failed to fetch analytics/i)).toBeInTheDocument();
   });
 
@@ -42,7 +50,11 @@ describe('WeeklyAnalyticsLineChart', () => {
       error: null,
     });
 
-    render(<WeeklyAnalyticsLineChart />);
+    render(
+      <div style={{ width: 800, height: 400 }}>
+        <WeeklyAnalyticsLineChart />
+      </div>
+    );
     expect(screen.getByText(/Weekly Analytics/i)).toBeInTheDocument();
     expect(screen.getByText(/Steps per agent for the last 7 days/i)).toBeInTheDocument();
   });
@@ -66,7 +78,11 @@ describe('WeeklyAnalyticsLineChart', () => {
       error: null,
     });
 
-    render(<WeeklyAnalyticsLineChart />);
+    render(
+      <div style={{ width: 800, height: 400 }}>
+        <WeeklyAnalyticsLineChart />
+      </div>
+    );
     expect(screen.getByText(/Weekly Analytics/i)).toBeInTheDocument();
     expect(screen.getByText(/Steps per agent for the last 7 days/i)).toBeInTheDocument();
   });
@@ -89,7 +105,11 @@ describe('WeeklyAnalyticsLineChart', () => {
       error: null,
     });
 
-    render(<WeeklyAnalyticsLineChart />);
+    render(
+      <div style={{ width: 800, height: 400 }}>
+        <WeeklyAnalyticsLineChart />
+      </div>
+    );
     expect(screen.getByText(/Weekly Analytics/i)).toBeInTheDocument();
     expect(screen.getByText(/Steps per agent for the last 7 days/i)).toBeInTheDocument();
   });

@@ -1,7 +1,7 @@
 'use client';
 
 import { useFetchAnalytics } from "../../hooks/useFetchSteps";
-import { LineChart, ResponsiveContainer, CartesianGrid, XAxis, YAxis, Tooltip, Legend, Line } from "recharts";
+import { LineChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, Line } from "recharts";
 
 function getLast7Days(): string[] {
   const days = [];
@@ -75,9 +75,9 @@ export default function WeeklyAnalyticsLineChart() {
       <p className="2xl:text-lg lg:text-base text-white mb-3 mt-3">
         Steps per agent for the last 7 days
       </p>
-      <div className="w-full h-64 ">
-        <ResponsiveContainer width="80%" height="100%">
-          <LineChart data={chartData}>
+      <div className="w-full h-64 flex justify-center items-center">
+        <div style={{ width: 640, height: 256 }}>
+          <LineChart width={640} height={256} data={chartData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#A1B1D6" />
             <XAxis dataKey="date" stroke="#A1B1D6" />
             <YAxis stroke="#A1B1D6" allowDecimals={false} />
@@ -87,7 +87,7 @@ export default function WeeklyAnalyticsLineChart() {
             <Line type="monotone" dataKey="scenario" stroke="#f97316" name="Scenario Explorer" dot={{ stroke: '#f97316', strokeWidth: 2 }} />
             <Line type="monotone" dataKey="forecast" stroke="#22d3ee" name="Trade Forecast" dot={{ stroke: '#22d3ee', strokeWidth: 2 }} />
           </LineChart>
-        </ResponsiveContainer>
+        </div>
       </div>
     </section>
   );
