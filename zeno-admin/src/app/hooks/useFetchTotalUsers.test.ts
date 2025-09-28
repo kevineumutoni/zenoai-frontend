@@ -20,7 +20,6 @@ describe("useUserStats hook", () => {
   });
 
   it("returns correct total and new user counts", async () => {
-    // Removed unused variable 'now'
     const users: User[] = [
       {
         first_name: "Meron",

@@ -62,7 +62,6 @@ export default function ChatPage() {
       setRuns([]);
       setShowGreeting(true); 
     }
-    // FIX: Include setRuns in the dependency array to satisfy exhaustive-deps
   }, [selectedConversationId, conversations, setRuns]);
 
   useEffect(() => {

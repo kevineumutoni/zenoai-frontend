@@ -20,7 +20,6 @@ describe('ProfileMenu', () => {
     render(<ProfileMenu image="/some-image.png" />);
     const img = screen.getByAltText('Profile');
     expect(img).toBeInTheDocument();
-    // Next.js <Image /> will optimize the src, so check with .toContain
     expect(decodeURIComponent(img.getAttribute('src') ?? '')).toContain('/some-image.png');
   });
 
