@@ -209,7 +209,6 @@ export default function Sidebar({
         )}
       </div>
       <div className="pt-4">
-        {/* Profile Button */}
         <button
           className="w-full bg-transparent border border-blue-500 text-blue-400 py-2 px-4 rounded-full flex items-center justify-center space-x-2 hover:bg-blue-500/10 mb-3"
           onClick={() => window.location.href = "/profile"}
@@ -219,7 +218,6 @@ export default function Sidebar({
           <span>Profile</span>
         </button>
         
-        {/* Logout Button */}
         <button
           className="w-full bg-transparent border border-cyan-500 text-cyan-400 py-2 px-4 rounded-full flex items-center justify-center space-x-2 hover:bg-cyan-500/10"
           onClick={() => setShowLogoutConfirm(true)}
