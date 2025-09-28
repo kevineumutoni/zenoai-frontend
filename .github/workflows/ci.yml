@@ -14,19 +14,24 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: "18"
+
       - name: Install dependencies
         run: npm install
         working-directory: zeno-admin
+
       - name: Run tests
-        run: npm test
+        run: npm run test:ci
         working-directory: zeno-admin
+
       - name: Build React app
         run: npm run build
         working-directory: zeno-admin
+
       - name: Deploy to Vercel
         if: github.ref == 'refs/heads/main'
         env:
