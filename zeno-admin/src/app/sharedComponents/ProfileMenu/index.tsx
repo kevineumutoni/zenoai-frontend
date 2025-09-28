@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
 const ProfileMenu = ({ image }: { image?: string }) => {
@@ -51,9 +52,11 @@ const ProfileMenu = ({ image }: { image?: string }) => {
 
   return (
     <div className="relative mt-10" ref={menuRef}>
-      <img
+      <Image
         src={image || "/images/zeno-logo.png"}
         alt="Profile"
+        width={48}
+        height={48}
         className="w-12 h-12 rounded-full border-2 border-cyan-400 cursor-pointer"
         onClick={() => setOpen(o => !o)}
         style={{ objectFit: "cover" }}

@@ -1,5 +1,6 @@
 'use client'
-import React, { useState, useMemo, useRef, useEffect } from "react";
+import React, { useState, useMemo } from "react";
+import Image from "next/image";
 import { useUsers } from "../../../hooks/useFetchUsers";
 import { FaUserCircle } from "react-icons/fa";
 import dayjs from "dayjs";
@@ -73,8 +74,7 @@ export default function UsersTable() {
             onChange={(e) => setSearch(e.target.value)}
             className="p-2 rounded border border-gray-400 w-92"
           />
-
-            <CustomDropdown options={roles} selected={roleFilter} onSelect={setRoleFilter} />
+          <CustomDropdown options={roles} selected={roleFilter} onSelect={setRoleFilter} />
         </div>
         <div className="mt-8">
           <CalendarDropdown onDateChange={handleDateChange} />
@@ -105,7 +105,7 @@ export default function UsersTable() {
                   <td className="p-1 ">
                     <div className="flex items-center gap-2 ml-5 ">
                       {user.image ? (
-                        <img
+                        <Image
                           src={user.image}
                           alt={`${user.first_name} ${user.last_name}`}
                           width={40}

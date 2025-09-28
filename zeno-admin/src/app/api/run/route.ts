@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
       },
     });
 
-    let data: any = {};
+    let data: Record<string, unknown> = {};
     try {
       data = await response.json();
     } catch {
@@ -31,7 +31,7 @@ export async function GET(req: NextRequest) {
 
     if (!response.ok) {
       return NextResponse.json(
-        { message: data?.detail || data?.message || "Failed to fetch run" },
+        { message: typeof data.detail === "string" ? data.detail : data.message ?? "Failed to fetch run" },
         { status: response.status }
       );
     }

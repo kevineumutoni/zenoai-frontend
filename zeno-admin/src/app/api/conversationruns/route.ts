@@ -3,17 +3,20 @@ import { NextRequest, NextResponse } from "next/server";
 const BASE_URL = process.env.BASE_URL;
 
 export async function GET(req: NextRequest) {
-  const token = req.headers.get("authorization") || req.headers.get("Authorization");
+  const authHeader = req.headers.get("Authorization");
+  if (!authHeader) {
+    return NextResponse.json({ message: "Authorization header is required" }, { status: 401 });
+  }
 
-  if (!token) {
-    return NextResponse.json({ message: "Missing authorization token" }, { status: 401 });
+  if (!BASE_URL) {
+    return NextResponse.json({ message: "Backend URL is not configured" }, { status: 500 });
   }
 
   try {
     const backendRes = await fetch(`${BASE_URL}/conversations/with_runs/`, {
       method: "GET",
       headers: {
-        Authorization: token,
+        Authorization: authHeader,
       },
     });
 

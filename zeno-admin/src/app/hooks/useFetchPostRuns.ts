@@ -7,16 +7,12 @@ export function useRuns(user?: { id: number; token: string }) {
   const pollingRef = useRef<Map<number, number>>(new Map());
 
   useEffect(() => {
-    const pollingEffect = () => {
-      const cleanupPolling = () => {
-        pollingRef.current.forEach(clearInterval);
-        pollingRef.current.clear();
-      };
-      return cleanupPolling;
+    const cleanupPolling = () => {
+      pollingRef.current.forEach(clearInterval);
+      pollingRef.current.clear();
     };
-    return pollingEffect();
+    return cleanupPolling;
   }, []);
-
 
   const normalizeRun = (run: Partial<RunLike>): RunLike => ({
     id: run.id || String(Date.now()),
@@ -28,25 +24,22 @@ export function useRuns(user?: { id: number; token: string }) {
     error: run.error,
   });
 
+  async function sendMessage({
+    conversationId,
+    userInput,
+    files = [],
+    filePreviews,
+  }: {
+    conversationId?: string | null;
+    userInput: string;
+    files?: File[];
+    filePreviews?: RunFile[];
+  }): Promise<RunLike> {
+    const tempId = "temp-" + Date.now();
+    const optimisticFiles = filePreviews || files.map((file) => ({ file, previewUrl: "" }));
+    const displayInput = files.length > 0 ? files.map((file) => file.name).join(", ") : userInput;
 
-async function sendMessage({
-  conversationId,
-  userInput,
-  files = [],
-  filePreviews,
-}: {
-  conversationId?: string | null;
-  userInput: string;
-  files?: File[];
-  filePreviews?: RunFile[];
-}): Promise<RunLike> {
-
-
-  const tempId = "temp-" + Date.now();
-  const optimisticFiles = filePreviews || files.map((file) => ({ file, previewUrl: "" }));
-  const displayInput = files.length > 0 ? files.map((file) => file.name).join(", ") : userInput;
-
-  setRuns(runs => runs.concat({
+    setRuns(runs => runs.concat({
       id: tempId,
       user_input: displayInput,
       status: "pending",
@@ -55,60 +48,58 @@ async function sendMessage({
       started_at: new Date().toISOString(),
       _optimistic: true,
       files: optimisticFiles,
-    })
-  );
+    }));
 
-  try {
-    const incomingRun = await createRun(
-      conversationId || null,
-      userInput,
-      user && user.token,
-      files
-    );
+    try {
+      const incomingRun = await createRun(
+        conversationId || null,
+        userInput,
+        user?.token,
+        files
+      );
 
-    const normalized = normalizeRun(incomingRun);
+      const normalized = normalizeRun(incomingRun);
 
-    setRuns(prevRuns =>
-      prevRuns.map((run) => {
-        if (run.id === tempId) {
-          const updated = Object.assign({}, normalized);
-          updated.files = run.files;
-          return updated;
-        }
-        return run;
-      })
-    );
+      setRuns(prevRuns =>
+        prevRuns.map((run) => {
+          if (run.id === tempId) {
+            const updated = Object.assign({}, normalized);
+            updated.files = run.files;
+            return updated;
+          }
+          return run;
+        })
+      );
 
-    const runId = Number(incomingRun.id);
-    if (runId > 0) startPolling(runId);
+      const runId = Number(incomingRun.id);
+      if (runId > 0) startPolling(runId);
 
-    return normalized;
-  } catch (err) {
-    const message = (err as { message?: string }).message || String(err);
+      return normalized;
+    } catch (err) {
+      const message = (err as { message?: string }).message || String(err);
 
-    setRuns(prevRuns =>
-      prevRuns.map(run => {
-        if (run.id === tempId) {
-          const failedRun = Object.assign({}, run);
-          failedRun.status = "failed";
-          failedRun.error = message;
-          return failedRun;
-        }
-        return run;
-      })
-    );
+      setRuns(prevRuns =>
+        prevRuns.map(run => {
+          if (run.id === tempId) {
+            const failedRun = Object.assign({}, run);
+            failedRun.status = "failed";
+            failedRun.error = message;
+            return failedRun;
+          }
+          return run;
+        })
+      );
 
-    throw err;
+      throw err;
+    }
   }
-}
-
 
   const startPolling = (runId: number) => {
     if (pollingRef.current.has(runId)) return;
 
     const intervalId = window.setInterval(async () => {
       try {
-        const updated = normalizeRun(await fetchRunById(runId, user && user.token));
+        const updated = normalizeRun(await fetchRunById(runId, user?.token));
 
         setRuns(prevRuns =>
           prevRuns.map(run => {
@@ -125,7 +116,7 @@ async function sendMessage({
           clearInterval(intervalId);
           pollingRef.current.delete(runId);
         }
-      } catch (error) {
+      } catch {
         clearInterval(intervalId);
         pollingRef.current.delete(runId);
       }

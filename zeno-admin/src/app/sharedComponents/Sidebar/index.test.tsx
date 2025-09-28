@@ -1,5 +1,5 @@
 import React from "react";
-import { render, fireEvent, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import Sidebar from ".";
 
 const mockConversations = [
@@ -16,10 +16,12 @@ const defaultProps = {
   isMobile: false,
   showSidebar: true,
   setShowSidebar: jest.fn(),
+  onRenameConversation: jest.fn(),
+  onDeleteConversation: jest.fn(),
 };
 
 describe("Sidebar", () => {
-  it("renders expanded sidebar with conversations", () => {
+  it("renders expanded sidebar with conversation titles", () => {
     render(<Sidebar {...defaultProps} />);
     expect(screen.getByText("Add a new chat")).toBeInTheDocument();
     expect(screen.getByText("Conversations")).toBeInTheDocument();
@@ -27,13 +29,17 @@ describe("Sidebar", () => {
     expect(screen.getByText("Conversation 2")).toBeInTheDocument();
   });
 
-  it("renders collapsed sidebar", () => {
+  it("collapses and expands sidebar", () => {
     render(<Sidebar {...defaultProps} />);
+
     fireEvent.click(screen.getByLabelText("Collapse Sidebar"));
     expect(screen.getByLabelText("Expand Sidebar")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByLabelText("Expand Sidebar"));
+    expect(screen.getByText("Add a new chat")).toBeInTheDocument();
   });
 
-  it("calls onAddChat when Add a new chat is clicked", () => {
+  it("calls onAddChat when 'Add a new chat' button clicked", () => {
     render(<Sidebar {...defaultProps} />);
     fireEvent.click(screen.getByLabelText("Add a new chat"));
     expect(defaultProps.onAddChat).toHaveBeenCalled();
@@ -45,7 +51,7 @@ describe("Sidebar", () => {
     expect(defaultProps.setSelectedConversationId).toHaveBeenCalledWith(2);
   });
 
-  it("shows no conversations message", () => {
+  it("shows 'No conversations yet' message when no conversations", () => {
     render(
       <Sidebar
         {...defaultProps}
@@ -55,24 +61,23 @@ describe("Sidebar", () => {
     expect(screen.getByText("No conversations yet")).toBeInTheDocument();
   });
 
-
-
-  it("closes logout confirmation modal when Cancel is clicked", () => {
+  it("opens and closes logout confirmation modal", () => {
     render(<Sidebar {...defaultProps} />);
     fireEvent.click(screen.getByLabelText("Logout"));
+    expect(screen.getByText("Confirm Logout")).toBeInTheDocument();
+
     fireEvent.click(screen.getByText("Cancel"));
     expect(screen.queryByText("Confirm Logout")).not.toBeInTheDocument();
   });
 
-  it("renders sidebar as overlay when isMobile and showSidebar are true", () => {
-    render(
-      <Sidebar
-        {...defaultProps}
-        isMobile={true}
-        showSidebar={true}
-      />
-    );
-    expect(screen.getByText("Add a new chat")).toBeInTheDocument();
-    expect(screen.getByText("Conversations")).toBeInTheDocument();
+  it("calls onLogout when logout confirmed", () => {
+    render(<Sidebar {...defaultProps} />);
+    fireEvent.click(screen.getByLabelText("Logout"));
+    const logoutButtons = screen.getAllByRole('button', { name: /^logout$/i });
+    fireEvent.click(logoutButtons[1]);
+
+    expect(defaultProps.onLogout).toHaveBeenCalled();
   });
+
+
 });

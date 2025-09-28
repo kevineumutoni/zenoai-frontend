@@ -19,7 +19,21 @@ export async function fetchCurrentAdmin() {
   return response.json();
 }
 
-export async function updateCurrentAdmin(id: number | string, u: any) {
+export interface AdminUpdatePayload {
+  role?: string;
+  first_name?: string;
+  last_name?: string;
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  image?: string;
+  date_joined?: string;
+  registeredDate?: string;
+  created_at?: string;
+  password?: string;
+}
+
+export async function updateCurrentAdmin(id: number | string, u: AdminUpdatePayload) {
   const { token } = authInfo();
   if (!token) throw new Error("No token found");
   const data = {

@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
       }),
     });
 
-    let data: any = {};
+    let data: Record<string, unknown> = {};
     try {
       data = await res.json();
     } catch {
@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
 
     if (!res.ok) {
       return NextResponse.json(
-        { message: data.detail || data || "Failed to submit feedback" },
+        { message: typeof data.detail === "string" ? data.detail : "Failed to submit feedback" },
         { status: res.status }
       );
     }

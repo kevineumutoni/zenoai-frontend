@@ -2,18 +2,20 @@ import { renderHook, act } from "@testing-library/react";
 import { useSendFeedback } from "./useFetchFeedback";
 import * as sendFeedbackModule from "../utils/fetchFeedback";
 
+type FeedbackResponse = { success: boolean; message: string };
+
 describe("useSendFeedback", () => {
   afterEach(() => {
     jest.restoreAllMocks();
   });
 
   it("should handle successful feedback", async () => {
-    const mockResponse = { success: true, message: "OK" };
+    const mockResponse: FeedbackResponse = { success: true, message: "OK" };
     jest.spyOn(sendFeedbackModule, "sendFeedback").mockResolvedValue(mockResponse);
 
     const { result } = renderHook(() => useSendFeedback());
 
-    let response: any;
+    let response: FeedbackResponse | undefined;
     await act(async () => {
       response = await result.current.submitFeedback({
         feedbackType: "like",

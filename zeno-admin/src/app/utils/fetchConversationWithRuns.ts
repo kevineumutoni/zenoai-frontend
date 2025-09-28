@@ -1,5 +1,4 @@
-export async function getConversationsWithRuns(token?: string) {
-  if (!token) throw new Error("Missing token");
+export async function getConversationsWithRuns(token: string) {
   const response = await fetch("/api/conversationruns", {
     headers: { Authorization: `Token ${token}` },
   });

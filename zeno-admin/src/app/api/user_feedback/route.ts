@@ -1,4 +1,3 @@
-import { NextRequest, NextResponse } from 'next/server';
 
 const BASE_URL = process.env.BASE_URL;
 export async function GET(request: Request) {
@@ -19,6 +18,7 @@ export async function GET(request: Request) {
     });
     
   } catch (error) {
-    return new Response('An error occurred while retreiving data.', { status: 500 });
+    const message = (error as Error).message || 'An error occurred while retrieving feedback.';
+    return new Response(message, { status: 500 });
   }
 }

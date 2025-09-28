@@ -1,28 +1,43 @@
 import React from "react";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent} from "@testing-library/react";
 import UsersTable from ".";
+
+function MockCalendarDropdown(props: { onDateChange: (start: Date, end: Date) => void }) {
+  return <button onClick={() => props.onDateChange(new Date("2023-01-01"), new Date("2023-12-31"))}>Set Date</button>;
+}
+MockCalendarDropdown.displayName = "MockCalendarDropdown";
+
+function MockDropDown(props: { selected: string; options: string[]; onSelect: (value: string) => void }) {
+  return (
+    <select
+      value={props.selected}
+      onChange={(e) => props.onSelect(e.target.value)}
+      data-testid="role-dropdown"
+    >
+      <option value="all">all</option>
+      {props.options.map((opt: string) => (
+        <option key={opt} value={opt}>
+          {opt}
+        </option>
+      ))}
+    </select>
+  );
+}
+MockDropDown.displayName = "MockDropDown";
 
 jest.mock("../../../hooks/useFetchUsers", () => ({
   useUsers: jest.fn(),
 }));
 
-jest.mock("../../../sharedComponents/CalendarDropdown", () => (props: any) => (
-  <button onClick={() => props.onDateChange(new Date("2023-01-01"), new Date("2023-12-31"))}>Set Date</button>
-));
-jest.mock("../DropDown", () => (props: any) => (
-  <select
-    value={props.selected}
-    onChange={(e) => props.onSelect(e.target.value)}
-    data-testid="role-dropdown"
-  >
-    <option value="all">all</option>
-    {props.options.map((opt: string) => (
-      <option key={opt} value={opt}>
-        {opt}
-      </option>
-    ))}
-  </select>
-));
+jest.mock("../../../sharedComponents/CalendarDropdown", () => ({
+  __esModule: true,
+  default: MockCalendarDropdown,
+}));
+
+jest.mock("../DropDown", () => ({
+  __esModule: true,
+  default: MockDropDown,
+}));
 
 import { useUsers } from "../../../hooks/useFetchUsers";
 

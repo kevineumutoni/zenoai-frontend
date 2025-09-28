@@ -1,5 +1,6 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import FeedbackButtons from ".";
+import { act } from "react";
 
 describe("FeedbackButtons", () => {
   beforeEach(() => {
@@ -19,7 +20,9 @@ describe("FeedbackButtons", () => {
   it("copies text to clipboard", async () => {
     render(<FeedbackButtons userId={1} textToCopy="Copy me" />);
 
-    fireEvent.click(screen.getByLabelText("copy"));
+    await act(async () => {
+      fireEvent.click(screen.getByLabelText("copy"));
+    });
 
     expect(navigator.clipboard.writeText).toHaveBeenCalledWith("Copy me");
   });

@@ -3,6 +3,24 @@
 import React, { useState, useEffect } from 'react';
 import useFetchAdmins from '../hooks/useFetchAdmin';
 import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
+import Image from 'next/image';
+
+interface UserType {
+  id?: string | number;
+  user_id?: string | number;
+  role?: string;
+  first_name?: string;
+  last_name?: string;
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  image?: string;
+  date_joined?: string;
+  registeredDate?: string;
+  created_at?: string;
+  password?: string;
+  [key: string]: unknown;
+}
 
 interface FormData {
   role?: string;
@@ -15,6 +33,16 @@ interface FormData {
   [key: string]: string | undefined;
 }
 
+type SnakeCaseData = {
+  role?: string;
+  first_name?: string;
+  last_name?: string;
+  email?: string;
+  image?: string;
+  date_joined?: string;
+  password: string;
+};
+
 const ProfilePage = () => {
   const { user, loading, error, updateAdmin, refetch } = useFetchAdmins();
   const [isEditing, setIsEditing] = useState(false);
@@ -22,15 +50,25 @@ const ProfilePage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
 
+  function getSafeId(userObj: UserType): string | number | undefined {
+    if (typeof userObj?.id === 'string' || typeof userObj?.id === 'number') return userObj.id;
+    if (typeof userObj?.user_id === 'string' || typeof userObj?.user_id === 'number') return userObj.user_id;
+    return undefined;
+  }
+
+  function getString(val: unknown): string {
+    return typeof val === 'string' ? val : '';
+  }
+
   useEffect(() => {
     if (user) {
       setFormData({
-        role: user.role,
-        first_name: user.first_name || user.firstName || '',
-        last_name: user.last_name || user.lastName || '',
-        email: user.email || '',
-        date_joined: user.date_joined || user.registeredDate || user.created_at || '',
-        image: user.image,
+        role: getString(user.role),
+        first_name: getString(user.first_name ?? (user as UserType).firstName),
+        last_name: getString(user.last_name ?? (user as UserType).lastName),
+        email: getString(user.email),
+        date_joined: getString(user.date_joined ?? user.registeredDate ?? user.created_at),
+        image: getString(user.image),
         password: ''
       });
     }
@@ -43,12 +81,12 @@ const ProfilePage = () => {
     setStatus(null);
     if (user) {
       setFormData({
-        role: user.role,
-        first_name: user.first_name || user.firstName || '',
-        last_name: user.last_name || user.lastName || '',
-        email: user.email || '',
-        date_joined: user.date_joined || user.registeredDate || user.created_at || '',
-        image: user.image,
+        role: getString(user.role),
+        first_name: getString(user.first_name ?? (user as UserType).firstName),
+        last_name: getString(user.last_name ?? (user as UserType).lastName),
+        email: getString(user.email),
+        date_joined: getString(user.date_joined ?? user.registeredDate ?? user.created_at),
+        image: getString(user.image),
         password: ''
       });
     }
@@ -65,44 +103,50 @@ const ProfilePage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
-    console.log("User object in handleSubmit:", user);
 
     if (!formData.password || formData.password.trim() === '') {
       setStatus('Password is required to update the profile.');
       return;
     }
 
-    try {
-      const snakeCaseData: any = {
-        role: formData.role ?? user.role,
-        first_name: formData.first_name ?? user.first_name ?? user.firstName ?? '',
-        last_name: formData.last_name ?? user.last_name ?? user.lastName ?? '',
-        email: formData.email ?? user.email ?? '',
-        image: formData.image ?? user.image,
-        date_joined: formData.date_joined ?? user.date_joined ?? user.registeredDate ?? user.created_at ?? '',
-        password: formData.password,
-      };
+    const snakeCaseData: SnakeCaseData = {
+      role: formData.role ?? '',
+      first_name: formData.first_name ?? '',
+      last_name: formData.last_name ?? '',
+      email: formData.email ?? '',
+      image: formData.image ?? '',
+      date_joined: formData.date_joined ?? '',
+      password: formData.password,
+    };
 
-      const safeId = user.id ?? user.user_id;
-      if (safeId !== undefined) {
+    const safeId = getSafeId(user as UserType);
+    if (safeId !== undefined) {
+      try {
         const updatedUser = await updateAdmin(safeId, snakeCaseData);
-
+        if (!updatedUser) {
+          setStatus('Update failed.');
+          setTimeout(() => setStatus(null), 2000);
+          return;
+        }
         setFormData({
-          role: updatedUser.role,
-          first_name: updatedUser.first_name || '',
-          last_name: updatedUser.last_name || '',
-          email: updatedUser.email || '',
-          date_joined: updatedUser.date_joined || updatedUser.registeredDate || updatedUser.created_at || '',
-          image: updatedUser.image,
+          role: getString(updatedUser.role),
+          first_name: getString(updatedUser.first_name),
+          last_name: getString(updatedUser.last_name),
+          email: getString(updatedUser.email),
+          date_joined: getString(updatedUser.date_joined ?? updatedUser.registeredDate ?? updatedUser.created_at),
+          image: getString(updatedUser.image),
           password: ''
         });
 
         setIsEditing(false);
         setStatus('Profile updated successfully!');
         setTimeout(() => setStatus(null), 2000);
+      } catch {
+        setStatus('Update failed.');
+        setTimeout(() => setStatus(null), 2000);
       }
-    } catch (err) {
-      setStatus('Update failed.');
+    } else {
+      setStatus('User ID not found.');
       setTimeout(() => setStatus(null), 2000);
     }
   };
@@ -122,7 +166,6 @@ const ProfilePage = () => {
     );
   }
 
-  
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8">
@@ -166,11 +209,19 @@ const ProfilePage = () => {
           <div className="flex-1 flex justify-center mb-6 lg:mb-0">
             <div style={{ backgroundColor: '#0F243D' }} className="rounded-3xl pt-6 sm:pt-10 lg:pt-14 shadow-lg border border-none max-w-xs sm:max-w-sm w-full">
               <div className="relative">
-                <img
-                  src={formData.image}
-                  alt="Admin"
-                  className="w-24 h-24 sm:w-32 sm:h-32 lg:w-48 lg:h-48 xl:w-64 xl:h-64 rounded-full border-4 border-cyan-400 object-cover mx-auto"
-                />
+                {formData.image ? (
+                  <Image
+                    src={formData.image}
+                    alt="Admin"
+                    width={192}
+                    height={192}
+                    className="w-24 h-24 sm:w-32 sm:h-32 lg:w-48 lg:h-48 xl:w-64 xl:h-64 rounded-full border-4 border-cyan-400 object-cover mx-auto"
+                  />
+                ) : (
+                  <div className="w-24 h-24 sm:w-32 sm:h-32 lg:w-48 lg:h-48 xl:w-64 xl:h-64 rounded-full border-4 border-cyan-400 object-cover mx-auto bg-gray-700 flex items-center justify-center text-white">
+                    No Image
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -272,9 +323,9 @@ const ProfilePage = () => {
                       onChange={handleChange}
                       className="w-full bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm sm:text-base lg:text-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
                     />
-                    ) : (
-                      <p className="text-white text-base sm:text-lg lg:text-xl">{formData.email || 'Not specified'}</p>
-                    )}
+                  ) : (
+                    <p className="text-white text-base sm:text-lg lg:text-xl">{formData.email || 'Not specified'}</p>
+                  )}
                 </div>
                 <hr className="border-gray-700 my-3 sm:my-4" />
                 {isEditing && (

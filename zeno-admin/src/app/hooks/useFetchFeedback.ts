@@ -20,9 +20,14 @@ export function useSendFeedback() {
       const response = await sendFeedback(options);
       setSuccess("Feedback submitted successfully");
       return response;
-    } catch (err: any) {
-      setError(err.message || "Failed to send feedback");
-      throw err;
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message || "Failed to send feedback");
+        throw err;
+      } else {
+        setError("Failed to send feedback");
+        throw new Error("Failed to send feedback");
+      }
     } finally {
       setLoading(false);
     }

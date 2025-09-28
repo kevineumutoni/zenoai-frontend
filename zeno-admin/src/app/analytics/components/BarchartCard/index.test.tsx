@@ -5,7 +5,7 @@ import { Step } from '../../../utils/types/steps';
 jest.mock('../AnalysisBarChart', () => {
   return {
     __esModule: true,
-    default: function MockBarChart(props: any) {
+    default: function MockBarChart(props: { data: number[] | null }) {
       if (!props.data) return <div data-testid="mock-bar-chart">No data</div>;
       const total = props.data.reduce((sum: number, val: number) => sum + val, 0);
       return <div data-testid="mock-bar-chart">Chart with {total} total requests</div>;

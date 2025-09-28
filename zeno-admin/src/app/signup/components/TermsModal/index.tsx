@@ -68,7 +68,7 @@ export default function TermsModal({
          <div>
            <h3 className="text-2xl mb-3 text-[#9FF8F8]">2. Data Collection and Use</h3>
            <p>
-             We collect and process your personal data for the purpose of providing Zeno's services, including economic forecasting, scenario analysis, and decision support. This data may include your full name and email address.
+             We collect and process your personal data for the purpose of providing Zeno&apos;s services, including economic forecasting, scenario analysis, and decision support. This data may include your full name and email address.
            </p>
          </div>
          <div>
@@ -78,7 +78,7 @@ export default function TermsModal({
            </p>
            <ul className="list-disc ml-6">
              <li>
-               <span className='font-semibold'>Data in Transit:</span> Data sent between your device and our systems, as well as between Zeno's components and external APIs, is encrypted using secure protocols like TLS 1.3 to ensure confidentiality.
+               <span className='font-semibold'>Data in Transit:</span> Data sent between your device and our systems, as well as between Zeno&apos;s components and external APIs, is encrypted using secure protocols like TLS 1.3 to ensure confidentiality.
              </li>
              <li>
                <span className='font-semibold'>Data at Rest:</span> Sensitive data fields, including your full name and email address, are encrypted at rest using the AES-256 algorithm to prevent unauthorized access.
@@ -101,7 +101,7 @@ export default function TermsModal({
            </p>
            <ul className="list-disc ml-6">
              <li>
-               <span className='font-semibold'>Right to Data Deletion:</span> You have the right to request the deletion of your personal data from our systems. You can do this through the "Delete Account" option in your account settings. Upon your request, your data will be fully anonymized, and you will receive a confirmation.
+               <span className='font-semibold'>Right to Data Deletion:</span> You have the right to request the deletion of your personal data from our systems. You can do this through the &quot;Delete Account&quot; option in your account settings. Upon your request, your data will be fully anonymized, and you will receive a confirmation.
              </li>
            </ul>
          </div>

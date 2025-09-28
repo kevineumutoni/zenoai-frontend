@@ -2,18 +2,36 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import UserFeedbackPage from './page';
 
+function MockStatsCard(props: { title: string; value: number; type: string }) {
+  return <div data-testid={`stats-${props.type}`}>{props.title}: {props.value}</div>;
+}
+MockStatsCard.displayName = "MockStatsCard";
+
+function MockComments(props: { comments: Array<{ text: string; sentiment: string }> }) {
+  return (
+    <div data-testid="comments">
+      {props.comments.map((comment) => comment.text).join(', ')}
+    </div>
+  );
+}
+MockComments.displayName = "MockComments";
+
 jest.mock('../hooks/useFetchUserReviews', () => ({
   __esModule: true,
   default: jest.fn(),
 }));
 
-jest.mock('./components/StatsCard', () => (props: any) => (
-  <div data-testid={`stats-${props.type}`}>{props.title}: {props.value}</div>
-));
+jest.mock('./components/StatsCard', () => ({
+  __esModule: true,
+  default: MockStatsCard,
+}));
 
-jest.mock('./components/Comments', () => (props: any) => (
-  <div data-testid="comments">{props.comments.map((comment: any) => comment.text).join(', ')}</div>
-));
+jest.mock('./components/Comments', () => ({
+  __esModule: true,
+  default: MockComments,
+}));
+
+import useFetchUserFeedback from '../hooks/useFetchUserReviews';
 
 const mockData = {
   totalReview: 10,
@@ -27,13 +45,12 @@ const mockData = {
 };
 
 describe('UserFeedbackPage', () => {
-  const useFetchUserFeedback = require('../hooks/useFetchUserReviews').default;
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
   it('renders loading state', () => {
-    useFetchUserFeedback.mockReturnValue({
+    (useFetchUserFeedback as jest.Mock).mockReturnValue({
       data: null,
       loading: true,
       error: null,
@@ -43,7 +60,7 @@ describe('UserFeedbackPage', () => {
   });
 
   it('renders error state and retry button', async () => {
-    useFetchUserFeedback.mockReturnValue({
+    (useFetchUserFeedback as jest.Mock).mockReturnValue({
       data: null,
       loading: false,
       error: 'Network error',
@@ -55,7 +72,7 @@ describe('UserFeedbackPage', () => {
   });
 
   it('renders feedback stats and comments', () => {
-    useFetchUserFeedback.mockReturnValue({
+    (useFetchUserFeedback as jest.Mock).mockReturnValue({
       data: mockData,
       loading: false,
       error: null,
@@ -68,7 +85,7 @@ describe('UserFeedbackPage', () => {
   });
 
   it('filters comments by sentiment', async () => {
-    useFetchUserFeedback.mockReturnValue({
+    (useFetchUserFeedback as jest.Mock).mockReturnValue({
       data: mockData,
       loading: false,
       error: null,

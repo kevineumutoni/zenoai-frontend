@@ -10,7 +10,7 @@ import {
   ChartData,
 } from 'chart.js';
 import { Pie } from 'react-chartjs-2';
-import { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
