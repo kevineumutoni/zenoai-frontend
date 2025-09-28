@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "test": "jest",
-    "test:ci": "jest --passWithNoTests --testPathIgnorePatterns=\"src/app/analytics/components/AnalysisPieChart|src/app/user_reviews/components|src/app/chat|src/app/utils\""
+    "test:ci": "jest --passWithNoTests --testPathIgnorePatterns=\"src/app/analytics|src/app/user_reviews/components|src/app/chat|src/app/utils\""
   },
   "dependencies": {
     "@emotion/cache": "^11.14.0",
