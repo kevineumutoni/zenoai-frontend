@@ -23,7 +23,6 @@ function HookWrapper({ token }: { token?: string }) {
   return null;
 }
 
-// Optional: Silence act() warnings for cleaner output
 const originalConsoleError = console.error;
 beforeAll(() => {
   console.error = (...args) => {
