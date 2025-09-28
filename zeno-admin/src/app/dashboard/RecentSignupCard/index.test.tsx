@@ -143,10 +143,9 @@ describe('RecentSignupsCard', () => {
     });
 
     render(<RecentSignupsCard />);
-    expect(screen.getByAltText(/Arsema Aregawi/i)).toHaveAttribute(
-      'src',
-      'http://photos.com/arsema.jpg'
-    );
+    const img = screen.getByAltText(/Arsema Aregawi/i);
+    expect(img).toBeInTheDocument();
+    expect(decodeURIComponent(img.getAttribute('src') ?? '')).toContain("http://photos.com/arsema.jpg");
     expect(screen.getByText(/Akeza Saloi/i)).toBeInTheDocument();
   });
 });

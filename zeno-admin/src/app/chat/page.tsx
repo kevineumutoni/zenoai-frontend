@@ -41,7 +41,6 @@ export default function ChatPage() {
     }
   }, [runs]);
 
-  // 🔥 FIXED: Properly map conversation runs to RunLike format
   useEffect(() => {
     const selectedConversation = conversations.find(
       (c) => c.conversation_id === selectedConversationId
@@ -57,14 +56,14 @@ export default function ChatPage() {
         files: [],
         _optimistic: false,
       }));
-      
       setRuns(mappedRuns);
       setShowGreeting(mappedRuns.length === 0);
     } else {
       setRuns([]);
       setShowGreeting(true); 
     }
-  }, [selectedConversationId, conversations]);
+    // FIX: Include setRuns in the dependency array to satisfy exhaustive-deps
+  }, [selectedConversationId, conversations, setRuns]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -160,7 +159,6 @@ export default function ChatPage() {
       filePreviews,
     });
 
-    // 🔥 CRITICAL: Refresh conversations to get AI response
     await fetchConvos();
 
     if (!conversationId) {

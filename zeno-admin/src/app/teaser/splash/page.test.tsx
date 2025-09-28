@@ -2,18 +2,32 @@ import React from "react";
 import { render, screen } from "@testing-library/react";
 import SplashScreen from "./page";
 
+function MockImage(props: { src: string; alt: string; width?: number; height?: number; className?: string }) {
+  return (
+    <div
+      data-testid="mock-next-image"
+      data-src={props.src}
+      data-alt={props.alt}
+      data-width={props.width ?? ""}
+      data-height={props.height ?? ""}
+      className={props.className}
+    />
+  );
+}
+MockImage.displayName = "MockImage";
 
-jest.mock("next/image", () => (props: any) => {
-
-  return <img {...props} />;
-});
+jest.mock("next/image", () => ({
+  __esModule: true,
+  default: MockImage,
+}));
 
 describe("SplashScreen", () => {
   it("renders the splash screen with the logo", () => {
     render(<SplashScreen />);
-    const logo = screen.getByAltText("zeno-logo.png");
+    const logo = screen.getByTestId("mock-next-image");
     expect(logo).toBeInTheDocument();
-    expect(logo).toHaveAttribute("src", "/images/zeno.png");
+    expect(logo).toHaveAttribute("data-src", "/images/zeno.png");
+    expect(logo).toHaveAttribute("data-alt", "zeno-logo.png");
   });
 
   it("calls onTimeout after 2 seconds", () => {

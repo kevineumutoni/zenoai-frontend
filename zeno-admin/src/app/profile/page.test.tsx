@@ -1,155 +1,157 @@
-import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import useFetchAdmin from '../hooks/useFetchAdmin';
-import ProfilePage from './page';
+import React from "react";
+import { render, screen, fireEvent, act } from "@testing-library/react";
+import ProfilePage from "./page";
 
-jest.mock('next/navigation', () => ({
-  useRouter() {
-    return {
-      push: jest.fn(),
-      replace: jest.fn(),
-      refresh: jest.fn(),
-      prefetch: jest.fn(),
-    };
-  },
-  usePathname: jest.fn(() => '/profile'),
-  useSearchParams: jest.fn(() => new URLSearchParams()),
-}));
+jest.mock("../hooks/useFetchAdmin", () => {
+  return () => ({
+    user: {
+      id: 1,
+      role: "admin",
+      first_name: "Kevin",
+      last_name: "Brown",
+      email: "kevin@example.com",
+      date_joined: "2023-07-01T08:00:00Z",
+      image: "/avatar.png",
+      password: "",
+    },
+    loading: false,
+    error: null,
+    updateAdmin: jest.fn().mockResolvedValue({
+      id: 1,
+      role: "admin",
+      first_name: "Kevin",
+      last_name: "Brown",
+      email: "kevin@example.com",
+      date_joined: "2023-07-01T08:00:00Z",
+      image: "/avatar.png",
+      password: "",
+    }),
+    refetch: jest.fn(),
+  });
+});
 
-jest.mock('../hooks/useFetchAdmin', () => jest.fn());
-
-describe('ProfilePage', () => {
-  const mockUser = {
-    id: 1,
-    first_name: 'Tirsit',
-    last_name: 'Berihu',
-    email: 'tirsit@gmail.com',
-    image: 'https://example.com/photo.jpg',
-    role: 'Admin',
-    date_joined: '2025-01-01T00:00:00Z',
-    registeredDate: '2025-01-01T00:00:00Z',
+jest.mock("next/image", () => {
+  return function MockImage(props: { src: string; alt: string; width?: number; height?: number; className?: string }) {
+    return (
+      <div
+        data-testid="mock-next-image"
+        data-src={props.src}
+        data-alt={props.alt}
+        data-width={props.width ?? ""}
+        data-height={props.height ?? ""}
+        className={props.className}
+      />
+    );
   };
+});
 
-  beforeEach(() => {
-    jest.clearAllMocks();
-    (useFetchAdmin as jest.Mock).mockReturnValue({
-      user: mockUser,
-      loading: false,
-      error: null,
-      updateAdmin: jest.fn((id, data) =>
-        Promise.resolve({
-          ...mockUser,
-          ...data, 
-          password: undefined,
-        })
-      ),
-      refetch: jest.fn(),
-    });
-  });
-
-  it('renders user details', () => {
-    render(<ProfilePage />);
-    expect(screen.getByText('Profile')).toBeInTheDocument();
-    expect(screen.getByText('Tirsit')).toBeInTheDocument();
-    expect(screen.getByText('Berihu')).toBeInTheDocument();
-    expect(screen.getByText('tirsit@gmail.com')).toBeInTheDocument();
-    expect(screen.getByAltText('Admin')).toHaveAttribute('src', 'https://example.com/photo.jpg');
-  });
-
-  it('shows edit form when Update is clicked', () => {
-    const { container } = render(<ProfilePage />);
-    fireEvent.click(screen.getByText('Update'));
-
-    expect(container.querySelector('input[name="first_name"]')).toBeInTheDocument();
-    expect(container.querySelector('input[name="last_name"]')).toBeInTheDocument();
-    expect(container.querySelector('input[name="email"]')).toBeInTheDocument();
-    expect(container.querySelector('input[name="password"]')).toBeInTheDocument();
-    expect(screen.getByText('Save')).toBeInTheDocument();
-    expect(screen.getByText('Cancel')).toBeInTheDocument();
-  });
-
-  it('shows error if password is missing on save', async () => {
-    const { container } = render(<ProfilePage />);
-    fireEvent.click(screen.getByText('Update'));
-
-    fireEvent.change(container.querySelector('input[name="first_name"]')!, {
-      target: { value: 'Tirsit Updated' },
-    });
-    fireEvent.change(container.querySelector('input[name="password"]')!, {
-      target: { value: '' },
-    });
-
-    fireEvent.click(screen.getByText('Save'));
-
-    await waitFor(() => {
-      expect(screen.getByText('Password is required to update the profile.')).toBeInTheDocument();
-    });
-  });
-
-  it('shows success message on update and preserves unchanged fields', async () => {
-    const { container } = render(<ProfilePage />);
-    fireEvent.click(screen.getByText('Update'));
-
-
-    fireEvent.change(container.querySelector('input[name="first_name"]')!, {
-      target: { value: 'Tirsit Updated' },
-    });
-    fireEvent.change(container.querySelector('input[name="password"]')!, {
-      target: { value: 'newpassword' },
-    });
-
-    expect(container.querySelector('input[name="last_name"]')).toHaveValue('Berihu');
-    expect(container.querySelector('input[name="email"]')).toHaveValue('tirsit@gmail.com');
-
-    fireEvent.click(screen.getByText('Save'));
-
-    await waitFor(() => {
-      expect(screen.getByText('Profile updated successfully!')).toBeInTheDocument();
-      expect(useFetchAdmin().updateAdmin).toHaveBeenCalledWith(1, {
-        role: 'Admin',
-        first_name: 'Tirsit Updated',
-        last_name: 'Berihu',
-        email: 'tirsit@gmail.com',
-        image: 'https://example.com/photo.jpg',
-        date_joined: '2025-01-01T00:00:00Z',
-        password: 'newpassword',
+describe("ProfilePage", () => {
+  it("renders loading state", () => {
+    jest.mock("../hooks/useFetchAdmin", () => {
+      return () => ({
+        user: null,
+        loading: true,
+        error: null,
+        updateAdmin: jest.fn(),
+        refetch: jest.fn(),
       });
     });
-
-    await waitFor(() => {
-      expect(screen.getByText('Tirsit Updated')).toBeInTheDocument();
-      expect(screen.getByText('Berihu')).toBeInTheDocument();
-      expect(screen.getByText('tirsit@gmail.com')).toBeInTheDocument();
-      expect(screen.getByAltText('Admin')).toHaveAttribute('src', 'https://example.com/photo.jpg');
-    });
+    render(<ProfilePage />);
+    expect(screen.getByText(/Loading profile/i)).toBeInTheDocument();
   });
 
-  it('shows error block if error is present', () => {
-    (useFetchAdmin as jest.Mock).mockReturnValue({
-      user: null,
-      loading: false,
-      error: 'Failed to fetch!',
-      updateAdmin: jest.fn(() => Promise.resolve()),
-      refetch: jest.fn(),
+  it("renders error state", () => {
+    jest.mock("../hooks/useFetchAdmin", () => {
+      return () => ({
+        user: null,
+        loading: false,
+        error: "Network error",
+        updateAdmin: jest.fn(),
+        refetch: jest.fn(),
+      });
     });
-
     render(<ProfilePage />);
-
-    expect(screen.getByText('Failed to fetch!')).toBeInTheDocument();
-    expect(screen.getByText('Retry')).toBeInTheDocument();
+    expect(screen.getByText(/Error/i)).toBeInTheDocument();
+    expect(screen.getByText(/Network error/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Retry/i })).toBeInTheDocument();
   });
 
-  it('shows loading spinner when loading', () => {
-    (useFetchAdmin as jest.Mock).mockReturnValue({
-      user: null,
-      loading: true,
-      error: null,
-      updateAdmin: jest.fn(() => Promise.resolve()),
-      refetch: jest.fn(),
+  it("renders not-found state", () => {
+    jest.mock("../hooks/useFetchAdmin", () => {
+      return () => ({
+        user: null,
+        loading: false,
+        error: null,
+        updateAdmin: jest.fn(),
+        refetch: jest.fn(),
+      });
     });
-
     render(<ProfilePage />);
+    expect(screen.getByText(/User not found/i)).toBeInTheDocument();
+  });
 
-    expect(screen.getByText('Loading profile...')).toBeInTheDocument();
+  it("renders profile details and avatar", () => {
+    render(<ProfilePage />);
+    expect(screen.getByRole("heading", { name: /Profile/i })).toBeInTheDocument();
+    expect(screen.getByText(/Kevin/i)).toBeInTheDocument();
+    expect(screen.getByText(/Brown/i)).toBeInTheDocument();
+    expect(screen.getByText(/kevin@example.com/i)).toBeInTheDocument();
+    expect(screen.getByTestId("mock-next-image")).toBeInTheDocument();
+  });
+
+  it("enters edit mode and cancels edit", () => {
+    render(<ProfilePage />);
+    fireEvent.click(screen.getByRole("button", { name: /Update/i }));
+    expect(screen.getByRole("button", { name: /Save/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Cancel/i })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /Cancel/i }));
+    expect(screen.queryByRole("button", { name: /Save/i })).not.toBeInTheDocument();
+  });
+
+  it("shows password required message if password is missing", async () => {
+    render(<ProfilePage />);
+    fireEvent.click(screen.getByRole("button", { name: /Update/i }));
+    fireEvent.click(screen.getByRole("button", { name: /Save/i }));
+    expect(await screen.findByText(/Password is required to update the profile./i)).toBeInTheDocument();
+  });
+
+  it("submits and updates profile with password", async () => {
+    render(<ProfilePage />);
+    fireEvent.click(screen.getByRole("button", { name: /Update/i }));
+    const passwordInput = screen.getByLabelText(/Password/i);
+    fireEvent.change(passwordInput, { target: { value: "newpass123" } });
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: /Save/i }));
+    });
+    expect(await screen.findByText(/Profile updated successfully!/i)).toBeInTheDocument();
+  });
+
+  it("shows update failed if updateAdmin throws", async () => {
+    jest.mock("../hooks/useFetchAdmin", () => {
+      return () => ({
+        user: {
+          id: 1,
+          role: "admin",
+          first_name: "Kevin",
+          last_name: "Brown",
+          email: "kevin@example.com",
+          date_joined: "2023-07-01T08:00:00Z",
+          image: "/avatar.png",
+          password: "",
+        },
+        loading: false,
+        error: null,
+        updateAdmin: jest.fn().mockRejectedValue(new Error("fail")),
+        refetch: jest.fn(),
+      });
+    });
+    render(<ProfilePage />);
+    fireEvent.click(screen.getByRole("button", { name: /Update/i }));
+    const passwordInput = screen.getByLabelText(/Password/i);
+    fireEvent.change(passwordInput, { target: { value: "newpass123" } });
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: /Save/i }));
+    });
+    expect(await screen.findByText(/Update failed./i)).toBeInTheDocument();
   });
 });

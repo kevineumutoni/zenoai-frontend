@@ -4,7 +4,12 @@ import * as useConversationWithRuns from '../hooks/useConversationWithRuns';
 import * as useFetchPostRuns from '../hooks/useFetchPostRuns';
 import React from 'react';
 
-function SidebarMock(props: any) {
+type SidebarMockProps = {
+  onAddChat: () => void;
+  onRenameConversation: (id: number, title: string) => void;
+  onDeleteConversation: (id: number) => void;
+};
+function SidebarMock(props: SidebarMockProps) {
   return (
     <div data-testid="sidebar">
       <button data-testid="add-chat" onClick={props.onAddChat} />
@@ -13,7 +18,11 @@ function SidebarMock(props: any) {
     </div>
   );
 }
-function ChatInputMock(props: any) {
+
+type ChatInputMockProps = {
+  sendMessage: (params: { conversationId: number | null; userInput: string }) => void;
+};
+function ChatInputMock(props: ChatInputMockProps) {
   return (
     <div data-testid="chat-input">
       <button data-testid="send-message" onClick={() => props.sendMessage({
@@ -23,10 +32,11 @@ function ChatInputMock(props: any) {
     </div>
   );
 }
-function ChatMessagesMock(props: any) {
+
+function ChatMessagesMock() {
   return <div data-testid="chat-messages" />;
 }
-function HandMock(props: any) {
+function HandMock(props: React.HTMLAttributes<HTMLDivElement>) {
   return <div data-testid="hand" {...props} />;
 }
 

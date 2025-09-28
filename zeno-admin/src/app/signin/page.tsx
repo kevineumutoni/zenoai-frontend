@@ -7,7 +7,7 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import VisibilityOffOutlinedIcon from '@mui/icons-material/VisibilityOffOutlined';
 
-function getFriendlyErrorMessage(error: any) {
+function getFriendlyErrorMessage(error: unknown) {
   if (!error) return null;
   if (typeof error === 'string') {
     if (error.includes('Invalid credentials')) {
@@ -15,10 +15,21 @@ function getFriendlyErrorMessage(error: any) {
     }
     return error;
   }
-  if (error.message && error.message.includes('Invalid credentials')) {
+  if (
+    typeof error === 'object' &&
+    error !== null &&
+    'message' in error &&
+    typeof (error as { message?: string }).message === 'string' &&
+    (error as { message?: string }).message!.includes('Invalid credentials')
+  ) {
     return 'The email or password you entered is incorrect.';
   }
-  if (error?.error && error.error === 'Invalid credentials') {
+  if (
+    typeof error === 'object' &&
+    error !== null &&
+    'error' in error &&
+    (error as { error?: unknown }).error === 'Invalid credentials'
+  ) {
     return 'The email or password you entered is incorrect.';
   }
   return 'An unknown error occurred. Please try again.';

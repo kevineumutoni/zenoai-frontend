@@ -7,7 +7,7 @@ interface SplashScreenProps {
   onTimeout?: () => void;
 }
 
-const splashScreen: React.FC<SplashScreenProps> = ({ onTimeout }) => {
+const SplashScreen: React.FC<SplashScreenProps> = ({ onTimeout }) => {
   useEffect(() => {
     if (onTimeout) {
       const timer = setTimeout(() => onTimeout(), 2000);
@@ -28,4 +28,4 @@ const splashScreen: React.FC<SplashScreenProps> = ({ onTimeout }) => {
   );
 };
 
-export default splashScreen;
+export default SplashScreen;

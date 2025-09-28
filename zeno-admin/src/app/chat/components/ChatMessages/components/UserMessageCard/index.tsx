@@ -1,6 +1,8 @@
 import React from 'react';
+import Image from 'next/image';
 import { FaFilePdf, FaFileAlt } from 'react-icons/fa';
 import { UserMessageProps } from '../../../../../utils/types/chat';
+
 export default function UserMessage({ text, files }: UserMessageProps) {
   return (
     <div className="flex justify-end">
@@ -20,9 +22,11 @@ export default function UserMessage({ text, files }: UserMessageProps) {
                 className="bg-gray-100 text-gray-900 p-2 rounded-xl text-sm shadow-md flex flex-col items-center"
               >
                 {item.file.type.startsWith("image/") ? (
-                  <img
+                  <Image
                     src={item.previewUrl}
                     alt={item.file.name}
+                    width={96}
+                    height={96}
                     className="w-24 h-24 object-cover rounded-md"
                   />
                 ) : (

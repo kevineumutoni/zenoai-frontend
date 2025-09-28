@@ -11,7 +11,7 @@ export interface User {
   registeredDate?: string;
   image?: string;
   password?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 const useFetchCurrentAdmin = () => {
@@ -22,11 +22,10 @@ const useFetchCurrentAdmin = () => {
   const fetchAdmin = async () => {
     setLoading(true);
     try {
-      const userData = await fetchCurrentAdmin();
+      const userData: User = await fetchCurrentAdmin();
       setUser({
         ...userData,
         id: userData.id
-        
       });
       setError(null);
     } catch (error) {
@@ -40,11 +39,10 @@ const useFetchCurrentAdmin = () => {
   const updateAdmin = async (id: number | string, data: Partial<User>) => {
     setLoading(true);
     try {
-      const updatedUser = await updateCurrentAdmin(id, data);
+      const updatedUser: User = await updateCurrentAdmin(id, data);
       setUser({
         ...updatedUser,
         id: updatedUser.id
-
       });
       setError(null);
       return updatedUser;

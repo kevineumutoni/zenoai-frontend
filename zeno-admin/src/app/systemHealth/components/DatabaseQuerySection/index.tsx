@@ -33,4 +33,4 @@ const DatabaseQuerySection: React.FC<DatabaseQuerySectionProps> = ({ runs }) => 
   );
 };
 
-export default DatabaseQuerySection;
+export default DatabaseQuerySection; 

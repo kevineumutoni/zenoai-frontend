@@ -1,9 +1,16 @@
+export interface OutputArtifact {
+  id?: string | number;
+  artifact_type: "text" | "chart" | "table";
+  data: ChartData | TableData | string;
+  title?: string;
+}
+
 export type Run = {
   id: number;
   user_input: string;
   status: "pending" | "completed" | "failed";
   final_output?: string;
-  output_artifacts?: any[];
+  output_artifacts?: OutputArtifact[];
   files?: File[];
 };
 
@@ -11,7 +18,7 @@ export type ChatMessageProps = {
   role: "user" | "agent";
   text?: string;
   artifactType?: "text" | "chart" | "table";
-  artifactData?: any;
+  artifactData?: ChartData | TableData | string;
   loading?: boolean;
   runId?: string | number;
   userId?: number;
@@ -34,7 +41,7 @@ export type ChartData = {
 
 export type ArtifactRendererProps = {
   artifactType: "chart" | "table" | "text";
-  artifactData: ChartData | TableData;
+  artifactData: ChartData | TableData | string;
   text?: string;
 };
 
@@ -48,7 +55,7 @@ export interface RunLike {
   user_input: string;
   status: string;
   final_output: string | null;
-  output_artifacts: any[];
+  output_artifacts: OutputArtifact[];
   started_at: string;
   _optimistic?: boolean;
   files?: RunFile[];
@@ -69,18 +76,20 @@ export interface ChatInputProps {
     files?: File[];
     filePreviews?: { file: File; previewUrl: string }[];
   }) => Promise<RunLike>;
+  onRunCreated?: (run: RunLike) => void;
 }
 
 export type ChatMessagesProps = {
-  runs: any[];
-  onRetry?: (run: any) => void;
+  runs: RunLike[];
+  onRetry?: (run: RunLike) => void;
   userId?: number;
 };
 
 export type Conversation = {
   conversation_id: number;
   title: string;
-  runs: Run[]; }
+  runs: Run[];
+};
 
 export interface UserMessageProps {
   text: string;

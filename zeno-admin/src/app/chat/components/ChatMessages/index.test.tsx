@@ -13,7 +13,6 @@ describe("ChatInput Component", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     jest.spyOn(window, "alert").mockImplementation(() => {});
-
     Object.defineProperty(navigator, "mediaDevices", {
       writable: true,
       value: {
@@ -105,8 +104,6 @@ describe("ChatInput Component", () => {
     });
     expect(input).toHaveValue("");
   });
-
-
 
   it("alerts user if camera upload attempted but not supported", () => {
     Object.defineProperty(navigator, "mediaDevices", {

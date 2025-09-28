@@ -3,9 +3,15 @@ import { render, screen } from '@testing-library/react';
 import Comments from '.';
 import { ReviewItem } from '../../../hooks/useFetchUserReviews';
 
-jest.mock('../CommentItem', () => (props: any) => (
-  <div data-testid="comment-item">{props.comment}</div>
-));
+function MockCommentItem(props: { comment: string }) {
+  return <div data-testid="comment-item">{props.comment}</div>;
+}
+MockCommentItem.displayName = "MockCommentItem";
+
+jest.mock('../CommentItem', () => ({
+  __esModule: true,
+  default: MockCommentItem,
+}));
 
 const commentsMock: ReviewItem[] = [
   {

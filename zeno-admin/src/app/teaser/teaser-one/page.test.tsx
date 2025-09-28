@@ -2,7 +2,24 @@ import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import Teaser from "./page";
 
-jest.mock("next/image", () => (props: any) => <img {...props} />);
+function MockImage(props: { src: string; alt: string; width?: number; height?: number; className?: string }) {
+  return (
+    <div
+      data-testid="mock-next-image"
+      data-src={props.src}
+      data-alt={props.alt}
+      data-width={props.width ?? ""}
+      data-height={props.height ?? ""}
+      className={props.className}
+    />
+  );
+}
+MockImage.displayName = "MockImage";
+
+jest.mock("next/image", () => ({
+  __esModule: true,
+  default: MockImage,
+}));
 
 describe("Teaser", () => {
   const mockOnContinue = jest.fn();
@@ -33,9 +50,10 @@ describe("Teaser", () => {
 
   it("renders logo image", () => {
     render(<Teaser {...defaultProps} />);
-    const logo = screen.getByAltText("Logo");
+    const logo = screen.getByTestId("mock-next-image");
     expect(logo).toBeInTheDocument();
-    expect(logo).toHaveAttribute("src", "/images/zeno-icon.png");
+    expect(logo).toHaveAttribute("data-src", "/images/zeno-icon.png");
+    expect(logo).toHaveAttribute("data-alt", "Logo");
   });
 
   it("calls onSkip when Skip button is clicked", () => {

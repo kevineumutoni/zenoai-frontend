@@ -2,7 +2,15 @@ import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import Teaser2 from "./page";
 
-jest.mock("next/image", () => (props: any) => <img {...props} />);
+function MockImage(props: { src: string; alt: string; width?: number; height?: number; className?: string }) {
+  return <div data-testid="mock-next-image" data-src={props.src} data-alt={props.alt} />;
+}
+MockImage.displayName = "MockImage";
+
+jest.mock("next/image", () => ({
+  __esModule: true,
+  default: MockImage,
+}));
 
 describe("Teaser2", () => {
   const mockOnGetStarted = jest.fn();
@@ -30,9 +38,10 @@ describe("Teaser2", () => {
 
   it("renders the logo image", () => {
     render(<Teaser2 {...defaultProps} />);
-    const logo = screen.getByAltText("Logo");
+    const logo = screen.getByTestId("mock-next-image");
     expect(logo).toBeInTheDocument();
-    expect(logo).toHaveAttribute("src", "/images/zeno-icon.png");
+    expect(logo).toHaveAttribute("data-src", "/images/zeno-icon.png");
+    expect(logo).toHaveAttribute("data-alt", "Logo");
   });
 
   it("renders and allows switching between bars", () => {

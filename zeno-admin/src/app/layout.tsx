@@ -12,23 +12,15 @@ const teachers = Teachers({
   weight: ["400", "700"],
   variable: "--font-teachers",
 });
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  const { user, loading, error } = useFetchAdmins();
+  const { user } = useFetchAdmins();
   const pathname = usePathname();
 
   const hideSidebarPaths = ["/", "/welcome", "/signin","/landing_page", "/signup","/chat"];
-  const hideChatInputPaths = ["/","/signin", "/welcome","/analytics","/systemHealth","/user_reviews","/usermanagement",,"/landing_page","/signup","/dashboard","/profile", "/signup","/chat"];
-
-
   const showSidebar = !hideSidebarPaths.includes(pathname);
-
   const hideProfileMenuPaths = ["/", "/welcome", "/signin","/landing_page", "/signup","/chat"];
   const showProfileMenu = !hideProfileMenuPaths.includes(pathname);
-  const showChatInput = !hideChatInputPaths.includes(pathname);
-
-  const handleRunCreated = (run: any) => {
-    console.log("Run created:", run);
-  };
 
   const profileImage = user?.image || "/images/zeno-logo.png";
 
@@ -46,7 +38,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <ProfileMenu image={profileImage} />
               </div>
             )}
-          
             <main>{children}</main>
           </div>
        </div>

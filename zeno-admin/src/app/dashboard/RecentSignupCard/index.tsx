@@ -1,5 +1,6 @@
 'use client';
 
+import Image from "next/image";
 import { useUsers } from "../../hooks/useFetchUsers";
 import { FaUserCircle } from "react-icons/fa";
 
@@ -50,9 +51,11 @@ export default function RecentSignupsCard() {
           <li key={user.id} className="flex items-center space-x-3">
             <div className="w-12 h-12 rounded-full bg-[#A1B1D6] flex-shrink-0 overflow-hidden">
               {user.image ? (
-                <img
+                <Image
                   src={user.image}
                   alt={`${user.first_name} ${user.last_name}`}
+                  width={48}
+                  height={48}
                   className="w-12 h-12 rounded-full object-cover"
                 />
               ) : (

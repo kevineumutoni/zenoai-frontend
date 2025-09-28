@@ -1,11 +1,15 @@
 const API_BASE = '/api';
 
+export interface RunResponse {
+  [key: string]: unknown;
+}
+
 export async function createRun(
   conversationId: string | null,
   userInput: string,
   token?: string,
   files?: File[]
-): Promise<any> {
+): Promise<RunResponse> {
   if (!token) {
     throw new Error('Please log in.');
   }
@@ -38,7 +42,7 @@ export async function createRun(
     body,
   });
 
-  let data;
+  let data: RunResponse;
   const contentType = response.headers.get('content-type') || '';
   if (contentType.includes('application/json')) {
     data = await response.json().catch(() => ({}));
@@ -48,14 +52,16 @@ export async function createRun(
   }
 
   if (!response.ok) {
-    const errorMessage = data?.message || data?.detail || `Failed to create run (status ${response.status})`;
+    const errorMessage = (data as { message?: string; detail?: string })?.message 
+      || (data as { detail?: string })?.detail 
+      || `Failed to create run (status ${response.status})`;
     throw new Error(errorMessage);
   }
 
   return data;
 }
 
-export async function fetchRunById(runId: number, token?: string): Promise<any> {
+export async function fetchRunById(runId: number, token?: string): Promise<RunResponse> {
   if (!token) {
     throw new Error('Please log in.');
   }
@@ -66,7 +72,7 @@ export async function fetchRunById(runId: number, token?: string): Promise<any> 
 
   const response = await fetch(`${API_BASE}/run?id=${runId}`, { headers });
 
-  let data;
+  let data: RunResponse;
   const contentType = response.headers.get('content-type') || '';
   if (contentType.includes('application/json')) {
     data = await response.json().catch(() => ({}));
@@ -76,7 +82,7 @@ export async function fetchRunById(runId: number, token?: string): Promise<any> 
   }
 
   if (!response.ok) {
-    const errorMessage = data?.message || `Failed to fetch run (status ${response.status})`;
+    const errorMessage = (data as { message?: string })?.message || `Failed to fetch run (status ${response.status})`;
     throw new Error(errorMessage);
   }
 

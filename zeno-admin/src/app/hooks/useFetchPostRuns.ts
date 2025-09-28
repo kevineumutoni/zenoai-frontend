@@ -116,7 +116,7 @@ export function useRuns(user?: { id: number; token: string }) {
           clearInterval(intervalId);
           pollingRef.current.delete(runId);
         }
-      } catch (error) {
+      } catch {
         clearInterval(intervalId);
         pollingRef.current.delete(runId);
       }

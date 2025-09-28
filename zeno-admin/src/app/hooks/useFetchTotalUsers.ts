@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { fetchUsers } from "../utils/fetchUsers";
 import type { User } from "../utils/types/runs";
 
-
 type UserStats = {
   total_users: number;
   new_users: number;
@@ -39,12 +38,14 @@ export function useUserStats() {
           loading: false,
           error: null,
         });
-      } catch (error: any) {
+      } catch (error) {
+        let message = "Failed to load user stats";
+        if (error instanceof Error) message = error.message || message;
         setStats({
           total_users: 0,
           new_users: 0,
           loading: false,
-          error: error.message || "Failed to load user stats",
+          error: message,
         });
       }
     }

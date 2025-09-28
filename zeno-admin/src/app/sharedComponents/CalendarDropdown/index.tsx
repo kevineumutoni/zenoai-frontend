@@ -17,7 +17,9 @@ const CalendarDropdown: React.FC<CalendarDropdownProps> = ({ onDateChange }) => 
   const [isOpen, setIsOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => onDateChange(startDate, endDate), []);
+  useEffect(() => {
+    onDateChange(startDate, endDate);
+  }, [startDate, endDate, onDateChange]);
 
   const handleDateChange = (dates: [Date | null, Date | null]) => {
     const [start, end] = dates;
@@ -25,8 +27,8 @@ const CalendarDropdown: React.FC<CalendarDropdownProps> = ({ onDateChange }) => 
     setEndDate(end);
     onDateChange(start, end);
     if (start && end) {
-    setIsOpen(false);
-  }
+      setIsOpen(false);
+    }
   };
 
   const handleClick = () => {

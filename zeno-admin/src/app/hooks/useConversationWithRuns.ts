@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Conversation } from "../utils/types/runs";
 import { getConversationsWithRuns } from "../utils/fetchConversationWithRuns";
 
@@ -8,7 +8,7 @@ export function useConversationsWithRuns(token?: string) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchConvos = async () => {
+  const fetchConvos = useCallback(async () => {
     if (!token) return;
     setLoading(true);
     setError(null);
@@ -23,11 +23,11 @@ export function useConversationsWithRuns(token?: string) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token, selectedConversationId]);
 
   useEffect(() => {
     fetchConvos();
-  }, [token]);
+  }, [fetchConvos]);
 
   return {
     conversations,

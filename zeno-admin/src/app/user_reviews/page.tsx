@@ -7,9 +7,11 @@ import Comments from './components/Comments';
 
 import { Users, ThumbsUp, ThumbsDown, ChevronDown, ChevronUp } from 'lucide-react';
 
+type FilterType = 'All' | 'Positive' | 'Negative';
+
 const UserFeedbackPage = () => {
   const { data, loading, error } = useFetchUserReview();
-  const [filter, setFilter] = useState<'All' | 'Positive' | 'Negative'>('All');
+  const [filter, setFilter] = useState<FilterType>('All');
   const [isOpen, setIsOpen] = useState(false);
 
   if (loading) {
@@ -46,12 +48,12 @@ const UserFeedbackPage = () => {
   });
 
   const toggleDropdown = () => setIsOpen(!isOpen);
-  const selectOption = (value: string) => {
-    setFilter(value as any);
+  const selectOption = (value: FilterType) => {
+    setFilter(value);
     setIsOpen(false);
   };
 
-  const options = [
+  const options: { value: FilterType; label: string }[] = [
     { value: 'All', label: 'All User Feedback' },
     { value: 'Positive', label: 'Positive Only' },
     { value: 'Negative', label: 'Negative Only' },

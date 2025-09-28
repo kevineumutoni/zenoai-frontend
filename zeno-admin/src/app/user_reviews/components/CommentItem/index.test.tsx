@@ -1,26 +1,43 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import CommentItem from '.';
+import CommentItem from './index';
+
+const mockProps = {
+  id: 1,
+  name: 'Jane Doe',
+  email: 'jane@example.com',
+  comment: 'Great product!',
+  date: '2025-09-28',
+  sentiment: 'Positive' as const,
+  avatar: '/avatar.jpg',
+};
 
 describe('CommentItem', () => {
-  const props = {
-    id: 1,
-    name: 'arsema',
-    email: 'arsema@example.com',
-    comment: 'Great Platform you have.',
-    date: 'Sep 1, 2025',
-    sentiment: 'Positive' as const,
-    avatar: 'avatar.jpg',
-  };
+  it('renders all comment fields correctly', () => {
+    render(<CommentItem {...mockProps} />);
+    expect(screen.getByText(mockProps.name)).toBeInTheDocument();
+    expect(screen.getByText(mockProps.email)).toBeInTheDocument();
+    expect(screen.getByText(mockProps.date)).toBeInTheDocument();
+    expect(screen.getByText(`“${mockProps.comment}”`)).toBeInTheDocument();
+    expect(screen.getByText(mockProps.sentiment)).toBeInTheDocument();
+  });
 
-  test('renders the comment item with correct data', () => {
-    render(<CommentItem {...props} />);
-    expect(screen.getByText(props.name)).toBeInTheDocument();
-    expect(screen.getByText(props.email)).toBeInTheDocument();
-    expect(screen.getByText(`“${props.comment}”`)).toBeInTheDocument();
-    expect(screen.getByText(props.date)).toBeInTheDocument();
-    expect(screen.getByText(props.sentiment)).toBeInTheDocument();
-    const avatarImg = screen.getByAltText(props.name) as HTMLImageElement;
-    expect(avatarImg).toHaveAttribute('src', props.avatar);
+  it('renders avatar image with correct src and alt', () => {
+    render(<CommentItem {...mockProps} />);
+    const img = screen.getByAltText(mockProps.name) as HTMLImageElement;
+    expect(img).toBeInTheDocument();
+    expect(decodeURIComponent(img.src)).toContain(mockProps.avatar);
+  });
+
+  it('renders Positive sentiment with correct color', () => {
+    render(<CommentItem {...mockProps} />);
+    const sentiment = screen.getByText('Positive');
+    expect(sentiment).toHaveClass('bg-green-600');
+  });
+
+  it('renders Negative sentiment with correct color', () => {
+    render(<CommentItem {...mockProps} sentiment="Negative" />);
+    const sentiment = screen.getByText('Negative');
+    expect(sentiment).toHaveClass('bg-red-600');
   });
 });

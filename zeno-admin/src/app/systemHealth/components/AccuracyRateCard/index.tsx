@@ -1,8 +1,15 @@
 import React from 'react';
+import { Run } from '../../../utils/types/runs';
 
 interface AccuracyRateCardProps {
-  runs: any[];
+  runs: Run[];
   dateRange: { start: Date | null; end: Date | null };
+}
+
+interface ErrorBreakdown {
+  internal: number;
+  database: number;
+  apiLimit: number;
 }
 
 const AccuracyRateCard: React.FC<AccuracyRateCardProps> = ({ runs, dateRange }) => {
@@ -15,10 +22,9 @@ const AccuracyRateCard: React.FC<AccuracyRateCardProps> = ({ runs, dateRange }) 
     return true;
   });
 
-
-  const errorBreakdown = filteredRuns.reduce(
-    (acc, run) => {
-      const output = run.final_output?.toLowerCase() || '';
+  const errorBreakdown: ErrorBreakdown = filteredRuns.reduce(
+    (acc: ErrorBreakdown, run: Run) => {
+      const output = (run.final_output ?? '').toLowerCase();
       if (output.includes('error')) {
         if (output.includes('null value') || output.includes('constraint')) acc.database += 1;
         else if (output.includes('limit')) acc.apiLimit += 1;
@@ -35,51 +41,52 @@ const AccuracyRateCard: React.FC<AccuracyRateCardProps> = ({ runs, dateRange }) 
   const CHART_COLOR = "rgb(260, 120, 120)";
 
   const DonutChart = ({ percentage, label }: { percentage: string; label: string }) => {
-  const pct = parseFloat(percentage);
-  const radius = 55;
-  const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset = circumference - (pct / 100) * circumference;
+    const pct = parseFloat(percentage);
+    const radius = 55;
+    const circumference = 2 * Math.PI * radius;
+    const strokeDashoffset = circumference - (pct / 100) * circumference;
 
-  return (
-    <div className="flex flex-col items-center">
-      <svg width="160" height="160" viewBox="0 0 160 160" className="mx-auto lg:mx-0  xl:mx-auto lg:w-30 lg:h-40 2xl:h-50 2xl:w-50">
-        <circle
-          cx="80" 
-          cy="80"
-          r={radius}
-          fill="none"
-          stroke="#1f2937"
-          strokeWidth="5"
-          opacity="0.3"
-        />
-        <circle
-          cx="80"
-          cy="80"
-          r={radius}
-          fill="none"
-          stroke={CHART_COLOR}
-          strokeWidth="5" 
-          strokeDasharray={`${circumference} ${circumference}`}
-          strokeDashoffset={strokeDashoffset}
-          strokeLinecap="round"
-          transform="rotate(-90 80 80)"
-        />
-        <text
-          x="80"
-          y="80"
-          textAnchor="middle"
-          dominantBaseline="central"
-          fontSize="20" 
-          fontWeight="bold"
-          fill="white"
-        >
-          {pct}%
-        </text>
-      </svg>
-      <p className="text-lg text-gray-400 mt-2 text-center max-w-32 font-bolder">{label}</p> 
-    </div>
-  );
-};
+    return (
+      <div className="flex flex-col items-center">
+        <svg width="160" height="160" viewBox="0 0 160 160" className="mx-auto lg:mx-0  xl:mx-auto lg:w-30 lg:h-40 2xl:h-50 2xl:w-50">
+          <circle
+            cx="80" 
+            cy="80"
+            r={radius}
+            fill="none"
+            stroke="#1f2937"
+            strokeWidth="5"
+            opacity="0.3"
+          />
+          <circle
+            cx="80"
+            cy="80"
+            r={radius}
+            fill="none"
+            stroke={CHART_COLOR}
+            strokeWidth="5" 
+            strokeDasharray={`${circumference} ${circumference}`}
+            strokeDashoffset={strokeDashoffset}
+            strokeLinecap="round"
+            transform="rotate(-90 80 80)"
+          />
+          <text
+            x="80"
+            y="80"
+            textAnchor="middle"
+            dominantBaseline="central"
+            fontSize="20" 
+            fontWeight="bold"
+            fill="white"
+          >
+            {pct}%
+          </text>
+        </svg>
+        <p className="text-lg text-gray-400 mt-2 text-center max-w-32 font-bolder">{label}</p> 
+      </div>
+    );
+  };
+
   return (
     <div className=" p-4 rounded-xl border border-teal-500/30 shadow-lg sm:p-5 md:p-6">
       <h3 className="text-xl xl:text-2xl font-bold text-teal-400 mb-2">Accuracy Rate</h3>

@@ -1,12 +1,15 @@
 'use client';
 
 import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react';
+import Image from 'next/image';
 import { FaPaperclip, FaCamera, FaTimes, FaFilePdf, FaFileAlt } from 'react-icons/fa';
 import { ChatInputProps } from '../../utils/types/chat';
 
-export default function ChatInput({ conversationId, user, sendMessage }: ChatInputProps) {
+export default function ChatInput({ conversationId, user, sendMessage, onRunCreated }: ChatInputProps) {
   const [input, setInput] = useState<string>('');
   const [filePreviews, setFilePreviews] = useState<{ file: File; previewUrl: string }[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [cameraSupported, setCameraSupported] = useState<boolean>(true);
 
   useEffect(() => {
     return () => {
@@ -14,22 +17,20 @@ export default function ChatInput({ conversationId, user, sendMessage }: ChatInp
     };
   }, [filePreviews]);
 
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [cameraSupported, setCameraSupported] = useState<boolean>(true);
-
   const renderFilePreview = (item: { file: File; previewUrl: string }, index: number) => {
     const { file, previewUrl } = item;
     const isImage = file.type.startsWith('image/');
-
     return (
       <div
         key={index}
         className="flex items-center gap-2 bg-gray-800/60 backdrop-blur-sm rounded-lg px-3 py-2 text-xs text-white border border-gray-700/50"
       >
         {isImage ? (
-          <img
+          <Image
             src={previewUrl}
             alt={file.name}
+            width={40}
+            height={40}
             className="w-10 h-10 object-cover rounded-md border border-gray-600"
           />
         ) : (
@@ -73,15 +74,16 @@ export default function ChatInput({ conversationId, user, sendMessage }: ChatInp
     setIsLoading(true);
 
     try {
-      await sendMessage({
+      const run = await sendMessage({
         conversationId: conversationId ?? null,
         userInput: input.trim(),
         files: filePreviews.length > 0 ? filePreviews.map(preview => preview.file) : [],
         filePreviews: filePreviews.length > 0 ? filePreviews : undefined,
       });
+      if (run && onRunCreated) onRunCreated(run);
       setInput("");
       setFilePreviews([]);
-    } catch (err) {
+    } catch {
     } finally {
       setIsLoading(false);
     }

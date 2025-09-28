@@ -5,7 +5,7 @@ import UserMessage from "./components/UserMessageCard";
 import AgentMessage from "./components/AgentMessageCard";
 import FeedbackButtons from "../FeedbackButtons";
 import ChatArtifactRenderer from "./components/ArtifactRender";
-import type { ChatMessagesProps, Run, RunFile } from "../../../utils/types/chat";
+import type { ChatMessagesProps, RunLike, RunFile } from "../../../utils/types/chat";
 
 export default function ChatMessages({
   runs,
@@ -22,7 +22,7 @@ export default function ChatMessages({
 
   return (
     <div className="flex-1 overflow-y-auto p-6 space-y-6 w-[50vw] ml-40 scrollbar-hide">
-      {runs.map((run: Run) => (
+      {runs.map((run: RunLike) => (
         <div key={run.id} className="">
           <UserMessage
             text={run.user_input}

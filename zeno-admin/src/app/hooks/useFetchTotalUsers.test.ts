@@ -4,6 +4,15 @@ import { useUserStats } from "./useFetchTotalUsers";
 
 jest.mock("../utils/fetchUsers");
 
+interface User {
+  first_name: string;
+  last_name: string;
+  email: string;
+  role: string;
+  created_at: string;
+  image: string;
+}
+
 const mockedFetchUsers = fetchUsers as jest.Mock;
 describe("useUserStats hook", () => {
   beforeEach(() => {
@@ -11,28 +20,27 @@ describe("useUserStats hook", () => {
   });
 
   it("returns correct total and new user counts", async () => {
-    const now = new Date();
+    // Removed unused variable 'now'
+    const users: User[] = [
+      {
+        first_name: "Meron",
+        last_name: "Gebru",
+        email: "meron@example.com",
+        role: "admin",
+        created_at: "2023-05-10T12:00:00Z",
+        image: "",
+      },
+      {
+        first_name: "Jane",
+        last_name: "Kamau",
+        email: "janeb@example.com",
+        role: "user",
+        created_at: "2023-06-15T12:00:00Z",
+        image: "",
+      },
+    ];
 
- const users = [
-  {
-    first_name: "Meron",
-    last_name: "Gebru",
-    email: "meron@example.com",
-    role: "admin",
-    created_at: "2023-05-10T12:00:00Z",
-    image: "",
-  },
-  {
-    first_name: "Jane",
-    last_name: "Kamau",
-    email: "janeb@example.com",
-    role: "user",
-    created_at: "2023-06-15T12:00:00Z",
-    image: "",
-  },
-];
-
-    mockedFetchUsers.mockResolvedValue(users as any);
+    mockedFetchUsers.mockResolvedValue(users);
 
     const { result } = renderHook(() => useUserStats());
 
