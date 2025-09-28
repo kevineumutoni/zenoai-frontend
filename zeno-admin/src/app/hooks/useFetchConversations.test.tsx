@@ -1,67 +1,78 @@
-import { renderHook, act } from "@testing-library/react";
-import { useConversation } from "./useFetchConversations";
-import { createConversation } from "../utils/fetchConversation";
+import { render, act } from '@testing-library/react';
+import { useConversation } from './useFetchConversations';
+import * as fetchConversation from '../utils/fetchConversation';
+import React from 'react';
 
-jest.mock("../utils/fetchConversation", () => ({
-  createConversation: jest.fn(),
-}));
+function HookWrapper({ userId, token }: { userId?: number, token?: string }) {
+  const hook = useConversation(userId, token);
+  (window as any).hook = hook; // expose for access in tests
+  return null;
+}
 
-describe("useConversation", () => {
+describe('useConversation', () => {
+  const userId = 1;
+  const token = 'token';
+  const mockResponse = { conversation_id: 'abc123' };
+
   beforeEach(() => {
     jest.clearAllMocks();
+    delete (window as any).hook;
   });
 
- 
-  it("should initialize conversation successfully", async () => {
-    (createConversation as jest.Mock).mockResolvedValueOnce({
-      conversation_id: "abc123",
-    });
-
-    const { result } = renderHook(() =>
-      useConversation(1, "fake-token")
-    );
-
-    let returnedId: string | null = null;
+  it('returns null if userId or token not provided', async () => {
+    render(<HookWrapper />);
+    let convo: any;
     await act(async () => {
-      returnedId = await result.current.startConversation();
+      convo = await (window as any).hook.startConversation();
     });
-
-    expect(createConversation).toHaveBeenCalledWith(1, "fake-token");
-    expect(result.current.conversationId).toBe("abc123");
-    expect(returnedId).toBe("abc123");
-    expect(result.current.loading).toBe(false);
-    expect(result.current.error).toBeNull();
+    expect(convo).toBeNull();
+    expect((window as any).hook.loading).toBe(false);
+    expect((window as any).hook.conversationId).toBeNull();
   });
 
-  it("should handle errors during initialization", async () => {
-    (createConversation as jest.Mock).mockRejectedValueOnce(
-      new Error("Server error")
-    );
-
-    const { result } = renderHook(() =>
-      useConversation(1, "fake-token")
-    );
-
+  it('returns existing conversationId if already set', async () => {
+    render(<HookWrapper userId={userId} token={token} />);
+    act(() => {
+      (window as any).hook.setConversationId('existing-cid');
+    });
+    let convo: any;
     await act(async () => {
-      const cid = await result.current.startConversation();
-      expect(cid).toBeNull();
+      convo = await (window as any).hook.startConversation();
     });
-
-    expect(result.current.error).toBe("Server error");
-    expect(result.current.conversationId).toBeNull();
+    expect(convo).toBe('existing-cid');
+    expect((window as any).hook.loading).toBe(false);
   });
 
-  it("should reset conversation", async () => {
-    const { result } = renderHook(() => useConversation());
-    act(() => {
-      result.current.setConversationId("test1");
+  it('calls createConversation and sets conversationId', async () => {
+    jest.spyOn(fetchConversation, 'createConversation').mockResolvedValue(mockResponse);
+    render(<HookWrapper userId={userId} token={token} />);
+    let convoId: any;
+    await act(async () => {
+      convoId = await (window as any).hook.startConversation();
     });
-    expect(result.current.conversationId).toBe("test1");
-
-    act(() => {
-      result.current.resetConversation();
-    });
-    expect(result.current.conversationId).toBeNull();
+    expect(fetchConversation.createConversation).toHaveBeenCalledWith(userId);
+    expect(convoId).toBe(mockResponse.conversation_id);
+    expect((window as any).hook.conversationId).toBe(mockResponse.conversation_id);
   });
 
+  it('sets error if createConversation throws', async () => {
+    jest.spyOn(fetchConversation, 'createConversation').mockRejectedValue(new Error('fail'));
+    render(<HookWrapper userId={userId} token={token} />);
+    let convoId: any;
+    await act(async () => {
+      convoId = await (window as any).hook.startConversation();
+    });
+    expect(convoId).toBeNull();
+    expect((window as any).hook.error).toBe('fail');
+    expect((window as any).hook.loading).toBe(false);
+  });
+
+  it('resetConversation sets conversationId to null', () => {
+    render(<HookWrapper userId={userId} token={token} />);
+    act(() => {
+      (window as any).hook.setConversationId('abc123');
+      (window as any).hook.resetConversation();
+    });
+    expect((window as any).hook.conversationId).toBeNull();
+  });
 });

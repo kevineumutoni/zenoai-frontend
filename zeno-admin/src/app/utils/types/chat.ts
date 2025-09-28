@@ -1,19 +1,11 @@
-export type ChatMessagesProps = {
-  runs: any[];
-  onRetry?: (run: any) => void;
-  userId?: number;
-};
-
-
 export type Run = {
   id: number;
   user_input: string;
   status: "pending" | "completed" | "failed";
   final_output?: string;
   output_artifacts?: any[];
-  files?: File[]; 
+  files?: File[];
 };
-
 
 export type ChatMessageProps = {
   role: "user" | "agent";
@@ -25,7 +17,6 @@ export type ChatMessageProps = {
   userId?: number;
 };
 
-
 export type TableData = {
   columns?: string[];
   rows?: (string | number)[][];
@@ -34,14 +25,12 @@ export type TableData = {
   title?: string;
 };
 
-
-export  type ChartData = {
+export type ChartData = {
   x: (string | number)[];
   y: number[];
   title?: string;
   chart_type?: "bar" | "line" | "pie";
 };
-
 
 export type ArtifactRendererProps = {
   artifactType: "chart" | "table" | "text";
@@ -51,7 +40,7 @@ export type ArtifactRendererProps = {
 
 export interface RunFile {
   file: File;
-  previewUrl: string; 
+  previewUrl: string;
 }
 
 export interface RunLike {
@@ -62,10 +51,9 @@ export interface RunLike {
   output_artifacts: any[];
   started_at: string;
   _optimistic?: boolean;
-  files?: RunFile[]; 
+  files?: RunFile[];
   error?: string;
 }
-
 
 export interface FileWithPreview {
   file: File;
@@ -74,7 +62,7 @@ export interface FileWithPreview {
 
 export interface ChatInputProps {
   conversationId?: string | null;
-  user?: { id: number; token: string };
+  user: { id: number; token: string };
   sendMessage: (params: {
     conversationId?: string | null;
     userInput: string;
@@ -82,6 +70,17 @@ export interface ChatInputProps {
     filePreviews?: { file: File; previewUrl: string }[];
   }) => Promise<RunLike>;
 }
+
+export type ChatMessagesProps = {
+  runs: any[];
+  onRetry?: (run: any) => void;
+  userId?: number;
+};
+
+export type Conversation = {
+  conversation_id: number;
+  title: string;
+  runs: Run[]; }
 
 export interface UserMessageProps {
   text: string;

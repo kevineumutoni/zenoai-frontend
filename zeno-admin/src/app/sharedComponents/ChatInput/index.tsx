@@ -1,32 +1,25 @@
 'use client';
 
-
 import React, { useState, useEffect, ChangeEvent, FormEvent } from 'react';
 import { FaPaperclip, FaCamera, FaTimes, FaFilePdf, FaFileAlt } from 'react-icons/fa';
-import { useRuns } from '../../hooks/useFetchPostRuns';
 import { ChatInputProps } from '../../utils/types/chat';
-import { FileWithPreview } from '../../utils/types/chat';
-
 
 export default function ChatInput({ conversationId, user, sendMessage }: ChatInputProps) {
   const [input, setInput] = useState<string>('');
-  const [filePreviews, setFilePreviews] = useState<FileWithPreview[]>([]);
+  const [filePreviews, setFilePreviews] = useState<{ file: File; previewUrl: string }[]>([]);
+
   useEffect(() => {
     return () => {
       filePreviews.forEach(item => URL.revokeObjectURL(item.previewUrl));
     };
   }, [filePreviews]);
 
-
-
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [cameraSupported, setCameraSupported] = useState<boolean>(true);
 
-
-  const renderFilePreview = (item: FileWithPreview, index: number) => {
+  const renderFilePreview = (item: { file: File; previewUrl: string }, index: number) => {
     const { file, previewUrl } = item;
     const isImage = file.type.startsWith('image/');
-
 
     return (
       <div
@@ -67,7 +60,6 @@ export default function ChatInput({ conversationId, user, sendMessage }: ChatInp
     );
   };
 
-
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -80,7 +72,7 @@ export default function ChatInput({ conversationId, user, sendMessage }: ChatInp
 
     setIsLoading(true);
 
-  try {
+    try {
       await sendMessage({
         conversationId: conversationId ?? null,
         userInput: input.trim(),
@@ -90,11 +82,11 @@ export default function ChatInput({ conversationId, user, sendMessage }: ChatInp
       setInput("");
       setFilePreviews([]);
     } catch (err) {
-
     } finally {
       setIsLoading(false);
     }
   };
+
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(e.target.files ?? []) as File[];
     const validFiles = selectedFiles.filter((file) => {
@@ -113,7 +105,6 @@ export default function ChatInput({ conversationId, user, sendMessage }: ChatInp
     e.target.value = '';
   };
 
-
   const handleCameraCapture = (e: ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(e.target.files ?? []) as File[];
     const validFiles = selectedFiles.filter((file) => {
@@ -128,9 +119,9 @@ export default function ChatInput({ conversationId, user, sendMessage }: ChatInp
       file,
       previewUrl: URL.createObjectURL(file)
     }));
-    setFilePreviews(prev => [...prev, ...newPreviews]); e.target.value = '';
+    setFilePreviews(prev => [...prev, ...newPreviews]);
+    e.target.value = '';
   };
-
 
   useEffect(() => {
     const checkCameraSupport = async () => {
@@ -148,7 +139,6 @@ export default function ChatInput({ conversationId, user, sendMessage }: ChatInp
     checkCameraSupport();
   }, []);
 
-
   return (
     <div className="w-full max-w-3xl mx-auto space-y-1">
       {filePreviews.length > 0 && (
@@ -156,7 +146,6 @@ export default function ChatInput({ conversationId, user, sendMessage }: ChatInp
           {filePreviews.map((item, index) => renderFilePreview(item, index))}
         </div>
       )}
-
 
       <form
         onSubmit={handleSubmit}
@@ -171,7 +160,6 @@ export default function ChatInput({ conversationId, user, sendMessage }: ChatInp
         >
           <FaPaperclip size={18} />
         </button>
-
 
         <button
           type="button"
@@ -195,7 +183,6 @@ export default function ChatInput({ conversationId, user, sendMessage }: ChatInp
           <FaCamera size={18} />
         </button>
 
-
         <input
           type="file"
           id="file-upload"
@@ -215,7 +202,6 @@ export default function ChatInput({ conversationId, user, sendMessage }: ChatInp
           disabled={isLoading}
         />
 
-
         <input
           type="text"
           value={input}
@@ -224,7 +210,6 @@ export default function ChatInput({ conversationId, user, sendMessage }: ChatInp
           disabled={isLoading}
           className="flex-1 bg-transparent text-white placeholder-cyan-300 px-2 py-2 focus:outline-none"
         />
-
 
         <button
           type="submit"
@@ -238,13 +223,12 @@ export default function ChatInput({ conversationId, user, sendMessage }: ChatInp
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
             </svg>
           ) : (
-            <svg className="w-4 h-4 " viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
             </svg>
           )}
         </button>
       </form>
-
 
       <div className="text-sm text-gray-400 mt-2 text-center">
         Zeno AI can hallucinate, so double-check it
@@ -252,4 +236,3 @@ export default function ChatInput({ conversationId, user, sendMessage }: ChatInp
     </div>
   );
 }
-

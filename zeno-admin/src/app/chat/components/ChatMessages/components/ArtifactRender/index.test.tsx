@@ -2,13 +2,13 @@ import { render, screen } from "@testing-library/react";
 import ChatArtifactRenderer from "./index";
 
 jest.mock("@mui/x-charts", () => ({
-  BarChart: (props: any) => (
-    <div data-testid="bar-chart" data-color={props.series?.[0]?.color} />
+  BarChart: (props: Record<string, unknown>) => (
+    <div data-testid="bar-chart" data-color={(props.series as any)?.[0]?.color} />
   ),
-  LineChart: (props: any) => (
-    <div data-testid="line-chart" data-color={props.series?.[0]?.color} />
+  LineChart: (props: Record<string, unknown>) => (
+    <div data-testid="line-chart" data-color={(props.series as any)?.[0]?.color} />
   ),
-  PieChart: (props: any) => <div data-testid="pie-chart" />,
+  PieChart: (_props: Record<string, unknown>) => <div data-testid="pie-chart" />,
 }));
 
 describe("ChatArtifactRenderer", () => {
@@ -40,7 +40,8 @@ describe("ChatArtifactRenderer", () => {
   });
 
   it("renders invalid chart data fallback when x or y missing", () => {
-    const data = { x: ["A"], y: null as any };
+    const data = { x: ["A"], y: [] }; 
+render(<ChatArtifactRenderer artifactType="chart" artifactData={data} />);
     render(<ChatArtifactRenderer artifactType="chart" artifactData={data} />);
     expect(screen.getByText(/Invalid chart data/i)).toBeInTheDocument();
   });

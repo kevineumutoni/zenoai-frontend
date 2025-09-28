@@ -14,7 +14,7 @@ export function useConversation(userId?: number, token?: string) {
     setError(null);
 
     try {
-      const data = await createConversation(userId, token);
+      const data = await createConversation(userId);
       const cid = data.conversation_id ?? null;
       setConversationId(cid);
       return cid;

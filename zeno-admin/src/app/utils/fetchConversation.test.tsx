@@ -1,32 +1,39 @@
-import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
-import { createConversation } from './fetchConversation';
+import { createConversation } from '../utils/fetchConversation';
 
-global.fetch = jest.fn() as jest.MockedFunction<typeof fetch>;
+global.fetch = jest.fn();
+
+beforeAll(() => {
+  Object.defineProperty(global, 'localStorage', {
+    value: {
+      getItem: jest.fn(),
+      setItem: jest.fn(),
+      removeItem: jest.fn(),
+      clear: jest.fn(),
+      key: jest.fn(),
+      length: 0,
+    },
+    writable: true,
+  });
+});
+
 
 describe('createConversation', () => {
-  const mockFetch = fetch as jest.MockedFunction<typeof fetch>;
+  const userId = 99;
+  const token = 'jwt-token';
 
   beforeEach(() => {
-    jest.spyOn(console, 'error').mockImplementation(() => {});
+    (fetch as jest.Mock).mockClear();
+    (global.localStorage.getItem as jest.Mock).mockReturnValue(token);
   });
 
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
-
-  it('calls fetch with correct parameters and returns data when response is ok', async () => {
-    const mockResponseData = { conversationId: 1 };
-    mockFetch.mockResolvedValueOnce({
+  it('returns data on successful creation', async () => {
+    (fetch as jest.Mock).mockResolvedValue({
       ok: true,
-      json: async () => mockResponseData,
-    } as unknown as Response);
+      json: async () => ({ id: 1, userId }),
+    });
 
-    const userId = 123;
-    const token = 'abc123';
-
-    const result = await createConversation(userId, token);
-
-    expect(mockFetch).toHaveBeenCalledWith('/api/conversations', {
+    const result = await createConversation(userId);
+    expect(fetch).toHaveBeenCalledWith('/api/conversations', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -34,29 +41,21 @@ describe('createConversation', () => {
       },
       body: JSON.stringify({ userId }),
     });
-
-    expect(result).toEqual(mockResponseData);
+    expect(result).toEqual({ id: 1, userId });
   });
 
-  it('throws an error when response is not ok', async () => {
-    const errorMessage = 'Failed to create conversation';
-    mockFetch.mockResolvedValueOnce({
+  it('throws error if response not ok', async () => {
+    (fetch as jest.Mock).mockResolvedValue({
       ok: false,
-      json: async () => ({ message: errorMessage }),
-    } as unknown as Response);
+      json: async () => ({ message: 'Failed to create conversation' }),
+    });
 
-    await expect(createConversation(123, 'token')).rejects.toThrow(errorMessage);
+    await expect(createConversation(userId)).rejects.toThrow('Failed to create conversation');
   });
 
-  it('handles JSON parse failure gracefully by returning empty object', async () => {
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      json: async () => {
-        throw new Error('json parse error');
-      },
-    } as unknown as Response);
+  it('throws error if fetch throws', async () => {
+    (fetch as jest.Mock).mockRejectedValue(new Error('Network error'));
 
-    const result = await createConversation(123, 'token');
-    expect(result).toEqual({});
+    await expect(createConversation(userId)).rejects.toThrow('Network error');
   });
 });

@@ -6,22 +6,30 @@ export async function createRun(
   token?: string,
   files?: File[]
 ): Promise<any> {
-  const headers: HeadersInit = {};
-  let body: BodyInit;
-
-  if (token) {
-    headers['Authorization'] = `Token ${token}`;
+  if (!token) {
+    throw new Error('Please log in.');
   }
+
+  const headers: HeadersInit = {
+    'Authorization': `Token ${token}`,
+  };
+
+  let body: BodyInit;
 
   if (files && files.length > 0) {
     const formData = new FormData();
-    formData.append('userInput', userInput);
-    if (conversationId) formData.append('conversationId', conversationId);
+    formData.append('user_input', userInput);
+    if (conversationId) {
+      formData.append('conversation_id', conversationId);
+    }
     files.forEach(file => formData.append('files', file));
     body = formData;
   } else {
     headers['Content-Type'] = 'application/json';
-    body = JSON.stringify({ conversationId, userInput });
+    body = JSON.stringify({ 
+      conversation_id: conversationId, 
+      user_input: userInput 
+    });
   }
 
   const response = await fetch(`${API_BASE}/runs`, {
@@ -30,15 +38,17 @@ export async function createRun(
     body,
   });
 
+  let data;
   const contentType = response.headers.get('content-type') || '';
-
-  let data = contentType.includes('application/json') 
-    ? await response.json().catch(() => ({}))
-    : (await response.text()).trim() ? { message: await response.text() } : {};
+  if (contentType.includes('application/json')) {
+    data = await response.json().catch(() => ({}));
+  } else {
+    const text = await response.text();
+    data = text ? { message: text } : {};
+  }
 
   if (!response.ok) {
-    const errorMessage =
-      data?.message || data?.detail || `Failed to create run (status ${response.status})`;
+    const errorMessage = data?.message || data?.detail || `Failed to create run (status ${response.status})`;
     throw new Error(errorMessage);
   }
 
@@ -46,24 +56,27 @@ export async function createRun(
 }
 
 export async function fetchRunById(runId: number, token?: string): Promise<any> {
-  const headers: HeadersInit = {
-    'Content-Type': 'application/json',
-  };
-
-  if (token) {
-    headers['Authorization'] = `Token ${token}`;
+  if (!token) {
+    throw new Error('Please log in.');
   }
+
+  const headers: HeadersInit = {
+    'Authorization': `Token ${token}`,
+  };
 
   const response = await fetch(`${API_BASE}/run?id=${runId}`, { headers });
 
+  let data;
   const contentType = response.headers.get('content-type') || '';
-
-  let data = contentType.includes('application/json') 
-    ? await response.json().catch(() => ({}))
-    : (await response.text()).trim() ? { message: await response.text() } : {};
+  if (contentType.includes('application/json')) {
+    data = await response.json().catch(() => ({}));
+  } else {
+    const text = await response.text();
+    data = text ? { message: text } : {};
+  }
 
   if (!response.ok) {
-    const errorMessage = data.message || `Failed to fetch run (status ${response.status})`;
+    const errorMessage = data?.message || `Failed to fetch run (status ${response.status})`;
     throw new Error(errorMessage);
   }
 

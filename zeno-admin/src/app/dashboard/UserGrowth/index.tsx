@@ -90,8 +90,8 @@ export default function UserGrowthLineChart() {
         User Growth (This Week)
       </h2>
       <div className="w-full flex justify-center group">
-        <div style={{ width: 800, height: 400 }}>
-          <LineChart width={800} height={400} data={cumulativeData}>
+        <div style={{ width: 520, height: 400 }}>
+          <LineChart width={500} height={400} data={cumulativeData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#A1B1D6" />
             <XAxis dataKey="day" stroke="#A1B1D6" />
             <YAxis stroke="#A1B1D6" allowDecimals={false} />

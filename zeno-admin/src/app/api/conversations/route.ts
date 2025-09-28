@@ -3,38 +3,35 @@ import { NextRequest, NextResponse } from "next/server";
 const BASE_URL = process.env.BASE_URL;
 
 export async function POST(req: NextRequest) {
+  const authHeader = req.headers.get("Authorization");
+  if (!authHeader) {
+    return NextResponse.json({ message: "Missing authorization" }, { status: 401 });
+  }
+  if (!BASE_URL) {
+    return NextResponse.json({ message: "Backend not configured" }, { status: 500 });
+  }
   try {
-    const { userId } = await req.json();
-    const token = req.headers.get("authorization");
-
-    if (!token) {
-      return NextResponse.json({ message: "Missing authorization token" }, { status: 401 });
-    }
-
-    const res = await fetch(`${BASE_URL}/conversations/`, {
+    const body = await req.json();
+    const { user_id, title } = body;
+    const backendRes = await fetch(`${BASE_URL}/conversations/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: token,
+        Authorization: authHeader,
       },
-      body: JSON.stringify({ user_id: userId }),
+      body: JSON.stringify({ user_id, title: title || "New Chat" }),
     });
-
-    let data;
-    try {
-      data = await res.json();
-    } catch {
-      data = {};
+    const data = await backendRes.json().catch(() => ({}));
+    if (!backendRes.ok) {
+      return NextResponse.json(
+        { message: data?.detail || "Failed to create conversation" },
+        { status: backendRes.status }
+      );
     }
-
-    if (!res.ok) {
-      throw new Error(data?.detail || data?.message || "Failed to create conversation");
-    }
-
     return NextResponse.json(data, { status: 201 });
-  } catch (err) {
+  } catch (error) {
     return NextResponse.json(
-      { message: (err as Error).message || "Internal server error" },
+      { message: (error as Error).message || "Internal server error" },
       { status: 500 }
     );
   }
