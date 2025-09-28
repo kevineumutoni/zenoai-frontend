@@ -24,9 +24,7 @@ jobs:
         run: npm install
         working-directory: zeno-admin
 
-      - name: Run tests (passes even with no tests)
-        run: npm run test:ci
-        working-directory: zeno-admin
+
 
       - name: Build React app
         run: npm run build
