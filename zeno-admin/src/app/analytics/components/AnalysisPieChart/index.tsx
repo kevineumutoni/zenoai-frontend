@@ -28,8 +28,7 @@ export default function AnalyticsPieChart({ data }: AnalyticsPieChartProps) {
     datasets: [
       {
         data: Object.values(data).map(v => (total > 0 ? (v / total) * 100 : 0)),
-        backgroundColor: ['#e11d48', '#f97316', '#22d3ee'],
-        borderWidth: 0,
+        backgroundColor: ['#e11d48', '#f97316', '#22d3ee'], // Red, Orange, Teal        borderWidth: 0,
       },
     ],
   };
