@@ -17,9 +17,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const { user } = useFetchAdmins();
   const pathname = usePathname();
 
-  const hideSidebarPaths = ["/", "/welcome", "/signin","/landing_page", "/signup","/chat"];
+  const hideSidebarPaths = ["/", "/welcome", "/signin","/landing_page", "/signup","/chat", '/teaser'];
   const showSidebar = !hideSidebarPaths.includes(pathname);
-  const hideProfileMenuPaths = ["/", "/welcome", "/signin","/landing_page", "/signup","/chat"];
+  const hideProfileMenuPaths = ["/", "/welcome", "/signin","/landing_page", "/signup","/chat", '/teaser'];
   const showProfileMenu = !hideProfileMenuPaths.includes(pathname);
 
   const profileImage = user?.image || "/images/zeno-logo.png";

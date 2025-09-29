@@ -10,7 +10,7 @@ const WelcomePage = () => {
     const fadeTimeout = setTimeout(() => {
       setFade(true);
       setTimeout(() => {
-        router.push('/signin');
+        router.push('/landing_page');
       }, 700);
     }, 2000);
 

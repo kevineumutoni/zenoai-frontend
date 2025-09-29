@@ -2,6 +2,8 @@
 import DashboardTopBar from "./components/TopBar";
 import DashboardMain from "./components/MainPage";
 import { RunLike } from "../../app/utils/types/chat";
+import { useRouter } from "next/navigation";
+
 
 const user = { id: 1, token: "your_token_here" };
 
@@ -21,11 +23,16 @@ const sendMessage = async (params: {
   };
 };
 
+
 export default function DashboardPage() {
+  const router = useRouter();
+const handleSendMessage = () => {
+  router.push("/teaser");
+};
   return (
     <main className="relative min-h-screen">
       <DashboardTopBar />
-      <DashboardMain user={user} sendMessage={sendMessage} />
+      <DashboardMain user={user} sendMessage={sendMessage} onRunCreated={handleSendMessage} />
     </main>
   );
 }

@@ -9,12 +9,12 @@ interface UserCardProps {
 
 function UserCard({ total_users, new_users }: UserCardProps) {
   return (
-    <div className="user-card p-4 rounded-lg bg-[#D9D9D9] text-black w-64 shadow-md  ml-40 mt-10">
-      <div className="flex items-center justify-between mb-2 text-3xl ">
+    <div className="user-card xl:p-3 lg:p-2 lg:mt-2  rounded-lg bg-[#D9D9D9] text-black 2xl:w-64 xl:w-50 lg:w-40 shadow-md  ml-40 2xl:mt-10 xl:mt-5">
+      <div className="flex items-center justify-between 2xl:mb-2 2xl:text-3xl xl:text-2xl">
         <p className=" ">Total Users</p>
         <HiOutlineUsers />
       </div>
-      <p className="text-3xl ">{total_users}</p>
+      <p className="2xl:text-3xl xl:text-2xl ">{total_users}</p>
       <div className="mt-2">
         <p className="text-[#3F944E] text-[18px]">+{new_users} this week</p>
       </div>

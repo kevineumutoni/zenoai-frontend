@@ -21,7 +21,7 @@ export default function ChatMessages({
   }, [runs]);
 
   return (
-    <div className="flex-1 overflow-y-auto p-6 space-y-6 w-[50vw] ml-40 scrollbar-hide">
+    <div className="flex-1 overflow-y-auto p-6 space-y-6 w-full xl:max-w-3xl lg:max-w-2xl md:max-w-xl mx-auto scrollbar-hide">
       {runs.map((run: RunLike) => (
         <div key={run.id} className="">
           <UserMessage

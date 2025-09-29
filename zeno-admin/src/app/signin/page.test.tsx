@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
+import { act } from 'react';
 import LoginPage from './page';
 
 const mockPush = jest.fn();
@@ -91,20 +92,32 @@ describe('LoginPage', () => {
   });
 
   it('routes to dashboard for Admin role after login', async () => {
+    jest.useFakeTimers();
     mockLogin.mockResolvedValueOnce({ role: 'Admin' });
     render(<LoginPage />);
     typeLogin('admin@example.com', 'password123');
-    fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
-    await screen.findByPlaceholderText('Email');
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
+    });
+    await act(() => {
+      jest.advanceTimersByTime(1200);
+    });
     expect(mockPush).toHaveBeenCalledWith('/dashboard');
+    jest.useRealTimers();
   });
 
   it('routes to profile for User role after login', async () => {
+    jest.useFakeTimers();
     mockLogin.mockResolvedValueOnce({ role: 'User' });
     render(<LoginPage />);
     typeLogin('user@example.com', 'password321');
-    fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
-    await screen.findByPlaceholderText('Email');
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
+    });
+    await act(() => {
+      jest.advanceTimersByTime(1200);
+    });
     expect(mockPush).toHaveBeenCalledWith('/profile');
+    jest.useRealTimers();
   });
 });
