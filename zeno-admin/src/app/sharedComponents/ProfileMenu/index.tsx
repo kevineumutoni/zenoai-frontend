@@ -43,7 +43,7 @@ const ProfileMenu = ({ image }: { image?: string }) => {
   const confirmLogout = () => {
     setShowLogoutPopup(false);
     localStorage.clear();
-    router.push('/login');
+    router.push('/signin');
   };
 
   const cancelLogout = () => {

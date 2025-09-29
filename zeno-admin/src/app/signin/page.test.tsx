@@ -106,7 +106,7 @@ describe('LoginPage', () => {
     jest.useRealTimers();
   });
 
-  it('routes to profile for User role after login', async () => {
+  it('routes to chat for User role after login', async () => {
     jest.useFakeTimers();
     mockLogin.mockResolvedValueOnce({ role: 'User' });
     render(<LoginPage />);
@@ -117,7 +117,7 @@ describe('LoginPage', () => {
     await act(() => {
       jest.advanceTimersByTime(1200);
     });
-    expect(mockPush).toHaveBeenCalledWith('/profile');
+    expect(mockPush).toHaveBeenCalledWith('/chat');
     jest.useRealTimers();
   });
 });
