@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import Teaser from "./teaser-one/page";
 import Teaser2 from "./teaser-two/page";
-import InitialTeaser from "./splash/page";
 import { useRouter } from "next/navigation";
 
 const TeaserScreen: React.FC = () => {
@@ -23,16 +22,6 @@ const TeaserScreen: React.FC = () => {
 
   return (
     <div className="relative min-h-screen">
-      {showInitial && (
-        <div
-          className={`absolute inset-0 z-40 transition-opacity duration-700 ${
-            fadeOut ? "opacity-0 pointer-events-none" : "opacity-100"
-          }`}
-        >
-          <InitialTeaser onTimeout={onSplashTimeout} />
-        </div>
-      )}
-
       <div
         className={`relative z-10 ${
           showInitial ? "pointer-events-none select-none" : ""

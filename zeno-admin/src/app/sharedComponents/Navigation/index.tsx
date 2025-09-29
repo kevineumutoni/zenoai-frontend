@@ -29,7 +29,7 @@ const [activeIndex, setActiveIndex] = useState<number>(0);
 
   return (
     <div>
-      <div className="sticky top-0 w-full flex justify-center bg-transparent py-6">
+      <div className="sticky z-100 top-0 w-full flex justify-center bg-transparent py-6">
         <Image
           src="/images/zeno-logo-icon.png"
           alt="Zeno Logo"
