@@ -2,6 +2,16 @@ import React from "react";
 import { render, screen, fireEvent, act } from "@testing-library/react";
 import ProfilePage from "./page";
 
+jest.mock("next/navigation", () => ({
+  useRouter: () => ({
+    back: jest.fn(),
+    push: jest.fn(),
+    replace: jest.fn(),
+    prefetch: jest.fn(),
+    refresh: jest.fn(),
+  }),
+}));
+
 jest.mock("../hooks/useFetchAdmin", () => {
   return () => ({
     user: {

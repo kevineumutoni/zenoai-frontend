@@ -6,16 +6,6 @@ import { AiOutlineEye, AiOutlineEyeInvisible, AiOutlineArrowLeft } from 'react-i
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
-jest.mock("next/navigation", () => ({
-  useRouter: () => ({
-    back: jest.fn(),
-    push: jest.fn(),
-    replace: jest.fn(),
-    prefetch: jest.fn(),
-    refresh: jest.fn(),
-  }),
-}));
-
 interface UserType {
   id?: string | number;
   user_id?: string | number;
