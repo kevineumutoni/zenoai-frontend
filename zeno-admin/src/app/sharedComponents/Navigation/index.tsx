@@ -15,7 +15,7 @@ const navItems = [
   { Icon: TbActivityHeartbeat, label: 'System Health', path: '/systemHealth' },
   { Icon: BsBarChart , label: 'Usage Analytics', path: '/analytics' },
   { Icon: AiOutlineComment, label: 'User Feedback', path: '/user_reviews' },
-  { Icon: HiOutlineUsers , label: 'User Management', path: '/usermanagement' },
+  { Icon: HiOutlineUsers , label: 'User Management', path: '/user_management' },
 ];
 
 export default function SidebarNav() {

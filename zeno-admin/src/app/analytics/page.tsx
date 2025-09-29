@@ -62,7 +62,7 @@ const AnalyticsPage: React.FC = () => {
       </div>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <AnalyticsBarChartCard steps={steps} dateRange={dateRange} />
-        <AnalyticsPieChartCard steps={steps} dateRange={dateRange} />
+        <AnalyticsPieChartCard steps={steps}  dateRange={dateRange} />
       </div>
     </section>
   );

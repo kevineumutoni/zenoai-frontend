@@ -1,4 +1,5 @@
 'use client';
+
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useFetchLogin } from '../hooks/useFetchLogin';
@@ -39,19 +40,43 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [show, setShow] = useState(false);
+
+  const [localError, setLocalError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+
   const { login, isLoading, error } = useFetchLogin();
   const router = useRouter();
+
+  function handleEmailChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setEmail(e.target.value);
+    setLocalError(null);
+    setSuccess(null);
+  }
+  function handlePasswordChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setPassword(e.target.value);
+    setLocalError(null);
+    setSuccess(null);
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setLocalError(null);
+    setSuccess(null);
+
+    if (!email || !password) {
+      setLocalError('Please enter both email and password.');
+      return;
+    }
     const result = await login(email, password);
     if (result && !error) {
-      if (result.role === 'Admin') {
-        router.push('/dashboard');
-      } else if (result.role === 'User') {
-        router.push('/profile');
-      } else {
-        alert('Unknown user role!');
-      }
+      setSuccess('Login successful!');
+      setTimeout(() => {
+        if (result.role === 'Admin') {
+          router.push('/dashboard');
+        } else if (result.role === 'User') {
+          router.push('/profile');
+        }
+      }, 1200);
     }
   }
 
@@ -68,7 +93,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-[url('/images/background.png')] bg-cover">
-      <div className="2xl:w-250 xl:w-150  xl:px-10 2xl:px-30  2xl:h-170  rounded-2xl flex flex-col items-center px-30 py-14 bg-black/0 border border-gray-600 shadow-lg shadow-gray-600">
+      <div className="2xl:w-250 xl:w-150 xl:px-10 2xl:px-30 2xl:h-170 rounded-2xl flex flex-col items-center px-30 py-14 bg-black/0 border border-gray-600 shadow-lg shadow-gray-600">
         <h2 className="2xl:text-[50px] lg:text-[30px] xl:text-[40px] lg:mb-10 xl:mb-10 font-bold text-cyan-200 2xl:mb-28 w-full text-left">Sign In</h2>
         <form onSubmit={handleSubmit} className="w-full flex flex-col gap-7">
           <div className="relative flex items-center border-b border-white/60">
@@ -76,7 +101,7 @@ export default function LoginPage() {
             <input
               type="email"
               value={email}
-              onChange={e => setEmail((e.target as HTMLInputElement).value)}
+              onChange={handleEmailChange}
               className="bg-transparent w-full py-3 pl-0 pr-3 text-white placeholder:text-white/70 text-[20px] outline-none"
               placeholder="Email"
               required
@@ -87,7 +112,7 @@ export default function LoginPage() {
             <input
               type={show ? 'text' : 'password'}
               value={password}
-              onChange={e => setPassword((e.target as HTMLInputElement).value)}
+              onChange={handlePasswordChange}
               className="bg-transparent w-full py-3 pl-0 pr-3 text-white placeholder:text-white/70 text-[20px] outline-none"
               placeholder="Password"
               required
@@ -109,14 +134,19 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isLoading || !email || !password}
-              className="bg-cyan-200 w-100 text-[#0B182F] rounded-[10px] py-3 text-[22px] font-semibold  mt-2 transition-all flex justify-center"
+              className="bg-cyan-200 w-100 text-[#0B182F] rounded-[10px] py-3 text-[22px] font-semibold mt-2 transition-all flex justify-center"
             >
               Sign In
             </button>
           </div>
-          {error && (
-            <div className="text-red-400 text-center text-sm mt-2" data-testid="error-message">
-              {getFriendlyErrorMessage(error)}
+          {(localError || error) && (
+            <div className="text-red-400 text-center text-base mt-2 " data-testid="error-message">
+              {localError || getFriendlyErrorMessage(error)}
+            </div>
+          )}
+          {success && (
+            <div className="text-green-400 text-center mt-2 text-base ">
+              {success}
             </div>
           )}
         </form>

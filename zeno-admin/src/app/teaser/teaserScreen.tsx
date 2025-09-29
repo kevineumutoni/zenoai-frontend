@@ -13,7 +13,7 @@ const TeaserScreen: React.FC = () => {
   const router = useRouter();
 
   const handleContinue = () => setActiveBar((prev) => Math.min(prev + 1, 1));
-  const handleGetStarted = () => router.push("/signin");
+  const handleGetStarted = () => router.push("/signup");
   const handleSkip = () => router.push("/siginin");
 
   const onSplashTimeout = () => {

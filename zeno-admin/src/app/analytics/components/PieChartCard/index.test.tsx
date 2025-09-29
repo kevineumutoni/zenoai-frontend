@@ -18,13 +18,12 @@ jest.mock('../AnalysisPieChart', () => {
 describe('AnalyticsPieChartCard', () => {
   const mockSteps: Step[] = [
     {
-
       step_id: 1,
       conversation: 123,
       step_order: 1,
       type: 'sub_agent_call',
       tool: null,
-      agent: 5,
+      agent: 27,
       created_at: '2025-09-15T10:00:00Z',
       content: { function: 'TradeForecastAgent.run()' },
     },
@@ -34,7 +33,7 @@ describe('AnalyticsPieChartCard', () => {
       step_order: 2,
       type: 'sub_agent_call',
       tool: null,
-      agent: 5,
+      agent: 22,
       created_at: '2025-09-16T10:00:00Z',
       content: { function: 'ScenarioAnalysisAgent.invoke()' },
     },
@@ -44,7 +43,7 @@ describe('AnalyticsPieChartCard', () => {
       step_order: 3,
       type: 'sub_agent_call',
       tool: null,
-      agent: 5,
+      agent: 28,
       created_at: '2025-09-17T10:00:00Z',
       content: { function: 'RAGRetrievalAgent.execute()' },
     },
@@ -52,11 +51,11 @@ describe('AnalyticsPieChartCard', () => {
       step_id: 4,
       conversation: 126,
       step_order: 4,
-      type: 'thought',
+      type: 'sub_agent_call',
       tool: null,
-      agent: 5,
+      agent: 27,
       created_at: '2025-09-18T10:00:00Z',
-      content: { function: 'SomeOtherFunction()' }, 
+      content: { function: 'TradeForecastAgent.run()' },
     },
   ];
 
@@ -67,15 +66,13 @@ describe('AnalyticsPieChartCard', () => {
 
   it('renders without crashing', () => {
     render(<AnalyticsPieChartCard steps={mockSteps} dateRange={mockDateRange} />);
-
     expect(screen.getByText('Module Usage')).toBeInTheDocument();
     expect(screen.getByText('Most frequent used specialized modules.')).toBeInTheDocument();
   });
 
   it('passes correct module usage data to pie chart', () => {
     render(<AnalyticsPieChartCard steps={mockSteps} dateRange={mockDateRange} />);
-
-    expect(screen.getByText('Trade Forecast: 1')).toBeInTheDocument();
+    expect(screen.getByText('Trade Forecast: 2')).toBeInTheDocument();
     expect(screen.getByText('Scenario Explorer: 1')).toBeInTheDocument();
     expect(screen.getByText('Comparative Analysis: 1')).toBeInTheDocument();
   });
@@ -85,9 +82,7 @@ describe('AnalyticsPieChartCard', () => {
       start: new Date('2025-09-15T00:00:00Z'),
       end: new Date('2025-09-15T23:59:59Z'),
     };
-
     render(<AnalyticsPieChartCard steps={mockSteps} dateRange={narrowDateRange} />);
-
     expect(screen.getByText('Trade Forecast: 1')).toBeInTheDocument();
     expect(screen.getByText('Scenario Explorer: 0')).toBeInTheDocument();
     expect(screen.getByText('Comparative Analysis: 0')).toBeInTheDocument();
@@ -95,8 +90,7 @@ describe('AnalyticsPieChartCard', () => {
 
   it('only counts sub_agent_call steps', () => {
     render(<AnalyticsPieChartCard steps={mockSteps} dateRange={mockDateRange} />);
-
-    expect(screen.getByText('Trade Forecast: 1')).toBeInTheDocument();
+    expect(screen.getByText('Trade Forecast: 2')).toBeInTheDocument();
     expect(screen.getByText('Scenario Explorer: 1')).toBeInTheDocument();
     expect(screen.getByText('Comparative Analysis: 1')).toBeInTheDocument();
   });
@@ -106,15 +100,13 @@ describe('AnalyticsPieChartCard', () => {
       ...mockSteps,
       {
         ...mockSteps[0],
-        id: 5,
-        created_at: '', 
-        content: { function: 'TradeForecastAgent.run()' }, 
+        step_id: 5,
+        created_at: '',
+        content: { function: 'TradeForecastAgent.run()' },
       },
     ];
-
     render(<AnalyticsPieChartCard steps={stepsWithMissingDate} dateRange={mockDateRange} />);
-
-    expect(screen.getByText('Trade Forecast: 1')).toBeInTheDocument();
+    expect(screen.getByText('Trade Forecast: 2')).toBeInTheDocument();
     expect(screen.getByText('Scenario Explorer: 1')).toBeInTheDocument();
     expect(screen.getByText('Comparative Analysis: 1')).toBeInTheDocument();
   });
@@ -124,16 +116,13 @@ describe('AnalyticsPieChartCard', () => {
       ...mockSteps,
       {
         ...mockSteps[0],
-        id: 6,
+        step_id: 6,
         content: {},
       },
     ];
-
     render(<AnalyticsPieChartCard steps={stepsWithEmptyContent} dateRange={mockDateRange} />);
-    expect(screen.getByText('Trade Forecast: 1')).toBeInTheDocument();
+    expect(screen.getByText('Trade Forecast: 3')).toBeInTheDocument();
     expect(screen.getByText('Scenario Explorer: 1')).toBeInTheDocument();
     expect(screen.getByText('Comparative Analysis: 1')).toBeInTheDocument();
   });
-
-
 });

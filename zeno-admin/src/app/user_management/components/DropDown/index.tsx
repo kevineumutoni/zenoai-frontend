@@ -17,10 +17,10 @@ export default function CustomDropdown({
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="relative w-48 inline-block">
+    <div className="relative 2x:w-48 lg:w-30 inline-block">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full bg-white border border-gray-400 rounded p-2 text-left flex justify-between items-center text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="w-full bg-white border border-gray-400 rounded 2xl:p-2 lg:p-1 text-left flex justify-between items-center text-black focus:outline-none focus:ring-2 focus:ring-blue-500"
         type="button"
       >
         {capitalize(selected)}

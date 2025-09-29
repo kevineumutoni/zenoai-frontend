@@ -89,8 +89,8 @@ export default function SignUpPage() {
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-[url('/images/background.png')] bg-cover">
-      <div className="2xl:w-250 xl:w-150 xl:px-10 2xl:px-30 2xl:h-180 rounded-2xl flex flex-col items-center px-30 py-14 bg-black/0 border border-gray-600 shadow-lg shadow-gray-600">
-        <h2 className="2xl:text-[50px] lg:text-[30px] xl:text-[40px] lg:mb-10 xl:mb-10 font-bold text-[#9FF8F8] w-full text-left">
+      <div className="2xl:w-250 lg:w-160 xl:w-150 xl:px-10 2xl:px-30 2xl:h-180 rounded-2xl flex flex-col items-center px-30 xl:py-14 lg:py-5 bg-black/0 border border-gray-600 shadow-lg shadow-gray-600">
+        <h2 className="2xl:text-[50px] lg:text-[30px] xl:text-[40px] lg:m-4 xl:mx-10 font-bold text-[#9FF8F8] w-full text-left">
           Sign Up
         </h2>
         <form onSubmit={handleSubmit} className="w-full flex flex-col gap-7">
@@ -102,7 +102,7 @@ export default function SignUpPage() {
                 name="first_name"
                 value={form.first_name}
                 onChange={handleChange}
-                className="bg-transparent w-full py-3 pl-0 pr-3 text-white placeholder:text-white/70 text-[20px] outline-none"
+                className="bg-transparent w-full xl:py-3 lg:py-1 pl-0 pr-3 text-white placeholder:text-white/70 text-[20px] outline-none"
                 placeholder="First Name"
                 required
                 autoComplete="off"
@@ -115,7 +115,7 @@ export default function SignUpPage() {
                 name="last_name"
                 value={form.last_name}
                 onChange={handleChange}
-                className="bg-transparent w-full py-3 pl-0 pr-3 text-white placeholder:text-white/70 text-[20px] outline-none"
+                className="bg-transparent w-full xl:py-3 lg:py-1 pl-0 pr-3 text-white placeholder:text-white/70 text-[20px] outline-none"
                 placeholder="Last Name"
                 required
                 autoComplete="off"
@@ -129,7 +129,7 @@ export default function SignUpPage() {
               name="email"
               value={form.email}
               onChange={handleChange}
-              className="bg-transparent w-full py-3 pl-0 pr-3 text-white placeholder:text-white/70 text-[20px] outline-none"
+              className="bg-transparent w-full xl:py-3 lg:py-1 pl-0 pr-3 text-white placeholder:text-white/70 text-[20px] outline-none"
               placeholder="Email"
               required
               autoComplete="off"
@@ -142,7 +142,7 @@ export default function SignUpPage() {
               name="password"
               value={form.password}
               onChange={handleChange}
-              className="bg-transparent w-full py-3 pl-0 pr-3 text-white placeholder:text-white/70 text-[20px] outline-none"
+              className="bg-transparent w-full xl:py-3 lg:py-1 pl-0 pr-3 text-white placeholder:text-white/70 text-[20px] outline-none"
               placeholder="Password"
               required
               autoComplete="off"
@@ -168,7 +168,7 @@ export default function SignUpPage() {
                 name="confirmPassword"
                 value={form.confirmPassword}
                 onChange={handleChange}
-                className="bg-transparent w-full py-3 pl-0 pr-3 text-white placeholder:text-white/70 text-[20px] outline-none"
+                className="bg-transparent w-full xl:py-3 lg:py-1 pl-0 pr-3 text-white placeholder:text-white/70 text-[20px] outline-none"
                 placeholder="Confirm Password"
                 required
                 autoComplete="off"
@@ -201,7 +201,7 @@ export default function SignUpPage() {
                   onChange={() => setAgreed(!agreed)}
                   className="accent-[#9FF8F8] h-5 w-5"
                 />
-                <span className="text-white cursor-pointer text-xl">
+                <span className="text-white cursor-pointer xl:text-xl lg:text-md">
                   Agree to{' '}
                   <span
                     className="text-[#9FF8F8] cursor-pointer"
@@ -220,7 +220,7 @@ export default function SignUpPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="bg-[#9FF8F8] w-60 text-[#0B182F] rounded-[10px] py-1 text-[23px] font-semibold mt-2 transition-all flex justify-center"
+              className="bg-[#9FF8F8] w-60 xl:w-50 lg:w-30 text-[#0B182F] rounded-[10px] xl:py-1 lg:py-2 lg:text-sm text-[23px] font-semibold mt-2 transition-all flex justify-center"
             >
               Sign Up
             </button>
@@ -236,8 +236,8 @@ export default function SignUpPage() {
             </div>
           )}
         </form>
-        <div className="mt-10">
-          <span className="text-white text-xl">
+        <div className="xl:mt-10 lg:mt-2">
+          <span className="text-white xl:text-xl lg:text-md">
             Already have an account?{' '}
             <span
               className="text-[#9FF8F8] cursor-pointer"

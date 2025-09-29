@@ -28,7 +28,7 @@ export default function AnalyticsPieChart({ data }: AnalyticsPieChartProps) {
     datasets: [
       {
         data: Object.values(data).map(v => (total > 0 ? (v / total) * 100 : 0)),
-        backgroundColor: ['#e11d48', '#f97316', '#22d3ee'], // Red, Orange, Teal
+        backgroundColor: ['#e11d48', '#f97316', '#22d3ee'],
         borderWidth: 0,
       },
     ],
@@ -60,14 +60,13 @@ export default function AnalyticsPieChart({ data }: AnalyticsPieChartProps) {
         },
       },
     },
-    cutout: '70%', 
+    cutout: '70%',
   };
 
-
   return (
-    <div className="h-full w-full   flex flex-col ">
+    <div className="h-full w-full flex flex-col">
       <Pie ref={chartRef} data={chartData} options={options} />
-      <div className="text-sm 2xl:mt-10 text-white flex justify-end  ">Total: {total}</div>
+      <div className="text-2xl  text-white flex justify-end">Total: {total}</div>
     </div>
   );
 }
