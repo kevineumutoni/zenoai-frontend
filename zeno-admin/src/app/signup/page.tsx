@@ -82,13 +82,13 @@ export default function SignUpPage() {
     if (response) {
       setSuccess('Account created successfully!');
       setTimeout(() => {
-        router.push('/signin');
+        router.push('/chat');
       }, 2000);
     }
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-[url('/images/background.png')] bg-cover">
+    <div className="min-h-screen w-full flex items-center justify-center">
       <div className="2xl:w-250 lg:w-160 xl:w-150 xl:px-10 2xl:px-30 2xl:h-180 rounded-2xl flex flex-col items-center px-30 xl:py-14 lg:py-5 bg-black/0 border border-gray-600 shadow-lg shadow-gray-600">
         <h2 className="2xl:text-[50px] lg:text-[30px] xl:text-[40px] lg:m-4 xl:mx-10 font-bold text-[#9FF8F8] w-full text-left">
           Sign Up
@@ -220,7 +220,7 @@ export default function SignUpPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="bg-[#9FF8F8] w-60 xl:w-50 lg:w-30 text-[#0B182F] rounded-[10px] xl:py-1 lg:py-2 lg:text-sm text-[23px] font-semibold mt-2 transition-all flex justify-center"
+              className="bg-[#9FF8F8] w-60 xl:w-50 lg:w-30 2xl:text-lg 2xl:w-80 text-[#0B182F] rounded-[10px] 2xl:py-4 xl:py-1 lg:py-2 lg:text-sm text-[23px] font-semibold mt-2 transition-all flex justify-center"
             >
               Sign Up
             </button>
@@ -241,7 +241,7 @@ export default function SignUpPage() {
             Already have an account?{' '}
             <span
               className="text-[#9FF8F8] cursor-pointer"
-              onClick={() => router.push('/signin')}
+              onClick={() => router.push('/chat')}
             >
               Sign In
             </span>
