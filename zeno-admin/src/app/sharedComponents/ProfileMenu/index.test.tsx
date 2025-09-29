@@ -62,7 +62,7 @@ describe('ProfileMenu', () => {
     expect(screen.getAllByText('Log out').length).toBeGreaterThanOrEqual(1);
   });
 
-  it('clears localStorage and navigates to /login on logout confirmation', async () => {
+  it('clears localStorage and navigates to /signin on logout confirmation', async () => {
     localStorage.setItem('token', '123');
     render(<ProfileMenu />);
     fireEvent.click(screen.getByAltText('Profile'));
@@ -71,7 +71,7 @@ describe('ProfileMenu', () => {
     fireEvent.click(buttons[buttons.length - 1]);
     await waitFor(() => {
       expect(localStorage.getItem('token')).toBeNull();
-      expect(mockPush).toHaveBeenCalledWith('/login');
+      expect(mockPush).toHaveBeenCalledWith('/signin');
       expect(screen.queryByText('Confirm Logout')).not.toBeInTheDocument();
     });
   });
