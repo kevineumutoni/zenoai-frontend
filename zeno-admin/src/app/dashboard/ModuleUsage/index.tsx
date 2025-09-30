@@ -85,7 +85,7 @@ export default function UsageAnalyticsCard() {
             <span>
               {meta.label}
             </span>
-            <span className="2xl:font-semibold xl:font-normal text-2xl lg:text-xs" style={{ color: meta.color }}>
+            <span className="2xl:font-semibold  xl:font-normal text-2xl lg:text-md" style={{ color: meta.color }}>
               {total > 0 ? Math.round((counts[key as keyof typeof counts] / total) * 100) : 0}%
             </span>
           </li>

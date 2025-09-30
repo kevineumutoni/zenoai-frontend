@@ -4,6 +4,17 @@ import * as useConversationWithRuns from '../hooks/useConversationWithRuns';
 import * as useFetchPostRuns from '../hooks/useFetchPostRuns';
 import React from 'react';
 
+jest.mock("next/navigation", () => ({
+  useRouter: () => ({
+    push: jest.fn(),
+    replace: jest.fn(),
+    refresh: jest.fn(),
+    back: jest.fn(),
+    forward: jest.fn(),
+    prefetch: jest.fn(),
+  }),
+}));
+
 type SidebarMockProps = {
   onAddChat: () => void;
   onRenameConversation: (id: number, title: string) => void;
@@ -85,10 +96,12 @@ describe('ChatPage', () => {
     });
   });
 
-  it('renders loading screen if user is not set', () => {
+  it('renders unauthorized user screen if user is not set', () => {
     window.localStorage.clear();
     render(<ChatPage />);
-    expect(screen.getByText(/loading/i)).toBeInTheDocument();
+    expect(screen.getByText(/unauthorized user/i)).toBeInTheDocument();
+    expect(screen.getByText(/please sign in/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument();
   });
 
   it('renders greeting when showGreeting is true', () => {

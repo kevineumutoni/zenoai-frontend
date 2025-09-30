@@ -7,12 +7,13 @@ import { RunFile, RunLike } from "../utils/types/chat";
 import { useConversationsWithRuns } from "../hooks/useConversationWithRuns";
 import { useRuns } from "../hooks/useFetchPostRuns";
 import { Hand } from "lucide-react"; 
-
+import { useRouter } from 'next/navigation';
 export default function ChatPage() {
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const [token, setToken] = useState<string | undefined>(undefined);
   const [userId, setUserId] = useState<number | undefined>(undefined);
   const [showGreeting, setShowGreeting] = useState(true); 
+  const router = useRouter();
 
   useEffect(() => {
     const t = localStorage.getItem('token');
@@ -68,7 +69,24 @@ export default function ChatPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [runs]);
 
-  if (!user) return <div className="flex h-screen items-center justify-center">Loading...</div>;
+  if (!user) {
+    return (
+        <div className="min-h-screen w-full flex items-center justify-center px-4">
+             <div className="text-center">
+            <div className="bg-cyan-500 text-white p-10 rounded-lg mb-4">
+                <h2 className="text-xl font-semibold mb-2">Unauthorized user</h2>
+                <p>Please Sign in</p>
+                <button 
+                    className="mt-4 px-4 py-2 text-white bg-[#15213B] rounded hover:bg-cyan-600"
+                    onClick={() => router.push('/signin')}
+                >
+                    Sign In
+                </button>
+            </div>
+        </div>
+        </div>
+    );
+}
 
   async function handleAddChat() {
     const res = await fetch("/api/conversations", {

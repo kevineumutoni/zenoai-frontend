@@ -220,8 +220,7 @@ export default function SignUpPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="bg-[#9FF8F8] w-60 xl:w-50 lg:w-30 2xl:text-lg 2xl:w-80 text-[#0B182F] rounded-[10px] 2xl:py-4 xl:py-1 lg:py-2 lg:text-sm text-[23px] font-semibold mt-2 transition-all flex justify-center"
-            >
+              className="bg-[#9FF8F8] w-60 xl:w-50 lg:w-30 2xl:text-lg 2xl:w-80 text-[#0B182F] rounded-[10px] 2xl:py-4 xl:py-1 lg:py-2 lg:text-sm text-[23px] font-semibold mt-2 transition-all flex justify-center">
               Sign Up
             </button>
           </div>
@@ -241,7 +240,7 @@ export default function SignUpPage() {
             Already have an account?{' '}
             <span
               className="text-[#9FF8F8] cursor-pointer"
-              onClick={() => router.push('/chat')}
+              onClick={() => router.push('/signin')}
             >
               Sign In
             </span>
