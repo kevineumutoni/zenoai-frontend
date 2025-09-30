@@ -107,12 +107,12 @@ export default function Sidebar({
     <div className="h-full w-72 flex flex-col bg-[#001533] text-white p-4">
       <div className="flex items-center justify-between mb-6">
         <Image src="/images/zeno-logo-icon.png" alt="Zeno Logo" width={40} height={40} />
-        <button className="text-white p-2" onClick={() => setIsCollapsed(true)} aria-label="Collapse Sidebar">
+        <button className="text-white p-2 cursor-pointer" onClick={() => setIsCollapsed(true)} aria-label="Collapse Sidebar">
           <PanelLeft size={24} />
         </button>
       </div>
       <button
-        className="w-full bg-blue-900/70 text-white py-3 px-2 rounded-full flex items-center justify-center space-x-2 hover:bg-[#003366] mb-6"
+        className="w-full bg-blue-900/70 text-white py-3 px-2 rounded-full flex items-center justify-center space-x-2 hover:bg-[#003366] mb-6 cursor-pointer"
         onClick={onAddChat}
         aria-label="Add a new chat"
       >
@@ -166,7 +166,7 @@ export default function Sidebar({
                     <span className="truncate max-w-[140px] font-medium">{c.title || "Untitled Conversation"}</span>
                   </div>
                   <button
-                    className="p-1 hover:bg-gray-700 rounded-full ml-2 flex-shrink-0"
+                    className="p-1 hover:bg-gray-700 rounded-full ml-2 flex-shrink-0 cursor-pointer"
                     onClick={(e) => {
                       e.stopPropagation();
                       setMenuOpenId(menuOpenId === c.conversation_id ? null : c.conversation_id);
@@ -181,7 +181,7 @@ export default function Sidebar({
                       className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gray-800 border border-gray-600 rounded-md shadow-lg z-10 min-w-[120px] whitespace-nowrap"
                     >
                       <button
-                        className="block w-full text-left px-3 py-2 text-sm hover:bg-gray-700 flex items-center"
+                        className="block w-full text-left mt-4 px-3 py-2 text-sm hover:bg-gray-700 flex items-center cursor-pointer"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleStartEdit(c.conversation_id, c.title);
@@ -191,7 +191,7 @@ export default function Sidebar({
                         Rename
                       </button>
                       <button
-                        className="block w-full text-left px-3 py-2 text-sm hover:bg-gray-700 flex items-center text-red-400"
+                        className="block cursor-pointer w-full text-left px-3 py-2 text-sm hover:bg-gray-700 flex items-center text-red-400"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleDelete(c.conversation_id);
@@ -210,7 +210,7 @@ export default function Sidebar({
       </div>
       <div className="pt-4">
         <button
-          className="w-full bg-transparent border border-blue-500 text-blue-400 py-2 px-4 rounded-full flex items-center justify-center space-x-2 hover:bg-blue-500/10 mb-3"
+          className="w-full bg-transparent border border-blue-500 text-blue-400 py-2 px-4 rounded-full flex items-center justify-center space-x-2 hover:bg-blue-500/10 mb-3 cursor-pointer"
           onClick={() => window.location.href = "/profile"}
           aria-label="Go to Profile"
         >
@@ -219,7 +219,7 @@ export default function Sidebar({
         </button>
         
         <button
-          className="w-full bg-transparent border border-cyan-500 text-cyan-400 py-2 px-4 rounded-full flex items-center justify-center space-x-2 hover:bg-cyan-500/10"
+          className="w-full bg-transparent border border-cyan-500 text-cyan-400 py-2 px-4 rounded-full flex items-center justify-center space-x-2 hover:bg-cyan-500/10 cursor-pointer"
           onClick={() => setShowLogoutConfirm(true)}
           aria-label="Logout"
         >

@@ -220,7 +220,7 @@ export default function SignUpPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="bg-[#9FF8F8] w-60 xl:w-50 lg:w-30 2xl:text-lg 2xl:w-80 text-[#0B182F] rounded-[10px] 2xl:py-4 xl:py-1 lg:py-2 lg:text-sm text-[23px] font-semibold mt-2 transition-all flex justify-center">
+              className="bg-[#9FF8F8] cursor-pointer w-60 xl:w-50 lg:w-30 xl:text-xl 2xl:text-2xl 2xl:w-80 text-[#0B182F] rounded-[10px] 2xl:py-4 xl:py-1 lg:py-2 lg:text-sm text-[23px] font-semibold mt-2 transition-all flex justify-center">
               Sign Up
             </button>
           </div>

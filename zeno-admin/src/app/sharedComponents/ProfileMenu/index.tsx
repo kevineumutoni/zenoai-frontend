@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { FaUserCircle } from 'react-icons/fa';
 
 const ProfileMenu = ({ image }: { image?: string }) => {
   const [open, setOpen] = useState(false);
@@ -52,15 +53,26 @@ const ProfileMenu = ({ image }: { image?: string }) => {
 
   return (
     <div className="relative mt-10" ref={menuRef}>
-      <Image
-        src={image || "/images/zeno-logo.png"}
+      {
+        image?
+        <Image
+        src={image}
         alt="Profile"
         width={48}
         height={48}
         className="w-12 h-12 rounded-full border-2 border-cyan-400 cursor-pointer"
         onClick={() => setOpen(o => !o)}
         style={{ objectFit: "cover" }}
-      />
+      /> : (
+          <FaUserCircle
+            size={48}
+            className="w-12 h-12 rounded-full border-2 border-cyan-400 cursor-pointer"
+            color="#9FF8F8"
+          />)
+      }
+
+      
+      
       {open && (
         <div
           className="absolute right-0 mt-4 z-50 bg-white/95 rounded-xl shadow-xl overflow-hidden min-w-[140px]"

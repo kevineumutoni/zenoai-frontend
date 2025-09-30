@@ -72,7 +72,7 @@ export default function FeedbackModal({
           aria-modal="true"
           aria-labelledby="feedback-modal-title"
         >
-          <div className="relative bg-[#C3D1E8] text-black p-6 rounded-xl w-[40vw] h-[40vh] shadow-xl border border-gray-700 pt-5">
+          <div className=" relative bg-[#C3D1E8] text-black p-10  rounded-xl w-[40vw] lg:h-[53vh] xl:h-[45vh] 2xl:h-[45vh] shadow-xl border border-gray-700">
             <h2 id="feedback-modal-title" className="text-2xl font-bold mb-4">
               {feedbackType === "like"
                 ? "You liked this response"
