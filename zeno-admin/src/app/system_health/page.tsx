@@ -6,7 +6,7 @@ import DatabaseQuerySection from './components/DatabaseQuerySection';
 import { useFetchRuns } from '../hooks/useFetchRuns';
 
 export default function HealthDashboard() {
-    const { data: runs, isLoading, error } = useFetchRuns();
+    const { data: runs, isLoading, error, fetchData } = useFetchRuns();
 
     if (isLoading) {
         return (
@@ -24,7 +24,13 @@ export default function HealthDashboard() {
                 <div className="text-center">
                     <div className="bg-red-600 text-white p-4 rounded-lg mb-4">
                         <h2 className="text-lg font-bold mb-2">Error</h2>
-                        <p>{error}</p>
+                        <p>Unknown error occurred.</p>
+                        <button 
+                            className="mt-4 px-4 py-2 bg-cyan-500 text-white rounded hover:bg-cyan-600"
+                            onClick={fetchData}
+                        >
+                            Retry
+                        </button>
                     </div>
                 </div>
             </div>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import DatabaseQuerySection from '../DatabaseQuerySection';
+import DatabaseQuerySection from '.';
 import { Run } from '../../../utils/types/runs';
 
 
