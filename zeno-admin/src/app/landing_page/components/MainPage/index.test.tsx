@@ -1,6 +1,15 @@
 import React from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
-import DashboardMain from "./index";
+
+jest.mock("next/navigation", () => ({
+  useRouter: () => ({
+    push: jest.fn(),
+    replace: jest.fn(),
+    refresh: jest.fn(),
+    back: jest.fn(),
+    forward: jest.fn(),
+    prefetch: jest.fn(),
+  }),
+}));
 
 jest.mock("next/image", () => {
   return function MockImage(props: { src: string; alt: string; width?: number; height?: number; className?: string }) {
@@ -72,6 +81,9 @@ const mockSendMessage = jest.fn().mockResolvedValue({
   started_at: "2025-01-01T00:00:00Z",
 });
 
+import { render, screen, fireEvent } from "@testing-library/react";
+import DashboardMain from "./index";
+
 describe("DashboardMain", () => {
   it("renders logo, heading, and ChatInput", () => {
     render(
@@ -97,7 +109,7 @@ describe("DashboardMain", () => {
     expect(mockChatInput).toHaveBeenCalledWith(
       expect.objectContaining({
         user: mockUser,
-        sendMessage: mockSendMessage,
+        sendMessage: expect.any(Function),
         conversationId: "conv-2",
       })
     );

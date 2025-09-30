@@ -1,11 +1,13 @@
+
 'use client';
 import "./globals.css";
 import { Teachers } from "next/font/google";
 import { usePathname } from "next/navigation";
 import SidebarNav from "./sharedComponents/Navigation";
 import ProfileMenu from "./sharedComponents/ProfileMenu";
-import useFetchAdmins from "./hooks/useFetchAdmin"; 
+import useFetchAdmins from "./hooks/useFetchAdmin";
 import Background from "./sharedComponents/Background";
+
 
 const teachers = Teachers({
   subsets: ["latin"],
@@ -13,23 +15,27 @@ const teachers = Teachers({
   variable: "--font-teachers",
 });
 
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const { user } = useFetchAdmins();
   const pathname = usePathname();
 
-  const hideSidebarPaths = ["/", "/welcome", "/signin","/landing_page", "/signup","/chat", '/teaser', '/profile'];
+
+  const hideSidebarPaths = ["/", "/welcome", "/signin", "/landing_page", "/signup", "/chat", "/teaser", "/profile", "/not_found"];
   const showSidebar = !hideSidebarPaths.includes(pathname);
-  const hideProfileMenuPaths = ["/", "/welcome", "/signin","/landing_page", "/signup","/chat", '/teaser', '/profile'];
+  const hideProfileMenuPaths = ["/", "/welcome", "/signin", "/landing_page", "/signup", "/chat", "/teaser", "/profile", "/not_found"];
   const showProfileMenu = !hideProfileMenuPaths.includes(pathname);
 
+
   const profileImage = user?.image || "/images/zeno-logo.png";
+
 
   return (
     <html lang="en">
       <body className={`${teachers.variable} antialiased`}>
-         <div className="absolute inset-0 -z-10 opacity-20 pointer-events-none">
+        <div className="absolute inset-0 -z-10 opacity-20 pointer-events-none">
           <Background />
-          </div>
+        </div>
         <div className="flex min-h-screen">
           {showSidebar && <SidebarNav />}
           <div className="flex-1 flex flex-col">
@@ -40,8 +46,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             )}
             <main>{children}</main>
           </div>
-       </div>
+        </div>
       </body>
     </html>
   );
 }
+
