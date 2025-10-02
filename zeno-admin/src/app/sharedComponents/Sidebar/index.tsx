@@ -14,6 +14,8 @@ export default function Sidebar({
   setShowSidebar,
   onRenameConversation,
   onDeleteConversation,
+  conversationError,
+  setConversationError,
 }: {
   conversations: { conversation_id: number; title: string; created_at: string }[];
   selectedConversationId: number | null;
@@ -25,6 +27,8 @@ export default function Sidebar({
   setShowSidebar: (show: boolean) => void;
   onRenameConversation: (id: number, title: string) => void;
   onDeleteConversation: (id: number) => void;
+  conversationError?: string | null;
+  setConversationError?: (v: string | null) => void;
 }) {
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -111,6 +115,19 @@ export default function Sidebar({
           <PanelLeft size={24} />
         </button>
       </div>
+      {conversationError && (
+        <div className="text-[#001533] bg-yellow-50 px-4 py-2 rounded mb-3 text-center">
+          {conversationError}
+          {setConversationError && (
+            <button
+              className="ml-2 text-lg text-[#6484b1]  underline"
+              onClick={() => setConversationError(null)}
+            >
+              Dismiss
+            </button>
+          )}
+        </div>
+      )}
       <button
         className="w-full bg-blue-900/70 text-white py-3 px-2 rounded-full flex items-center justify-center space-x-2 hover:bg-[#003366] mb-6 cursor-pointer"
         onClick={onAddChat}

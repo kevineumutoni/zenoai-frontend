@@ -64,12 +64,17 @@ const ProfileMenu = ({ image }: { image?: string }) => {
         onClick={() => setOpen(o => !o)}
         style={{ objectFit: "cover" }}
       /> : (
-          <FaUserCircle
-            size={48}
-            className="w-12 h-12 rounded-full border-2 border-cyan-400 cursor-pointer"
-            color="#9FF8F8"
-          />)
-      }
+        <span
+        role="img"
+        aria-label="Profile"
+        tabIndex={0}
+        onClick={() => setOpen(o => !o)}
+        className="w-12 h-12 rounded-full border-2 border-cyan-400 cursor-pointer inline-flex items-center justify-center"
+        style={{ outline: 'none' }}
+      >
+        <FaUserCircle size={48} color="#9FF8F8" />
+      </span>
+    )}
 
       
       

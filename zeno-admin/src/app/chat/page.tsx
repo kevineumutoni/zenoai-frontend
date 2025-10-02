@@ -6,14 +6,16 @@ import ChatInput from "../sharedComponents/ChatInput";
 import { RunFile, RunLike } from "../utils/types/chat";
 import { useConversationsWithRuns } from "../hooks/useConversationWithRuns";
 import { useRuns } from "../hooks/useFetchPostRuns";
-import { Hand } from "lucide-react"; 
+import { Hand } from "lucide-react";
 import { useRouter } from 'next/navigation';
 export default function ChatPage() {
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const [token, setToken] = useState<string | undefined>(undefined);
   const [userId, setUserId] = useState<number | undefined>(undefined);
-  const [showGreeting, setShowGreeting] = useState(true); 
+  const [showGreeting, setShowGreeting] = useState(true);
+  const [runLimitError, setRunLimitError] = useState(false);
   const router = useRouter();
+  
 
   useEffect(() => {
     const t = localStorage.getItem('token');
@@ -25,7 +27,7 @@ export default function ChatPage() {
   }, []);
 
   const user = token && userId ? { id: userId, token } : undefined;
-
+  const [conversationError, setConversationError] = useState<string | null>(null);
   const {
     conversations,
     selectedConversationId,
@@ -61,7 +63,7 @@ export default function ChatPage() {
       setShowGreeting(mappedRuns.length === 0);
     } else {
       setRuns([]);
-      setShowGreeting(true); 
+      setShowGreeting(true);
     }
   }, [selectedConversationId, conversations, setRuns]);
 
@@ -71,22 +73,22 @@ export default function ChatPage() {
 
   if (!user) {
     return (
-        <div className="min-h-screen w-full flex items-center justify-center px-4">
-             <div className="text-center">
-            <div className="bg-cyan-500 text-white p-10 rounded-lg mb-4">
-                <h2 className="text-xl font-semibold mb-2">Unauthorized user</h2>
-                <p>Please Sign in</p>
-                <button 
-                    className="mt-4 px-4 py-2 text-white bg-[#15213B] rounded hover:bg-cyan-600"
-                    onClick={() => router.push('/signin')}
-                >
-                    Sign In
-                </button>
-            </div>
+      <div className="min-h-screen w-full flex items-center justify-center px-4">
+        <div className="text-center">
+          <div className="bg-cyan-500 text-white p-10 rounded-lg mb-4">
+            <h2 className="text-xl font-semibold mb-2">Unauthorized user</h2>
+            <p>Please Sign in</p>
+            <button
+              className="mt-4 px-4 py-2 text-white bg-[#15213B] rounded hover:bg-cyan-600"
+              onClick={() => router.push('/signin')}
+            >
+              Sign In
+            </button>
+          </div>
         </div>
-        </div>
+      </div>
     );
-}
+  }
 
   async function handleAddChat() {
     const res = await fetch("/api/conversations", {
@@ -97,11 +99,32 @@ export default function ChatPage() {
       },
       body: JSON.stringify({ user_id: userId, title: "New Chat" }),
     });
+    let data: any;
+    try {
+      data = await res.json();
+    } catch {
+      
+      data = null;
+    }
     if (!res.ok) {
-      alert("Failed to create conversation");
+      let errorMsg = "Failed to create conversation";
+      if (
+        data?.error &&
+        typeof data.error === "string" &&
+        data.error.includes("Daily conversation limit")
+      ) {
+        errorMsg = "You have run out of conversations for today. Try again tomorrow.";
+      } else if (data?.error) {
+        errorMsg = data.error;
+      } else if (data?.message) {
+        errorMsg = data.message;
+      } else {
+        errorMsg = "An unknown error occurred. Please try again later.";
+      }
+      setConversationError(errorMsg);
       return;
     }
-    const data = await res.json();
+
     setConversations(prev => [data, ...prev]);
     setSelectedConversationId(data.conversation_id);
   }
@@ -138,7 +161,6 @@ export default function ChatPage() {
       await fetchConvos();
     }
   }
-
   async function handleSendMessage({
     conversationId,
     userInput,
@@ -151,50 +173,67 @@ export default function ChatPage() {
     filePreviews?: { file: File; previewUrl: string }[];
   }): Promise<RunLike> {
     let finalConversationId = conversationId;
+    try {
 
-    if (!finalConversationId) {
-      const createRes = await fetch("/api/conversations", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Token ${token}`,
-        },
-        body: JSON.stringify({ user_id: userId, title: "New Chat" }),
-      });
-      const convData = await createRes.json();
-      finalConversationId = convData.conversation_id;
-      setConversations(prev => [convData, ...prev]);
-      setSelectedConversationId(convData.conversation_id);
-    }
-
-    setShowGreeting(false);
-
-    const result = await sendMessage({
-      conversationId: finalConversationId,
-      userInput,
-      files,
-      filePreviews,
-    });
-
-    await fetchConvos();
-
-    if (!conversationId) {
-      const cleanInput = userInput.trim();
-      if (cleanInput) {
-        const words = cleanInput.split(/\s+/);
-        const title = words.length > 5 ? words.slice(0, 5).join(' ') + '...' : cleanInput;
-        await fetch(`/api/conversations/${finalConversationId}`, {
-          method: "PATCH",
+      if (!finalConversationId) {
+        const createRes = await fetch("/api/conversations", {
+          method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Token ${token}`,
           },
-          body: JSON.stringify({ title }),
+          body: JSON.stringify({ user_id: userId, title: "New Chat" }),
         });
+        const convData = await createRes.json();
+        finalConversationId = convData.conversation_id;
+        setConversations(prev => [convData, ...prev]);
+        setSelectedConversationId(convData.conversation_id);
       }
+
+      setShowGreeting(false);
+
+      const result = await sendMessage({
+        conversationId: finalConversationId,
+        userInput,
+        files,
+        filePreviews,
+      });
+
+      await fetchConvos();
+
+      if (!conversationId) {
+        const cleanInput = userInput.trim();
+        if (cleanInput) {
+          const words = cleanInput.split(/\s+/);
+          const title = words.length > 5 ? words.slice(0, 5).join(' ') + '...' : cleanInput;
+          await fetch(`/api/conversations/${finalConversationId}`, {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Token ${token}`,
+            },
+            body: JSON.stringify({ title }),
+          });
+        }
+      }
+      setRunLimitError(false);
+      return result;
+    } catch (error) {
+      let errorMsg = "Failed to send the message";
+      let isRunLimit = false;
+      if (error instanceof Error && error.message.includes("Run limit")) {
+        errorMsg = "You have reached the maximum number of runs for this conversation. Try to open another conversation.";
+        isRunLimit = true;
+      } else if (error instanceof Error) {
+        errorMsg = error.message;
+      }
+      setConversationError(errorMsg);
+      setRunLimitError(isRunLimit);
+      throw error instanceof Error ? error : new Error(errorMsg);
+
     }
 
-    return result;
+
   }
 
   return (
@@ -210,14 +249,16 @@ export default function ChatPage() {
         }}
         isMobile={false}
         showSidebar={true}
-        setShowSidebar={() => {}}
+        setShowSidebar={() => { }}
         onRenameConversation={handleRenameConversation}
         onDeleteConversation={handleDeleteConversation}
+        conversationError={conversationError}
+        setConversationError={setConversationError}
       />
       <div className="flex-1 flex flex-col h-screen bg-transparent">
         <div className="flex flex-col gap-2 px-4 pt-4 pb-2 overflow-y-auto flex-1">
           {showGreeting ? (
-             <div className="flex justify-center items-center h-full">
+            <div className="flex justify-center items-center h-full">
               <div className="text-center">
                 <div className="flex items-center justify-center gap-3 mb-14">
                   <h1 className="text-5xl font-bold text-white ">Hello there!</h1>
@@ -238,6 +279,7 @@ export default function ChatPage() {
                 })
               }
               userId={user.id}
+              runLimitError={runLimitError}
             />
           )}
           <div ref={messagesEndRef} />
@@ -251,3 +293,4 @@ export default function ChatPage() {
     </div>
   );
 }
+

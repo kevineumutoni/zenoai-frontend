@@ -52,9 +52,11 @@ export async function createRun(
   }
 
   if (!response.ok) {
-    const errorMessage = (data as { message?: string; detail?: string })?.message 
-      || (data as { detail?: string })?.detail 
-      || `Failed to create run (status ${response.status})`;
+    const errorMessage =
+      (data as { error?: string })?.error ||
+      (data as { message?: string })?.message ||
+      (data as { detail?: string })?.detail ||
+      `Failed to create run (status ${response.status})`;
     throw new Error(errorMessage);
   }
 

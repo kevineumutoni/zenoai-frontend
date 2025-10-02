@@ -47,7 +47,7 @@ export default function HealthDashboard() {
     }
 
     return (
-        <div className="min-h-screen text-white px-6">
+        <div className="text-white px-6">
             <SystemHealthSection runs={runs} />
             <DatabaseQuerySection runs={runs} />
         </div>

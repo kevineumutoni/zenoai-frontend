@@ -88,8 +88,8 @@ const AccuracyRateCard: React.FC<AccuracyRateCardProps> = ({ runs, dateRange }) 
   };
 
   return (
-    <div className=" p-4 rounded-xl border border-teal-500/30 shadow-lg sm:p-5 md:p-6">
-      <h3 className="text-xl xl:text-2xl font-bold text-teal-400 mb-2">Accuracy Rate</h3>
+    <div className=" 2xl:p-6 p-3 lg:h-67 xl:h-85 2xl:h-115 rounded-xl border border-teal-500/30  shadow-lg ">
+      <h3 className="text-xl xl:text-2xl font-bold text-white mb-2">Accuracy Rate</h3>
       <p className="text-sm xl:text-lg text-gray-400 mb-4">Breakdown of query by module</p>
 
       {totalErrors > 0 ? (

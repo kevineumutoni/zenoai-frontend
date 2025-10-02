@@ -23,14 +23,28 @@ describe('ProfileMenu', () => {
     expect(decodeURIComponent(img.getAttribute('src') ?? '')).toContain('/some-image.png');
   });
 
-  it('renders default image if image prop is not provided', () => {
+  it('renders default icon if image prop is not provided', () => {
     render(<ProfileMenu />);
-    const img = screen.getByAltText('Profile');
-    expect(decodeURIComponent(img.getAttribute('src') ?? '')).toContain('/images/zeno-logo.png');
+    const trigger = screen.getByLabelText('Profile');
+    expect(trigger).toBeInTheDocument();
+    expect(trigger.querySelector('svg')).toBeInTheDocument();
+  });
+
+  it('toggles menu on profile icon click and closes on outside click', async () => {
+    render(<ProfileMenu />);
+    const trigger = screen.getByLabelText('Profile');
+    fireEvent.click(trigger);
+    expect(screen.getByText('Profile')).toBeInTheDocument();
+    expect(screen.getByText('Log out')).toBeInTheDocument();
+    fireEvent.mouseDown(document.body);
+    await waitFor(() => {
+      expect(screen.queryByText('Profile')).not.toBeInTheDocument();
+      expect(screen.queryByText('Log out')).not.toBeInTheDocument();
+    });
   });
 
   it('toggles menu on profile image click and closes on outside click', async () => {
-    render(<ProfileMenu />);
+    render(<ProfileMenu image="/some-image.png" />);
     const img = screen.getByAltText('Profile');
     fireEvent.click(img);
     expect(screen.getByText('Profile')).toBeInTheDocument();
@@ -42,19 +56,9 @@ describe('ProfileMenu', () => {
     });
   });
 
-  it('navigates to /profile when Profile button is clicked', async () => {
-    render(<ProfileMenu />);
-    fireEvent.click(screen.getByAltText('Profile'));
-    fireEvent.click(screen.getByText('Profile'));
-    await waitFor(() => {
-      expect(mockPush).toHaveBeenCalledWith('/profile');
-      expect(screen.queryByText('Profile')).not.toBeInTheDocument();
-    });
-  });
-
   it('shows logout confirmation popup when Log out is clicked', () => {
     render(<ProfileMenu />);
-    fireEvent.click(screen.getByAltText('Profile'));
+    fireEvent.click(screen.getByLabelText('Profile'));
     fireEvent.click(screen.getByText('Log out'));
     expect(screen.getByText('Confirm Logout')).toBeInTheDocument();
     expect(screen.getByText('Are you sure you want to log out?')).toBeInTheDocument();
@@ -62,10 +66,20 @@ describe('ProfileMenu', () => {
     expect(screen.getAllByText('Log out').length).toBeGreaterThanOrEqual(1);
   });
 
+  it('navigates to /profile when Profile button is clicked', async () => {
+    render(<ProfileMenu />);
+    fireEvent.click(screen.getByLabelText('Profile'));
+    fireEvent.click(screen.getByText('Profile'));
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith('/profile');
+      expect(screen.queryByText('Profile')).not.toBeInTheDocument();
+    });
+  });
+
   it('clears localStorage and navigates to /signin on logout confirmation', async () => {
     localStorage.setItem('token', '123');
     render(<ProfileMenu />);
-    fireEvent.click(screen.getByAltText('Profile'));
+    fireEvent.click(screen.getByLabelText('Profile'));
     fireEvent.click(screen.getByText('Log out'));
     const buttons = screen.getAllByText('Log out');
     fireEvent.click(buttons[buttons.length - 1]);
@@ -79,7 +93,7 @@ describe('ProfileMenu', () => {
   it('closes logout popup without logging out when Cancel is clicked', async () => {
     localStorage.setItem('token', '123');
     render(<ProfileMenu />);
-    fireEvent.click(screen.getByAltText('Profile'));
+    fireEvent.click(screen.getByLabelText('Profile'));
     fireEvent.click(screen.getByText('Log out'));
     fireEvent.click(screen.getByText('Cancel'));
     await waitFor(() => {
@@ -91,7 +105,7 @@ describe('ProfileMenu', () => {
 
   it('closes logout popup on outside click', async () => {
     render(<ProfileMenu />);
-    fireEvent.click(screen.getByAltText('Profile'));
+    fireEvent.click(screen.getByLabelText('Profile'));
     fireEvent.click(screen.getByText('Log out'));
     fireEvent.mouseDown(document.body);
     await waitFor(() => {
