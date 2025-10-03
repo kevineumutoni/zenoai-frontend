@@ -19,10 +19,10 @@ export default function ChatPage() {
   const router = useRouter();
 
   useEffect(() => {
-    const t = localStorage.getItem('token');
+    const token = localStorage.getItem('token');
     const id = localStorage.getItem('id');
-    if (t && id) {
-      setToken(t);
+    if (token && id) {
+      setToken(token);
       setUserId(parseInt(id, 10));
     }
   }, []);
@@ -47,7 +47,7 @@ export default function ChatPage() {
 
   useEffect(() => {
     const selectedConversation = conversations.find(
-      (c) => c.conversation_id === selectedConversationId
+      (conversation) => conversation.conversation_id === selectedConversationId
     );
     if (selectedConversation && selectedConversation.runs) {
       const mappedRuns = selectedConversation.runs.map(run => ({
@@ -192,7 +192,7 @@ export default function ChatPage() {
         let convData: Conversation;
         try {
           convData = await createRes.json();
-        } catch (e) {
+        } catch{
           throw new Error("Invalid response from server when creating conversation");
         }
 
