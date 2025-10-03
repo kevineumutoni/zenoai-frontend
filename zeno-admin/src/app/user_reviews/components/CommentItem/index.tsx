@@ -20,7 +20,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
   avatar,
 }) => {
   return (
-    <div className="border-b border-gray-700 pb-5 pt-10 lg:py-2 xl:py-8 lg:px-5 last:border-b-0 group">
+    <div className="border-b border-gray-700 pb-5 pt-10 lg:py-2 xl:py-3 lg:px-5 last:border-b-0 group">
       <div className="flex items-start space-x-3">
         <Image
           src={avatar}

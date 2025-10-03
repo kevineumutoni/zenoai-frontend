@@ -35,9 +35,9 @@ const SystemHealthSection: React.FC<SystemHealthSectionProps> = ({ runs }) => {
   const totalQueries = runs.length.toLocaleString();
 
   return (
-    <section className="mb-8 p-6 rounded-lg shadow-lg mx-1 lg:mx-30">
-      <h2 className="text-xl md:text-2xl lg:text-4xl font-bold mb-10 text-white">System Health</h2>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5 lg:gap-5 md:gap-10 xl:gap-20">
+    <section className="mb-8 p-6 rounded-lg xl:mt-5 shadow-lg mx-1 lg:mx-30 ">
+      <h2 className="text-3xl md:text-4xl sm:text-[50px xl:text-[50px] font-semibold text-[#9FF8F8] mb-2">System Health</h2>
+      <div className="grid grid-cols-1  xl:mb:3 md:grid-cols-3 gap-5 lg:gap-5 md:gap-10 xl:gap-26">
         <MetricCard
           title="Avg. Response Time"
           value={avgResponseTime}

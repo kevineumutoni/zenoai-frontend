@@ -43,7 +43,7 @@ const StatsCard: React.FC<StatsCardProps> = ({ title, value, type, icon }) => {
 
   const { bg, border, textColor, iconColor, titleColor } = getStyles();
   return (
-    <div className={`pt-5 pb-6 pl-10 pr-7 ${bg} ${border} rounded-3xl transition-all duration-300 hover:shadow-lg md:pt-4 lg:py-2 xl:pt-8 2xl:px-10 2xl:pb-8 md:pb-5 md:pl-6 md:pr-2 `}>
+    <div className={`pt-5 pb-6 pl-10 pr-7 ${bg} ${border} rounded-3xl transition-all duration-300 hover:shadow-lg md:pt-4 lg:py-2 xl:pt-3 2xl:px-10 2xl:pb-8 md:pb-5 md:pl-6 md:pr-2 `}>
       <div className="flex justify-between items-start">
         <div>
           <p className={`text-[25px] xl:text-[25px] font-medium ${titleColor} md:text-[20px]`}>{title}</p>

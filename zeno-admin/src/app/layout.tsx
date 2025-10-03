@@ -30,6 +30,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const profileImage = user?.image || "/images/zeno-logo.png";
 
 
+
+  
+
   return (
     <html lang="en">
       <body className={`${teachers.variable} antialiased`}>

@@ -3,29 +3,32 @@ import { useEffect, useRef, useState } from "react";
 import Sidebar from "../sharedComponents/Sidebar";
 import ChatMessages from "./components/ChatMessages";
 import ChatInput from "../sharedComponents/ChatInput";
-import { RunFile, RunLike } from "../utils/types/chat";
+import { RunFile, RunLike} from "../utils/types/chat"; 
+import { Conversation } from "../utils/types/runs";
 import { useConversationsWithRuns } from "../hooks/useConversationWithRuns";
 import { useRuns } from "../hooks/useFetchPostRuns";
-import { Hand } from "lucide-react"; 
+import { Hand } from "lucide-react";
 import { useRouter } from 'next/navigation';
+
 export default function ChatPage() {
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const [token, setToken] = useState<string | undefined>(undefined);
   const [userId, setUserId] = useState<number | undefined>(undefined);
-  const [showGreeting, setShowGreeting] = useState(true); 
+  const [showGreeting, setShowGreeting] = useState(true);
+  const [runLimitError, setRunLimitError] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
-    const t = localStorage.getItem('token');
+    const token = localStorage.getItem('token');
     const id = localStorage.getItem('id');
-    if (t && id) {
-      setToken(t);
+    if (token && id) {
+      setToken(token);
       setUserId(parseInt(id, 10));
     }
   }, []);
 
   const user = token && userId ? { id: userId, token } : undefined;
-
+  const [conversationError, setConversationError] = useState<string | null>(null);
   const {
     conversations,
     selectedConversationId,
@@ -44,7 +47,7 @@ export default function ChatPage() {
 
   useEffect(() => {
     const selectedConversation = conversations.find(
-      (c) => c.conversation_id === selectedConversationId
+      (conversation) => conversation.conversation_id === selectedConversationId
     );
     if (selectedConversation && selectedConversation.runs) {
       const mappedRuns = selectedConversation.runs.map(run => ({
@@ -61,7 +64,7 @@ export default function ChatPage() {
       setShowGreeting(mappedRuns.length === 0);
     } else {
       setRuns([]);
-      setShowGreeting(true); 
+      setShowGreeting(true);
     }
   }, [selectedConversationId, conversations, setRuns]);
 
@@ -71,22 +74,22 @@ export default function ChatPage() {
 
   if (!user) {
     return (
-        <div className="min-h-screen w-full flex items-center justify-center px-4">
-             <div className="text-center">
-            <div className="bg-cyan-500 text-white p-10 rounded-lg mb-4">
-                <h2 className="text-xl font-semibold mb-2">Unauthorized user</h2>
-                <p>Please Sign in</p>
-                <button 
-                    className="mt-4 px-4 py-2 text-white bg-[#15213B] rounded hover:bg-cyan-600"
-                    onClick={() => router.push('/signin')}
-                >
-                    Sign In
-                </button>
-            </div>
+      <div className="min-h-screen w-full flex items-center justify-center px-4">
+        <div className="text-center">
+          <div className="bg-cyan-500 text-white p-10 rounded-lg mb-4">
+            <h2 className="text-xl font-semibold mb-2">Unauthorized user</h2>
+            <p>Please Sign in</p>
+            <button
+              className="mt-4 px-4 py-2 text-white bg-[#15213B] rounded hover:bg-cyan-600"
+              onClick={() => router.push('/signin')}
+            >
+              Sign In
+            </button>
+          </div>
         </div>
-        </div>
+      </div>
     );
-}
+  }
 
   async function handleAddChat() {
     const res = await fetch("/api/conversations", {
@@ -97,13 +100,36 @@ export default function ChatPage() {
       },
       body: JSON.stringify({ user_id: userId, title: "New Chat" }),
     });
+
+    let data: Conversation | null = null;
+    try {
+      data = await res.json();
+    } catch {
+    }
+
     if (!res.ok) {
-      alert("Failed to create conversation");
+      let errorMsg = "Failed to create conversation";
+      if (
+        data &&
+        typeof data === "object" &&
+        "error" in data &&
+        typeof data.error === "string" &&
+        data.error.includes("Daily conversation limit")
+      ) {
+        errorMsg = "You have run out of conversations for today. Try again tomorrow.";
+      } else if (data && typeof data === "object" && "error" in data && data.error) {
+        errorMsg = String(data.error);
+      } else if (data && typeof data === "object" && "message" in data && data.message) {
+        errorMsg = String(data.message);
+      } else {
+        errorMsg = "An unknown error occurred. Please try again later.";
+      }
+      setConversationError(errorMsg);
       return;
     }
-    const data = await res.json();
-    setConversations(prev => [data, ...prev]);
-    setSelectedConversationId(data.conversation_id);
+
+    setConversations((prev) => [data!, ...prev]);
+    setSelectedConversationId(data!.conversation_id);
   }
 
   async function handleRenameConversation(id: number, title: string) {
@@ -152,49 +178,86 @@ export default function ChatPage() {
   }): Promise<RunLike> {
     let finalConversationId = conversationId;
 
-    if (!finalConversationId) {
-      const createRes = await fetch("/api/conversations", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Token ${token}`,
-        },
-        body: JSON.stringify({ user_id: userId, title: "New Chat" }),
-      });
-      const convData = await createRes.json();
-      finalConversationId = convData.conversation_id;
-      setConversations(prev => [convData, ...prev]);
-      setSelectedConversationId(convData.conversation_id);
-    }
-
-    setShowGreeting(false);
-
-    const result = await sendMessage({
-      conversationId: finalConversationId,
-      userInput,
-      files,
-      filePreviews,
-    });
-
-    await fetchConvos();
-
-    if (!conversationId) {
-      const cleanInput = userInput.trim();
-      if (cleanInput) {
-        const words = cleanInput.split(/\s+/);
-        const title = words.length > 5 ? words.slice(0, 5).join(' ') + '...' : cleanInput;
-        await fetch(`/api/conversations/${finalConversationId}`, {
-          method: "PATCH",
+    try {
+      if (!finalConversationId) {
+        const createRes = await fetch("/api/conversations", {
+          method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Token ${token}`,
           },
-          body: JSON.stringify({ title }),
+          body: JSON.stringify({ user_id: userId, title: "New Chat" }),
         });
-      }
-    }
 
-    return result;
+        let convData: Conversation;
+        try {
+          convData = await createRes.json();
+        } catch{
+          throw new Error("Invalid response from server when creating conversation");
+        }
+
+        if (!createRes.ok) {
+          const errorData = await createRes.json().catch(() => ({}));
+          const errorMsg =
+            (errorData?.error as string) ||
+            (errorData?.message as string) ||
+            "Failed to create conversation";
+          throw new Error(errorMsg);
+        }
+
+        finalConversationId = String(convData.conversation_id);
+        setConversations((prev) => [convData, ...prev]);
+        setSelectedConversationId(convData.conversation_id);
+      }
+
+      setShowGreeting(false);
+
+      const result = await sendMessage({
+        conversationId: finalConversationId,
+        userInput,
+        files,
+        filePreviews,
+      });
+
+      await fetchConvos();
+
+      if (!conversationId) {
+        const cleanInput = userInput.trim();
+        if (cleanInput) {
+          const words = cleanInput.split(/\s+/);
+          const title = words.length > 5 ? words.slice(0, 5).join(' ') + '...' : cleanInput;
+          await fetch(`/api/conversations/${finalConversationId}`, {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Token ${token}`,
+            },
+            body: JSON.stringify({ title }),
+          });
+        }
+      }
+
+      setRunLimitError(false);
+      return result;
+    } catch (error) {
+      let errorMsg = "Failed to send the message";
+      let isRunLimit = false;
+
+      if (error instanceof Error) {
+        if (error.message.includes("Run limit")) {
+          errorMsg = "You have reached the maximum number of runs for this conversation. Try to open another conversation.";
+          isRunLimit = true;
+        } else {
+          errorMsg = error.message;
+        }
+      } else {
+        errorMsg = "An unexpected error occurred.";
+      }
+
+      setConversationError(errorMsg);
+      setRunLimitError(isRunLimit);
+      throw error instanceof Error ? error : new Error(errorMsg);
+    }
   }
 
   return (
@@ -213,15 +276,17 @@ export default function ChatPage() {
         setShowSidebar={() => {}}
         onRenameConversation={handleRenameConversation}
         onDeleteConversation={handleDeleteConversation}
+        conversationError={conversationError}
+        setConversationError={setConversationError}
       />
       <div className="flex-1 flex flex-col h-screen bg-transparent">
         <div className="flex flex-col gap-2 px-4 pt-4 pb-2 overflow-y-auto flex-1">
           {showGreeting ? (
-             <div className="flex justify-center items-center h-full">
+            <div className="flex justify-center items-center h-full">
               <div className="text-center">
                 <div className="flex items-center justify-center gap-3 mb-14">
-                  <h1 className="text-5xl font-bold text-white ">Hello there!</h1>
-                  <Hand className=" animate-waving text-cyan-400" size={64} strokeWidth={1.5} />
+                  <h1 className="text-5xl font-bold text-white">Hello there!</h1>
+                  <Hand className="animate-waving text-cyan-400" size={64} strokeWidth={1.5} />
                 </div>
                 <p className="text-gray-300 text-2xl 2xl:text-5xl">How may I help you today?</p>
               </div>
@@ -238,6 +303,7 @@ export default function ChatPage() {
                 })
               }
               userId={user.id}
+              runLimitError={runLimitError}
             />
           )}
           <div ref={messagesEndRef} />

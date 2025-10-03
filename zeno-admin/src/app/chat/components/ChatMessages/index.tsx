@@ -11,6 +11,7 @@ export default function ChatMessages({
   runs,
   onRetry,
   userId,
+  runLimitError
 }: ChatMessagesProps) {
   const bottomRef = useRef<HTMLDivElement | null>(null);
 
@@ -74,7 +75,7 @@ export default function ChatMessages({
           {run.status === "failed" && (
             <div className="flex items-center gap-2 ml-10">
               <span className="text-red-500">Failed to send</span>
-              {onRetry && (
+              {!runLimitError && onRetry && (
                 <button
                   onClick={() => onRetry(run)}
                   className="text-blue-400 underline"
@@ -82,11 +83,14 @@ export default function ChatMessages({
                   Retry
                 </button>
               )}
+              {runLimitError && (
+                <span className="text-white ml-2">Run limit reached. Retry unavailable.</span>
+              )}
             </div>
           )}
+          <div ref={bottomRef} />
         </div>
       ))}
-      <div ref={bottomRef} />
     </div>
   );
 }
