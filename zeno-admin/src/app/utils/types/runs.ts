@@ -83,7 +83,6 @@ export type User = {
 
 export type Conversation = {
   conversation_id: number;
-  user: User;
   title: string;
   created_at: string;
   runs?: RunLike[];

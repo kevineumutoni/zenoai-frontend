@@ -3,13 +3,11 @@ import { useEffect, useRef, useState } from "react";
 import Sidebar from "../sharedComponents/Sidebar";
 import ChatMessages from "./components/ChatMessages";
 import ChatInput from "../sharedComponents/ChatInput";
-import { RunFile, RunLike} from "../utils/types/chat"; 
-import { Conversation } from "../utils/types/runs";
+import { RunFile, RunLike } from "../utils/types/chat";
 import { useConversationsWithRuns } from "../hooks/useConversationWithRuns";
 import { useRuns } from "../hooks/useFetchPostRuns";
 import { Hand } from "lucide-react";
 import { useRouter } from 'next/navigation';
-
 export default function ChatPage() {
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const [token, setToken] = useState<string | undefined>(undefined);
@@ -17,6 +15,7 @@ export default function ChatPage() {
   const [showGreeting, setShowGreeting] = useState(true);
   const [runLimitError, setRunLimitError] = useState(false);
   const router = useRouter();
+  
 
   useEffect(() => {
     const t = localStorage.getItem('token');
@@ -100,28 +99,25 @@ export default function ChatPage() {
       },
       body: JSON.stringify({ user_id: userId, title: "New Chat" }),
     });
-
-    let data: Conversation | null = null;
+    let data: any;
     try {
       data = await res.json();
     } catch {
-      // Keep data as null if JSON parsing fails
+      
+      data = null;
     }
-
     if (!res.ok) {
       let errorMsg = "Failed to create conversation";
       if (
-        data &&
-        typeof data === "object" &&
-        "error" in data &&
+        data?.error &&
         typeof data.error === "string" &&
         data.error.includes("Daily conversation limit")
       ) {
         errorMsg = "You have run out of conversations for today. Try again tomorrow.";
-      } else if (data && typeof data === "object" && "error" in data && data.error) {
-        errorMsg = String(data.error);
-      } else if (data && typeof data === "object" && "message" in data && data.message) {
-        errorMsg = String(data.message);
+      } else if (data?.error) {
+        errorMsg = data.error;
+      } else if (data?.message) {
+        errorMsg = data.message;
       } else {
         errorMsg = "An unknown error occurred. Please try again later.";
       }
@@ -129,9 +125,8 @@ export default function ChatPage() {
       return;
     }
 
-    // At this point, data must be a valid Conversation
-    setConversations((prev) => [data!, ...prev]);
-    setSelectedConversationId(data!.conversation_id);
+    setConversations(prev => [data, ...prev]);
+    setSelectedConversationId(data.conversation_id);
   }
 
   async function handleRenameConversation(id: number, title: string) {
@@ -166,7 +161,6 @@ export default function ChatPage() {
       await fetchConvos();
     }
   }
-
   async function handleSendMessage({
     conversationId,
     userInput,
@@ -179,8 +173,8 @@ export default function ChatPage() {
     filePreviews?: { file: File; previewUrl: string }[];
   }): Promise<RunLike> {
     let finalConversationId = conversationId;
-
     try {
+
       if (!finalConversationId) {
         const createRes = await fetch("/api/conversations", {
           method: "POST",
@@ -190,25 +184,9 @@ export default function ChatPage() {
           },
           body: JSON.stringify({ user_id: userId, title: "New Chat" }),
         });
-
-        let convData: Conversation;
-        try {
-          convData = await createRes.json();
-        } catch (e) {
-          throw new Error("Invalid response from server when creating conversation");
-        }
-
-        if (!createRes.ok) {
-          const errorData = await createRes.json().catch(() => ({}));
-          const errorMsg =
-            (errorData?.error as string) ||
-            (errorData?.message as string) ||
-            "Failed to create conversation";
-          throw new Error(errorMsg);
-        }
-
-        finalConversationId = String(convData.conversation_id);
-        setConversations((prev) => [convData, ...prev]);
+        const convData = await createRes.json();
+        finalConversationId = convData.conversation_id;
+        setConversations(prev => [convData, ...prev]);
         setSelectedConversationId(convData.conversation_id);
       }
 
@@ -223,7 +201,6 @@ export default function ChatPage() {
 
       await fetchConvos();
 
-      // Auto-rename conversation based on first message
       if (!conversationId) {
         const cleanInput = userInput.trim();
         if (cleanInput) {
@@ -239,28 +216,24 @@ export default function ChatPage() {
           });
         }
       }
-
       setRunLimitError(false);
       return result;
     } catch (error) {
       let errorMsg = "Failed to send the message";
       let isRunLimit = false;
-
-      if (error instanceof Error) {
-        if (error.message.includes("Run limit")) {
-          errorMsg = "You have reached the maximum number of runs for this conversation. Try to open another conversation.";
-          isRunLimit = true;
-        } else {
-          errorMsg = error.message;
-        }
-      } else {
-        errorMsg = "An unexpected error occurred.";
+      if (error instanceof Error && error.message.includes("Run limit")) {
+        errorMsg = "You have reached the maximum number of runs for this conversation. Try to open another conversation.";
+        isRunLimit = true;
+      } else if (error instanceof Error) {
+        errorMsg = error.message;
       }
-
       setConversationError(errorMsg);
       setRunLimitError(isRunLimit);
       throw error instanceof Error ? error : new Error(errorMsg);
+
     }
+
+
   }
 
   return (
@@ -276,7 +249,7 @@ export default function ChatPage() {
         }}
         isMobile={false}
         showSidebar={true}
-        setShowSidebar={() => {}}
+        setShowSidebar={() => { }}
         onRenameConversation={handleRenameConversation}
         onDeleteConversation={handleDeleteConversation}
         conversationError={conversationError}
@@ -288,8 +261,8 @@ export default function ChatPage() {
             <div className="flex justify-center items-center h-full">
               <div className="text-center">
                 <div className="flex items-center justify-center gap-3 mb-14">
-                  <h1 className="text-5xl font-bold text-white">Hello there!</h1>
-                  <Hand className="animate-waving text-cyan-400" size={64} strokeWidth={1.5} />
+                  <h1 className="text-5xl font-bold text-white ">Hello there!</h1>
+                  <Hand className=" animate-waving text-cyan-400" size={64} strokeWidth={1.5} />
                 </div>
                 <p className="text-gray-300 text-2xl 2xl:text-5xl">How may I help you today?</p>
               </div>
@@ -320,3 +293,4 @@ export default function ChatPage() {
     </div>
   );
 }
+
