@@ -81,3 +81,58 @@ describe("Sidebar", () => {
 
 
 });
+
+
+describe("Sidebar conversation errors", () => {
+  it("renders conversationError message and dismiss button", () => {
+    const errorMessage = "You have run out of conversations for today. Try again tomorrow.";
+    const setConversationErrorMock = jest.fn();
+
+    render(
+      <Sidebar
+        {...defaultProps}
+        conversationError={errorMessage}
+        setConversationError={setConversationErrorMock}
+      />
+    );
+
+    expect(screen.getByText(errorMessage)).toBeInTheDocument();
+
+    const dismissButton = screen.getByText(/dismiss/i);
+    expect(dismissButton).toBeInTheDocument();
+
+    fireEvent.click(dismissButton);
+    expect(setConversationErrorMock).toHaveBeenCalledWith(null);
+  });
+
+  it("does not render error message if conversationError is null or undefined", () => {
+    render(<Sidebar {...defaultProps} conversationError={null} />);
+    expect(screen.queryByText(/you have run out of conversations/i)).not.toBeInTheDocument();
+  });
+
+  
+  it("renders conversationError message and allows dismissal", () => {
+    const errorMessage = "You have run out of conversations for today. Try again tomorrow.";
+    const setConversationErrorMock = jest.fn();
+
+    render(
+      <Sidebar
+        {...defaultProps}
+        conversationError={errorMessage}
+        setConversationError={setConversationErrorMock}
+      />
+    );
+
+    expect(screen.getByText(errorMessage)).toBeInTheDocument();
+
+   const dismissBtn = screen.getByText(/dismiss/i);
+    expect(dismissBtn).toBeInTheDocument();
+    fireEvent.click(dismissBtn);
+    expect(setConversationErrorMock).toHaveBeenCalledWith(null);
+  });
+
+  it("does not render error message when conversationError is triggered", () => {
+    render(<Sidebar {...defaultProps} conversationError={null} />);
+    expect(screen.queryByText(/you have run out of conversations/i)).not.toBeInTheDocument();
+  });
+});

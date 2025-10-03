@@ -83,12 +83,15 @@ export type ChatMessagesProps = {
   runs: RunLike[];
   onRetry?: (run: RunLike) => void;
   userId?: number;
+  runLimitError?: boolean
+
 };
 
 export type Conversation = {
   conversation_id: number;
   title: string;
   runs: Run[];
+  created_at: string;
 };
 
 export interface UserMessageProps {

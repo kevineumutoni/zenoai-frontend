@@ -4,9 +4,9 @@ import SystemHealthSection from '.';
 
 describe('SystemHealthSection', () => {
   const mockRuns = [
-    { id: 1, status: 'completed', started_at: '2025-09-10T10:00:00Z', completed_at: '2025-09-10T10:01:00Z' },
-    { id: 2, status: 'completed', started_at: '2025-09-11T10:00:00Z', completed_at: '2025-09-11T10:00:00Z' },
-    { id: 3, status: 'failed', started_at: '2025-09-12T10:00:00Z', completed_at: '2025-09-12T10:02:30Z' },
+    { id: 1, status: 'completed', started_at: '2025-09-10T10:00:00Z', completed_at: '2025-09-10T10:01:00Z', conversation: { id: 10, title: 'hey' }, user_input: '', input_files: [], output_artifacts: [] },
+    { id: 2, status: 'completed', started_at: '2025-09-11T10:00:00Z', completed_at: '2025-09-11T10:00:00Z', conversation: { id: 10, title: 'hey' }, user_input: '', input_files: [], output_artifacts: [] },
+    { id: 3, status: 'failed', started_at: '2025-09-12T10:00:00Z', completed_at: '2025-09-12T10:02:30Z', conversation: { id: 10, title: 'hey' }, user_input: '', input_files: [], output_artifacts: [] }
   ];
 
   test('renders all metric cards with correct titles', () => {

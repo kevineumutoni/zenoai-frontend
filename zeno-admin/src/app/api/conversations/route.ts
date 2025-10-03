@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
     const data = await backendRes.json().catch(() => ({}));
     if (!backendRes.ok) {
       return NextResponse.json(
-        { message: data?.detail || "Failed to create conversation" },
+        data,
         { status: backendRes.status }
       );
     }

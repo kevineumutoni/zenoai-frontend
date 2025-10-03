@@ -124,9 +124,9 @@ export default function LoginPage() {
               aria-label={show ? "Hide password" : "Show password"}
             >
               {show ? (
-                <VisibilityOffOutlinedIcon className="text-white" />
+                <VisibilityOffOutlinedIcon className="text-white cursor-pointer" />
               ) : (
-                <VisibilityOutlinedIcon className="text-white" />
+                <VisibilityOutlinedIcon className="text-white cursor-pointer" />
               )}
             </button>
           </div>
@@ -134,7 +134,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isLoading || !email || !password}
-              className="bg-cyan-200 w-100 text-[#0B182F] rounded-[10px] py-3 text-[22px] font-semibold mt-2 transition-all flex justify-center"
+              className="bg-cyan-200 w-100 text-[#0B182F] rounded-[10px] py-3 text-[22px] font-semibold mt-2 transition-all flex justify-center cursor-pointer"
             >
               Sign In
             </button>

@@ -9,9 +9,11 @@ export async function fetchRuns() {
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Token ${token}`,
+      
+      
     },
+    
   });
-
   if (!response.ok) {
     const errorText = await response.text();
     throw new Error(errorText || 'Unable to fetch system data. Please try again later.');

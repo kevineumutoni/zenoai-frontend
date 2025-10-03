@@ -57,7 +57,7 @@ jest.mock('../sharedComponents/ChatInput', () => ChatInputMock);
 jest.mock('lucide-react', () => ({ Hand: HandMock }));
 
 const mockConversations = [
-  { conversation_id: 1, title: 'First Chat', runs: [], created_at: '2023-01-01T00:00:00Z' },
+  { conversation_id: 1, title: 'First Chat', runs: [], created_at: '2023-01-01T00:00:00Z', user: {id: 11, first_name: 'Arsema', last_name: 'geb', name: 'Arsema geb', email: 'arsema@example.com',  created_at: '2022-12-01T00:00:00Z', role: 'user' } },
 ];
 const mockRuns = [
   {
@@ -114,7 +114,7 @@ describe('ChatPage', () => {
   it('renders messages and input when showGreeting is false', () => {
     jest.spyOn(useConversationWithRuns, 'useConversationsWithRuns').mockReturnValue({
       conversations: [
-        { conversation_id: 1, title: 'Has runs', runs: mockRuns, created_at: '2023-01-01T00:00:00Z' }
+        { conversation_id: 1, title: 'Has runs', runs: mockRuns, created_at: '2023-01-01T00:00:00Z', user: {id: 11, first_name: 'Arsema', last_name: 'geb', email: 'arsema@example.com',  created_at: '2022-12-01T00:00:00Z', role: 'user' } }
       ],
       selectedConversationId: 1,
       setSelectedConversationId: jest.fn(),
@@ -243,4 +243,5 @@ describe('ChatPage', () => {
     expect(sendMessage).toHaveBeenCalled();
     expect(fetchConvos).toHaveBeenCalled();
   });
+  
 });

@@ -79,16 +79,16 @@ const QueryVolumeCard: React.FC<QueryVolumeCardProps> = ({ runs, dateRange }) =>
   };
 
   return (
-    <div className="p-6 rounded-xl border border-teal-500/30 shadow-lg">
-      <h3 className="text-xl xl:text-2xl font-bold text-teal-400 mb-2">Database Query Volume</h3>
+    <div className="2xl:p-6 p-3 lg:h-67 xl:h-85 2xl:h-115 rounded-xl border border-teal-500/30  shadow-lg">
+      <h3 className="text-xl xl:text-2xl font-bold text-white mb-2">Database Query Volume</h3>
       <p className="text-sm xl:text-lg text-gray-400 mb-4">Weekly database queries</p>
 
       {filteredRuns.length > 0 ? (
-        <div className="h-64 w-full">
+        <div className="2xl:h-64 xl:h-40 lg:h-33 w-full">
           <Line data={lineData} options={options} />
         </div>
       ) : (
-        <div className="h-64 flex items-center justify-center text-gray-500">No data for selected range</div>
+        <div className="2xl:h-64 xl:h-40 lg:h-30 flex items-center justify-center text-gray-500">No data for selected range</div>
       )}
 
       <div className="w-full flex justify-between px-6 mt-4">
