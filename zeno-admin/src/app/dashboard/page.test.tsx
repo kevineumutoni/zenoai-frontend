@@ -11,7 +11,6 @@ jest.mock('next/navigation', () => ({
     replace: mockReplace,
   }),
 }));
-
 const localStorageMock = (() => {
   let store: Record<string, string> = {};
   return {
