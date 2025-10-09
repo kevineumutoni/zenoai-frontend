@@ -100,7 +100,7 @@ export default function DashboardMain({
                 setShowLoginModal(false);
                 router.push("/signin");
               }}
-              className="bg-cyan-400 text-[#0B182F] px-5 py-3 rounded-full font-bold text-lg hover:bg-cyan-300 transition mt-4"
+              className="bg-cyan-400 text-[#0B182F] px-5 py-3 rounded-full font-bold text-lg hover:bg-cyan-300 transition mt-4 cursor-pointer"
             >
               Sign In
             </button>

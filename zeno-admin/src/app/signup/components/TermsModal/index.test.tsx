@@ -32,8 +32,9 @@ describe('TermsModal', () => {
    expect(screen.getByText(/3. Data Security and Encryption/i)).toBeInTheDocument();
    expect(screen.getByText(/4. Data Localization & Cross-Border Transfer/i)).toBeInTheDocument();
    expect(screen.getByText(/5. Your Rights/i)).toBeInTheDocument();
-   expect(screen.getByText(/6. Transparency and Explainability/i)).toBeInTheDocument();
-   expect(screen.getByText(/7. Contact Us/i)).toBeInTheDocument();
+   expect(screen.getByText(/6. Chats Usage Policy/i)).toBeInTheDocument();
+   expect(screen.getByText(/7. Transparency and Explainability/i)).toBeInTheDocument();
+   expect(screen.getByText(/8. Contact Us/i)).toBeInTheDocument();
    expect(screen.getByText(/Disclaimer/i)).toBeInTheDocument();
  });
 

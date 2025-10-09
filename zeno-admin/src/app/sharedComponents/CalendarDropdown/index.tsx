@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { format, subDays } from 'date-fns';
@@ -17,15 +17,12 @@ const CalendarDropdown: React.FC<CalendarDropdownProps> = ({ onDateChange }) => 
   const [isOpen, setIsOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    onDateChange(startDate, endDate);
-  }, [startDate, endDate, onDateChange]);
 
   const handleDateChange = (dates: [Date | null, Date | null]) => {
     const [start, end] = dates;
     setStartDate(start);
     setEndDate(end);
-    onDateChange(start, end);
+    onDateChange(start, end); 
     if (start && end) {
       setIsOpen(false);
     }
@@ -41,7 +38,7 @@ const CalendarDropdown: React.FC<CalendarDropdownProps> = ({ onDateChange }) => 
     : 'Select Date Range';
 
   return (
-    <div className="relative  inline-block text-white text-sm cursor-pointer">
+    <div className="relative inline-block text-white text-sm cursor-pointer">
       <div className="flex items-center justify-center border border-teal-500/50 rounded-md py-1 px-2 mb-2 sm:px-3 md:px-4 " onClick={handleClick}>
         <svg className="w-6 h-6 text-teal-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />

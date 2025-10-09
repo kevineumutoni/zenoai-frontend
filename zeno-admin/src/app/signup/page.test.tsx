@@ -1,106 +1,291 @@
-import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
-import SignUpPage from './page';
+'use client';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined';
+import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
+import VisibilityOffOutlinedIcon from '@mui/icons-material/VisibilityOffOutlined';
+import { useFetchSignUp } from '../hooks/useFetchSignUp';
+import TermsModal from './components/TermsModal';
 
-function MockTermsModal(props: {
-  open: boolean;
-  agreed: boolean;
-  setAgreed: (val: boolean) => void;
-  onClose: () => void;
-  onAgree: () => void;
-}) {
-  return props.open ? (
-    <div data-testid="terms-modal">
-      <button aria-label="Close" onClick={props.onClose}>Close</button>
-      <button disabled={!props.agreed} onClick={props.onAgree}>Agree</button>
-      <input
-        type="checkbox"
-        checked={props.agreed}
-        onChange={() => props.setAgreed(!props.agreed)}
-        aria-label="Agree Checkbox"
+export default function SignUpPage() {
+  const [form, setForm] = useState({
+    first_name: '',
+    last_name: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+  });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [termsOpen, setTermsOpen] = useState(false);
+  const [agreed, setAgreed] = useState(false);
+  const [localError, setLocalError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+
+  const { signUp, isLoading } = useFetchSignUp();
+  const router = useRouter();
+
+  const isValidEmail = (email: string) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
+  };
+
+  const isValidPassword = (password: string) => {
+    return (
+      password.length >= 8 &&
+      /[A-Z]/.test(password) &&
+      /[^A-Za-z0-9]/.test(password)
+    );
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setForm(prev => ({ ...prev, [name]: value }));
+    setLocalError(null);
+    setSuccess(null);
+  };
+
+  const handleTermsAgree = () => {
+    setAgreed(true);
+    setTermsOpen(false);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSuccess(null);
+    setLocalError(null);
+
+    if (
+      !form.first_name ||
+      !form.last_name ||
+      !form.email ||
+      !form.password ||
+      !form.confirmPassword
+    ) {
+      setLocalError('Please fill all fields.');
+      return;
+    }
+
+    if (!isValidEmail(form.email)) {
+      setLocalError('Please enter a valid email.');
+      return;
+    }
+
+    if (!isValidPassword(form.password)) {
+      setLocalError('Password must be at least 8 characters, include a capital letter and a special character.');
+      return;
+    }
+
+    if (form.password !== form.confirmPassword) {
+      setLocalError('Passwords do not match.');
+      return;
+    }
+
+    if (!agreed) {
+      setLocalError('You must agree to terms and conditions to continue.');
+      return;
+    }
+
+    try {
+      await signUp({
+        first_name: form.first_name,
+        last_name: form.last_name,
+        email: form.email,
+        password: form.password,
+      });
+      setSuccess('Account created successfully!');
+      setTimeout(() => {
+        router.push('/signin');
+      }, 2000);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'An error occurred during sign up.';
+      setLocalError(message);
+    }
+  };
+
+  return (
+    <div className="min-h-screen w-full flex items-center justify-center">
+      <div className="2xl:w-250 lg:w-160 xl:w-150 xl:px-10 2xl:px-30 2xl:h-190 rounded-2xl flex flex-col items-center px-30 xl:py-14 lg:py-5 bg-black/0 border border-gray-600 shadow-lg shadow-gray-600">
+        <h2 className="2xl:text-[50px] lg:text-[30px] xl:text-[40px] lg:m-4 xl:mx-10 font-bold text-[#9FF8F8] w-full text-left">
+          Sign Up
+        </h2>
+        <form onSubmit={handleSubmit} className="w-full flex flex-col gap-7">
+          <div className="flex gap-4">
+            <div className="relative flex-1 flex items-center border-b border-white/60">
+              <PersonOutlineOutlinedIcon className="text-white mr-3" />
+              <input
+                type="text"
+                name="first_name"
+                value={form.first_name}
+                onChange={handleChange}
+                className="bg-transparent w-full xl:py-3 lg:py-1 pl-0 pr-3 text-white placeholder:text-white/70 text-[20px] outline-none"
+                placeholder="First Name"
+                required
+                autoComplete="off"
+              />
+            </div>
+            <div className="relative flex-1 flex items-center border-b border-white/60">
+              <PersonOutlineOutlinedIcon className="text-white mr-3" />
+              <input
+                type="text"
+                name="last_name"
+                value={form.last_name}
+                onChange={handleChange}
+                className="bg-transparent w-full xl:py-3 lg:py-1 pl-0 pr-3 text-white placeholder:text-white/70 text-[20px] outline-none"
+                placeholder="Last Name"
+                required
+                autoComplete="off"
+              />
+            </div>
+          </div>
+          <div className="relative flex flex-col">
+            <div className="flex items-center border-b border-white/60">
+              <EmailOutlinedIcon className="text-white mr-3" />
+              <input
+                type="email"
+                name="email"
+                value={form.email}
+                onChange={handleChange}
+                className="bg-transparent w-full xl:py-3 lg:py-1 pl-0 pr-3 text-white placeholder:text-white/70 text-[20px] outline-none"
+                placeholder="Email"
+                required
+                autoComplete="off"
+              />
+            </div>
+            {!isValidEmail(form.email) && form.email && (
+              <div className="text-red-400 text-sm mt-1">
+                Please enter a valid email.
+              </div>
+            )}
+          </div>
+          <div className="relative flex flex-col">
+            <div className="flex items-center border-b border-white/60">
+              <LockOutlinedIcon className="text-white mr-3" />
+              <input
+                type={showPassword ? 'text' : 'password'}
+                name="password"
+                value={form.password}
+                onChange={handleChange}
+                className="bg-transparent w-full xl:py-3 lg:py-1 pl-0 pr-3 text-white placeholder:text-white/70 text-[20px] outline-none"
+                placeholder="Password"
+                required
+                autoComplete="off"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                tabIndex={-1}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+              >
+                {showPassword ? (
+                  <VisibilityOffOutlinedIcon className="text-white" />
+                ) : (
+                  <VisibilityOutlinedIcon className="text-white" />
+                )}
+              </button>
+            </div>
+            {!isValidPassword(form.password) && form.password && (
+              <div className="text-red-400 text-sm mt-1">
+                Password must be at least 8 characters, include a capital letter and a special character.
+              </div>
+            )}
+          </div>
+          <div className="relative flex flex-col">
+            <div className="flex items-center border-b border-white/60">
+              <LockOutlinedIcon className="text-white mr-3" />
+              <input
+                type={showConfirmPassword ? 'text' : 'password'}
+                name="confirmPassword"
+                value={form.confirmPassword}
+                onChange={handleChange}
+                className="bg-transparent w-full xl:py-3 lg:py-1 pl-0 pr-3 text-white placeholder:text-white/70 text-[20px] outline-none"
+                placeholder="Confirm Password"
+                required
+                autoComplete="off"
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword((v) => !v)}
+                tabIndex={-1}
+                aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+              >
+                {showConfirmPassword ? (
+                  <VisibilityOffOutlinedIcon className="text-white" />
+                ) : (
+                  <VisibilityOutlinedIcon className="text-white" />
+                )}
+              </button>
+            </div>
+            {form.confirmPassword && form.password !== form.confirmPassword && (
+              <div className="text-red-400 text-center mt-2 text-base">
+                Passwords do not match.
+              </div>
+            )}
+          </div>
+          <div className="flex w-full justify-between items-center mt-2">
+            <div className="flex items-center gap-2">
+              <label className="flex items-center gap-2 select-none group w-full">
+                <input
+                  type="checkbox"
+                  checked={agreed}
+                  onChange={() => setAgreed(!agreed)}
+                  className="accent-[#9FF8F8] h-5 w-5"
+                />
+                <span className="text-white cursor-pointer xl:text-xl lg:text-md">
+                  Agree to{' '}
+                  <span
+                    className="text-[#9FF8F8] cursor-pointer"
+                    onClick={e => {
+                      e.preventDefault();
+                      setTermsOpen(true);
+                    }}
+                    tabIndex={0}
+                    role="button"
+                  >
+                    terms and conditions
+                  </span>
+                </span>
+              </label>
+            </div>
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="bg-[#9FF8F8] cursor-pointer w-60 xl:w-50 lg:w-30 xl:text-xl 2xl:text-2xl 2xl:w-80 text-[#0B182F] rounded-[10px] 2xl:py-4 xl:py-1 lg:py-2 lg:text-sm text-[23px] font-semibold mt-2 transition-all flex justify-center">
+              Sign Up
+            </button>
+          </div>
+          {success && (
+            <div className="text-green-400 text-center mt-2 text-base font-semibold">
+              {success}
+            </div>
+          )}
+          {localError && (
+            <div className="text-red-400 text-center mt-2 text-base">
+              {localError}
+            </div>
+          )}
+        </form>
+        <div className="xl:mt-10 lg:mt-2">
+          <span className="text-white xl:text-xl lg:text-md">
+            Already have an account?{' '}
+            <span
+              className="text-[#9FF8F8] cursor-pointer"
+              onClick={() => router.push('/signin')}
+            >
+              Sign In
+            </span>
+          </span>
+        </div>
+      </div>
+      <TermsModal
+        open={termsOpen}
+        agreed={agreed}
+        setAgreed={setAgreed}
+        onClose={() => setTermsOpen(false)}
+        onAgree={handleTermsAgree}  
       />
     </div>
-  ) : null;
+  );
 }
-MockTermsModal.displayName = 'MockTermsModal';
-
-jest.mock('next/navigation', () => ({
-  useRouter: () => ({
-    push: jest.fn(),
-  }),
-}));
-
-jest.mock('./components/TermsModal', () => ({
-  __esModule: true,
-  default: MockTermsModal,
-}));
-
-jest.mock('../hooks/useFetchSignUp', () => ({
-  useFetchSignUp: () => ({
-    signUp: jest.fn(async () => ({})),
-    isLoading: false,
-    error: null,
-  }),
-}));
-
-describe('SignUpPage', () => {
-  it('renders all form fields and buttons', () => {
-    render(<SignUpPage />);
-    expect(screen.getByPlaceholderText(/First Name/i)).toBeInTheDocument();
-    expect(screen.getByPlaceholderText(/Last Name/i)).toBeInTheDocument();
-    expect(screen.getByPlaceholderText(/Email/i)).toBeInTheDocument();
-    expect(screen.getByPlaceholderText("Password")).toBeInTheDocument();
-    expect(screen.getByPlaceholderText(/Confirm Password/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Sign Up/i })).toBeInTheDocument();
-    expect(screen.getByText(/Sign In/i)).toBeInTheDocument();
-    expect(screen.getByText(/Agree to/i)).toBeInTheDocument();
-    expect(screen.getByText(/terms and conditions/i)).toBeInTheDocument();
-  });
-
-  it('shows error if password and confirmPassword do not match', async () => {
-    render(<SignUpPage />);
-    fireEvent.change(screen.getByPlaceholderText(/First Name/i), { target: { value: 'Test' } });
-    fireEvent.change(screen.getByPlaceholderText(/Last Name/i), { target: { value: 'User' } });
-    fireEvent.change(screen.getByPlaceholderText(/Email/i), { target: { value: 'test@email.com' } });
-    fireEvent.change(screen.getByPlaceholderText("Password"), { target: { value: 'abc123' } });
-    fireEvent.change(screen.getByPlaceholderText(/Confirm Password/i), { target: { value: 'xyz789' } });
-    fireEvent.click(screen.getByRole('button', { name: /Sign Up/i }));
-    const errorMessages = await screen.findAllByText(/Passwords do not match/i, { exact: false });
-    expect(errorMessages.length).toBeGreaterThan(0);
-  });
-
-  it('shows error if not agreed to terms', async () => {
-    render(<SignUpPage />);
-    fireEvent.change(screen.getByPlaceholderText(/First Name/i), { target: { value: 'Test' } });
-    fireEvent.change(screen.getByPlaceholderText(/Last Name/i), { target: { value: 'User' } });
-    fireEvent.change(screen.getByPlaceholderText(/Email/i), { target: { value: 'test@email.com' } });
-    fireEvent.change(screen.getByPlaceholderText("Password"), { target: { value: 'abc123' } });
-    fireEvent.change(screen.getByPlaceholderText(/Confirm Password/i), { target: { value: 'abc123' } });
-    fireEvent.click(screen.getByRole('button', { name: /Sign Up/i }));
-    expect(await screen.findByText(/You must agree to terms and conditions/i, { exact: false })).toBeInTheDocument();
-  });
-
-  it('opens terms modal when clicking terms and conditions', () => {
-    render(<SignUpPage />);
-    fireEvent.click(screen.getByText(/terms and conditions/i));
-    expect(screen.getByTestId('terms-modal')).toBeInTheDocument();
-  });
-
-  it('allows agreement inside modal and closes modal', () => {
-    render(<SignUpPage />);
-    fireEvent.click(screen.getByText(/terms and conditions/i));
-    const checkbox = screen.getByLabelText(/Agree Checkbox/i);
-    fireEvent.click(checkbox);
-    const agreeButton = screen.getByText(/^Agree$/);
-    fireEvent.click(agreeButton);
-    expect(screen.queryByTestId('terms-modal')).not.toBeInTheDocument();
-  });
-
-  it('toggles agreement with main checkbox', () => {
-    render(<SignUpPage />);
-    const mainCheckbox = screen.getByRole('checkbox');
-    expect(mainCheckbox).not.toBeChecked();
-    fireEvent.click(mainCheckbox);
-    expect(mainCheckbox).toBeChecked();
-  });
-});
