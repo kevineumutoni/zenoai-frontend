@@ -70,7 +70,6 @@ describe('CalendarDropdown', () => {
       fireEvent.click(endDay);
     });
 
-    // Simulate clicking outside to close the picker
     act(() => {
       fireEvent.mouseDown(document.body);
     });

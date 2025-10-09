@@ -24,13 +24,13 @@ export default function DashboardTopBar() {
        </div>
        <div className="flex items-center gap-x-2 md:gap-x-4">
          <button
-           className="bg-cyan-500 text-[#0B182F] font-semibold px-3 md:px-5 py-2 rounded-full border border-cyan-900 hover:bg-cyan-800 hover:text-white transition-colors text-xs md:text-sm whitespace-nowrap"
+           className="bg-cyan-500 text-[#0B182F] font-semibold px-3 md:px-5 py-2 rounded-full border border-cyan-900 hover:bg-cyan-800 hover:text-white transition-colors text-xs md:text-sm whitespace-nowrap cursor-pointer"
            onClick={() => router.push("/signin")}
          >
            Sign in
          </button>
          <button
-           className="text-cyan-500 font-semibold px-3 md:px-5 py-2 rounded-full border border-cyan-500 hover:bg-cyan-800 hover:text-white transition-colors text-xs md:text-sm whitespace-nowrap"
+           className="text-cyan-500 font-semibold px-3 md:px-5 py-2 rounded-full border border-cyan-500 hover:bg-cyan-800 hover:text-white transition-colors text-xs md:text-sm whitespace-nowrap cursor-pointer"
            onClick={() => router.push("/signup")}
          >
            Sign up

@@ -15,7 +15,9 @@ export function useFetchLogin() {
         if (data.id) {
           localStorage.setItem('id', data.id.toString());
         }
-
+        if (data.role) {
+          localStorage.setItem('role', data.role);
+        }
       }
       setIsLoading(false);
       return data;
@@ -28,5 +30,3 @@ export function useFetchLogin() {
 
   return { login, isLoading, error };
 }
-
-

@@ -75,9 +75,6 @@ const ProfileMenu = ({ image }: { image?: string }) => {
         <FaUserCircle size={48} color="#9FF8F8" />
       </span>
     )}
-
-      
-      
       {open && (
         <div
           className="absolute right-0 mt-4 z-50 bg-white/95 rounded-xl shadow-xl overflow-hidden min-w-[140px]"
@@ -85,7 +82,7 @@ const ProfileMenu = ({ image }: { image?: string }) => {
         >
           <button
             onClick={handleProfile}
-            className="flex items-center gap-2 px-5 py-3 w-full text-left text-gray-800 hover:bg-cyan-500 focus:bg-cyan-100 transition-colors"
+            className="flex items-center gap-2 px-5 py-3 w-full text-left text-gray-800 hover:bg-cyan-500 focus:bg-cyan-100 transition-colors cursor-pointer"
             style={{ borderBottom: "1px solid #D6EAF8" }}
           >
             <span>
@@ -95,34 +92,33 @@ const ProfileMenu = ({ image }: { image?: string }) => {
           </button>
           <button
             onClick={handleLogout}
-            className="flex items-center gap-2 px-5 py-3 w-full text-left text-cyan-700 hover:bg-cyan-500 focus:bg-cyan-50 transition-colors"
+            className="flex items-center gap-2 px-5 py-3 w-full text-left text-gray-700 hover:bg-cyan-500 focus:bg-cyan-50 transition-colors cursor-pointer"
           >
             <span>
-              <svg width="22" height="22" fill="none" stroke="#00C8C8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M12 2v10"/><circle cx="12" cy="12" r="10"/></svg>
+              <svg width="22" height="22" fill="none" stroke="#0EC9C9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M12 2v10"/><circle cx="12" cy="12" r="10"/></svg>
             </span>
             Log out
           </button>
         </div>
       )}
       {showLogoutPopup && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-4 ">
           <div
             ref={popupRef}
-            className="bg-white/95 rounded-xl shadow-xl p-4 sm:p-6 max-w-sm w-full"
-            style={{ border: "2px solid #D6EAF8" }}
+            className="bg-gray-800 rounded-xl shadow-xl p-4 sm:p-6 max-w-sm w-full"
           >
-            <h3 className="text-lg sm:text-xl font-bold text-gray-800 mb-4">Confirm Logout</h3>
-            <p className="text-gray-600 mb-6">Are you sure you want to log out?</p>
-            <div className="flex justify-end gap-2">
+            <h3 className="text-xl font-semibold text-white mb-2">Confirm Logout</h3>
+            <p className="text-gray-300 mb-4">Are you sure you want to log out?</p>
+            <div className="flex justify-center space-x-3">
               <button
                 onClick={cancelLogout}
-                className="px-3 sm:px-4 py-2 text-red-400 hover:text-red-300 transition-colors cursor-pointer text-sm sm:text-base"
+                className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 onClick={confirmLogout}
-                className="px-3 sm:px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors cursor-pointer text-sm sm:text-base"
+                className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 cursor-pointer"
               >
                 Log out
               </button>
@@ -133,5 +129,4 @@ const ProfileMenu = ({ image }: { image?: string }) => {
     </div>
   );
 };
-
 export default ProfileMenu;

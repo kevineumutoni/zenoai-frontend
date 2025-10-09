@@ -1,10 +1,20 @@
-/* eslint-disable @next/next/no-img-element */
 import { render, screen } from '@testing-library/react';
 import AgentMessage from '.';
 
 jest.mock('next/image', () => {
-  const MockImage = ({ src, alt, width, height }: { src: string; alt: string; width: number; height: number }) => {
-    return <img src={src} alt={alt} width={width} height={height} data-testid="agent-logo" />;
+  const MockImage = ({ alt, width, height, 'data-testid': testId }: { 
+    alt: string; 
+    width?: number; 
+    height?: number; 
+    'data-testid'?: string;
+  }) => {
+    return (
+      <div
+        data-testid={testId || 'agent-logo'}
+        aria-label={alt}
+        style={{ width, height }}
+      />
+    );
   };
   MockImage.displayName = 'MockImage';
   return MockImage;
@@ -14,7 +24,7 @@ describe('AgentMessage', () => {
   it('renders loading state with logo and "thinking" text', () => {
     render(<AgentMessage loading />);
     expect(screen.getByTestId('agent-logo')).toBeInTheDocument();
-    expect(screen.getByAltText('Zeno AI Logo')).toBeInTheDocument();
+    expect(screen.getByLabelText('Zeno AI Logo')).toBeInTheDocument();
     expect(screen.getByText('Zeno AI is thinking...')).toBeInTheDocument();
     const messageBubble = screen.getByText('Zeno AI is thinking...').closest('div');
     expect(messageBubble).toHaveClass('bg-[#131F36]');

@@ -25,6 +25,10 @@ export async function fetchLogin(email: string, password: string) {
       localStorage.setItem('id', result.id.toString());
     }
 
+    if (result.role) {
+      localStorage.setItem('role', result.role);
+    }
+
     return result;
   } catch (error) {
     throw new Error('Failed to login; ' + (error as Error).message);

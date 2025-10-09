@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import useFetchAdmins from '../hooks/useFetchAdmin';
-import { AiOutlineEye, AiOutlineEyeInvisible, AiOutlineArrowLeft } from 'react-icons/ai';
+import { AiOutlineEye, AiOutlineEyeInvisible, AiOutlineArrowLeft, AiOutlineCamera } from 'react-icons/ai';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
@@ -44,12 +44,19 @@ type SnakeCaseData = {
   password: string;
 };
 
+interface ApiError {
+  message?: string;
+  email?: string[];
+}
+
 const ProfilePage = () => {
   const { user, loading, error, updateAdmin, refetch } = useFetchAdmins();
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState<FormData>({});
+  const [originalData, setOriginalData] = useState<FormData>({});
   const [showPassword, setShowPassword] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
+  const [emailError, setEmailError] = useState<string | null>(null);
   const router = useRouter();
 
   function getSafeId(userObj: UserType): string | number | undefined {
@@ -64,7 +71,7 @@ const ProfilePage = () => {
 
   useEffect(() => {
     if (user) {
-      setFormData({
+      const initialData = {
         role: getString(user.role),
         first_name: getString(user.first_name ?? (user as UserType).firstName),
         last_name: getString(user.last_name ?? (user as UserType).lastName),
@@ -72,7 +79,9 @@ const ProfilePage = () => {
         date_joined: getString(user.date_joined ?? user.registeredDate ?? user.created_at),
         image: getString(user.image),
         password: ''
-      });
+      };
+      setFormData(initialData);
+      setOriginalData(initialData);
     }
   }, [user]);
 
@@ -81,8 +90,9 @@ const ProfilePage = () => {
   const handleCancel = () => {
     setIsEditing(false);
     setStatus(null);
+    setEmailError(null);
     if (user) {
-      setFormData({
+      const resetData = {
         role: getString(user.role),
         first_name: getString(user.first_name ?? (user as UserType).firstName),
         last_name: getString(user.last_name ?? (user as UserType).lastName),
@@ -90,7 +100,9 @@ const ProfilePage = () => {
         date_joined: getString(user.date_joined ?? user.registeredDate ?? user.created_at),
         image: getString(user.image),
         password: ''
-      });
+      };
+      setFormData(resetData);
+      setOriginalData(resetData);
     }
   };
 
@@ -100,11 +112,54 @@ const ProfilePage = () => {
       ...prev,
       [name]: value
     }));
+    if (name === 'email') {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (value && !emailRegex.test(value)) {
+        setEmailError('Please put a valid email');
+      } else {
+        setEmailError(null);
+      }
+    }
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData(prev => ({
+          ...prev,
+          image: reader.result as string
+        }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const hasChanges = (): boolean => {
+    return (
+      formData.first_name !== originalData.first_name ||
+      formData.last_name !== originalData.last_name ||
+      formData.email !== originalData.email ||
+      formData.image !== originalData.image
+    );
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
+
+    if (!hasChanges()) {
+      setStatus('No changes detected.');
+      setTimeout(() => setStatus(null), 2000);
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!formData.email || !emailRegex.test(formData.email)) {
+      setEmailError('Please put a valid email');
+      return;
+    }
 
     if (!formData.password || formData.password.trim() === '') {
       setStatus('Password is required to update the profile.');
@@ -130,7 +185,7 @@ const ProfilePage = () => {
           setTimeout(() => setStatus(null), 2000);
           return;
         }
-        setFormData({
+        const newFormData = {
           role: getString(updatedUser.role),
           first_name: getString(updatedUser.first_name),
           last_name: getString(updatedUser.last_name),
@@ -138,14 +193,20 @@ const ProfilePage = () => {
           date_joined: getString(updatedUser.date_joined ?? updatedUser.registeredDate ?? updatedUser.created_at),
           image: getString(updatedUser.image),
           password: ''
-        });
-
+        };
+        setFormData(newFormData);
+        setOriginalData(newFormData);
         setIsEditing(false);
         setStatus('Profile updated successfully!');
         setTimeout(() => setStatus(null), 2000);
-      } catch {
-        setStatus('Update failed.');
-        setTimeout(() => setStatus(null), 2000);
+      } catch (err) {
+        const error = err as ApiError;
+        if (error?.email) {
+          setEmailError(error.email[0]);
+        } else {
+          setStatus('Update failed.');
+          setTimeout(() => setStatus(null), 2000);
+        }
       }
     } else {
       setStatus('User ID not found.');
@@ -157,11 +218,11 @@ const ProfilePage = () => {
     setShowPassword(prev => !prev);
   };
 
-
   const handleBack = () => {
     router.back();
   };
 
+  const displayImage = formData.image || '/images/avatare.png';
 
   if (loading) {
     return (
@@ -202,18 +263,17 @@ const ProfilePage = () => {
   }
 
   return (
-    
     <div className="relative overflow-hidden bg-cover xl:mt-20 lg:mt- 2xl:mt-40 bg-center -mt-4 sm:-mt-6 lg:-mt-8">
       <div className="fixed top-9 left-9 z-30">
-      <button
-        onClick={handleBack}
-        className="text-cyan-300 flex items-center gap-2 px-3 py-1 border rounded-full  hover:bg-cyan-200 hover:text-[#0F243D]  transition-colors duration-200 font-semibold"
-      >
-        <AiOutlineArrowLeft size={22} className="text-cyan-300 hover:text-[#0F243D]" />
-        <span className="text-base font-medium tracking-wide">Back</span>
-      </button>
-    </div>
-      
+        <button
+          onClick={handleBack}
+          className="text-cyan-300 flex items-center gap-2 px-3 py-1 border rounded-full  hover:bg-cyan-200 hover:text-[#0F243D]  transition-colors duration-200 font-semibold cursor-pointer"
+        >
+          <AiOutlineArrowLeft size={22} className="text-cyan-300 hover:text-[#0F243D]" />
+          <span className="text-base font-medium tracking-wide">Back</span>
+        </button>
+      </div>
+
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <header className="mt-8 sm:mt-12 flex flex-col sm:flex-row justify-between items-center mb-4 sm:mb-6 lg:mb-8">
           <div className="text-center sm:text-left">
@@ -227,20 +287,27 @@ const ProfilePage = () => {
         <div className="flex flex-col lg:flex-row gap-4 sm:gap-6">
           <div className="flex-1 flex justify-center mb-6 lg:mb-0">
             <div style={{ backgroundColor: '#0F243D' }} className="rounded-3xl pt-6 sm:pt-10 lg:pt-14 shadow-lg border border-none max-w-xs sm:max-w-sm w-full">
-              <div className="relative">
-                {formData.image ? (
+              <div className="relative flex justify-center">
+                <div className="relative">
                   <Image
-                    src={formData.image}
-                    alt="Admin"
+                    src={displayImage}
+                    alt="Profile"
                     width={192}
                     height={192}
-                    className="w-24 h-24 sm:w-32 sm:h-32 lg:w-48 lg:h-48 xl:w-64 xl:h-64 rounded-full border-4 border-cyan-400 object-cover mx-auto"
+                    className="w-24 h-24 sm:w-32 sm:h-32 lg:w-48 lg:h-48 xl:w-64 xl:h-64 rounded-full border-4 border-cyan-400 object-cover"
                   />
-                ) : (
-                  <div className="w-24 h-24 sm:w-32 sm:h-32 lg:w-48 lg:h-48 xl:w-64 xl:h-64 rounded-full border-4 border-cyan-400 object-cover mx-auto bg-gray-700 flex items-center justify-center text-white">
-                    No Image
-                  </div>
-                )}
+                  {isEditing && (
+                    <label className="absolute bottom-2 right-2 bg-cyan-400 rounded-full p-2 cursor-pointer shadow-lg hover:bg-gray-100 transition-colors">
+                      <AiOutlineCamera size={18} className="text-[#0F243D]" />
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageChange}
+                        className="hidden"
+                      />
+                    </label>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -265,7 +332,12 @@ const ProfilePage = () => {
                     </button>
                     <button
                       onClick={handleSubmit}
-                      className="px-3 sm:px-4 py-1.5 sm:py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors duration-200 cursor-pointer text-sm sm:text-base"
+                      disabled={!hasChanges()}
+                      className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-sm sm:text-base transition-colors duration-200 cursor-pointer ${
+                        hasChanges()
+                          ? 'bg-green-500 text-white hover:bg-green-600'
+                          : 'bg-gray-500 text-gray-300 cursor-not-allowed'
+                      }`}
                     >
                       Save
                     </button>
@@ -278,6 +350,8 @@ const ProfilePage = () => {
                   className={`mb-3 sm:mb-4 px-4 py-2 rounded text-center ${
                     status.includes('success')
                       ? 'bg-green-600 text-white'
+                      : status.includes('No changes')
+                      ? 'bg-yellow-600 text-white'
                       : 'bg-red-600 text-white'
                   } text-sm sm:text-base`}
                 >
@@ -344,6 +418,9 @@ const ProfilePage = () => {
                     />
                   ) : (
                     <p className="text-white text-base sm:text-lg lg:text-xl">{formData.email || 'Not specified'}</p>
+                  )}
+                  {isEditing && emailError && (
+                    <p className="text-red-500 text-sm mt-1">{emailError}</p>
                   )}
                 </div>
                 <hr className="border-gray-700 my-3 sm:my-4" />

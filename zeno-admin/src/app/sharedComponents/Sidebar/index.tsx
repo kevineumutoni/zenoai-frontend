@@ -252,7 +252,7 @@ export default function Sidebar({
             <div className="flex justify-center space-x-3">
               <button
                 onClick={() => setShowLogoutConfirm(false)}
-                className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700"
+                className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 cursor-pointer"
               >
                 Cancel
               </button>
@@ -261,7 +261,7 @@ export default function Sidebar({
                   setShowLogoutConfirm(false);
                   onLogout();
                 }}
-                className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+                className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 cursor-pointer"
               >
                 Logout
               </button>

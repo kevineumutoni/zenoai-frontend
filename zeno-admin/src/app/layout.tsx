@@ -27,7 +27,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const showProfileMenu = !hideProfileMenuPaths.includes(pathname);
 
 
-  const profileImage = user?.image || "/images/zeno-logo.png";
+  const profileImage = user?.image || "/images/avatar-profile.jpg";
 
 
 
