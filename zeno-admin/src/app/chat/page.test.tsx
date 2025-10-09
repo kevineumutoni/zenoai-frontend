@@ -363,8 +363,6 @@ describe('ChatPage', () => {
       try {
         data = await res.json();
       } catch {}
-
-     
     };
     await act(async () => {
       await handleAddChat();
