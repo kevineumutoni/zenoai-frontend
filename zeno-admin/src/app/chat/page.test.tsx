@@ -366,7 +366,6 @@ describe('ChatPage', () => {
 
      
     };
-
     await act(async () => {
       await handleAddChat();
     });
