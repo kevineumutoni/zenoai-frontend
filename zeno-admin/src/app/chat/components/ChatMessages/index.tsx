@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import UserMessage from "./components/UserMessageCard";
 import AgentMessage from "./components/AgentMessageCard";
 import FeedbackButtons from "../FeedbackButtons";
@@ -7,6 +7,7 @@ import ChatArtifactRenderer from "./components/ArtifactRender";
 import type { ChatMessagesProps, RunLike, RunFile } from "../../../utils/types/chat";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+import Image from "next/image";
 
 export default function ChatMessages({
   runs: runsProp,
@@ -15,11 +16,11 @@ export default function ChatMessages({
   runLimitError
 }: ChatMessagesProps) {
   const bottomRef = useRef<HTMLDivElement | null>(null);
-  const singlePrintRef = useRef<HTMLDivElement>(null);
+  const singlePrintRef = useRef<HTMLDivElement | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [runToDownload, setRunToDownload] = useState<RunLike | null>(null);
 
-  const runs = Array.isArray(runsProp) ? runsProp : [];
+  const runs = useMemo(() => Array.isArray(runsProp) ? runsProp : [], [runsProp]);
 
   useEffect(() => {
     if (bottomRef.current) {
@@ -53,7 +54,6 @@ export default function ChatMessages({
           });
 
           const imgWidth = 210;
-          const pageHeight = 297;
           const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
           if (isNaN(imgHeight) || imgHeight <= 0) return;
@@ -74,7 +74,6 @@ export default function ChatMessages({
 
   return (
     <>
-      {/* Single message printable area */}
       {runToDownload && (
         <div
           ref={singlePrintRef}
@@ -93,10 +92,12 @@ export default function ChatMessages({
           }}
         >
           <div style={{ textAlign: "center", marginBottom: "20px" }}>
-            <img
+            <Image
               src="/images/zeno-logo-icon.png"
               alt="Zeno Logo"
-              style={{ height: "40px", marginBottom: "10px" }}
+              width={120}
+              height={40}
+              style={{ height: "40px", marginBottom: "10px", width: "auto" }}
             />
             <h1 style={{ fontSize: "18pt", fontWeight: "bold", color: "#9FF8F8" }}>
               Message Report

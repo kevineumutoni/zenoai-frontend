@@ -44,6 +44,11 @@ type SnakeCaseData = {
   password: string;
 };
 
+interface ApiError {
+  message?: string;
+  email?: string[];
+}
+
 const ProfilePage = () => {
   const { user, loading, error, updateAdmin, refetch } = useFetchAdmins();
   const [isEditing, setIsEditing] = useState(false);
@@ -194,9 +199,10 @@ const ProfilePage = () => {
         setIsEditing(false);
         setStatus('Profile updated successfully!');
         setTimeout(() => setStatus(null), 2000);
-      } catch (err: any) {
-        if (err?.email) {
-          setEmailError(err.email[0]);
+      } catch (err) {
+        const error = err as ApiError;
+        if (error?.email) {
+          setEmailError(error.email[0]);
         } else {
           setStatus('Update failed.');
           setTimeout(() => setStatus(null), 2000);

@@ -1,7 +1,6 @@
 'use client';
 
 import { render, screen, waitFor } from '@testing-library/react';
-import { useRouter } from 'next/navigation';
 import DashboardPage from './page';
 import * as React from 'react';
 

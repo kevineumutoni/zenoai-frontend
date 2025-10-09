@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { FaRegThumbsUp, FaRegThumbsDown, FaRegCopy, FaDownload } from "react-icons/fa";
 import FeedbackModal from "../FeedbackModal";
+import type { RunLike } from "../../../utils/types/chat";
 
 export default function FeedbackButtons({
   userId,
@@ -11,8 +12,8 @@ export default function FeedbackButtons({
 }: {
   userId?: number;
   textToCopy: string;
-  onDownloadReport?: (run: any) => void;
-  runData?: any;
+  onDownloadReport?: (run: RunLike) => void;
+  runData?: RunLike;
 }) {
   const [feedbackType, setFeedbackType] = useState<"like" | "dislike" | null>(null);
   const [showModal, setShowModal] = useState(false);

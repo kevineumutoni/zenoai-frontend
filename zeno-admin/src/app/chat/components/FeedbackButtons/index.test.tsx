@@ -1,21 +1,25 @@
-// FeedbackButtons.test.tsx
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import FeedbackButtons from './';
-import * as React from 'react';
 
 jest.mock('../FeedbackModal', () => {
-  return ({ onClose }: { onClose: () => void }) => (
+  const MockFeedbackModal = ({ onClose }: { onClose: () => void }) => (
     <div data-testid="feedback-modal">
       <button onClick={onClose} data-testid="close-modal">Close</button>
     </div>
   );
+  MockFeedbackModal.displayName = 'MockFeedbackModal';
+  return MockFeedbackModal;
 });
 
 jest.mock('react-icons/fa', () => {
   const FaRegThumbsUp = () => <span data-testid="thumbs-up">👍</span>;
+  FaRegThumbsUp.displayName = 'FaRegThumbsUp';
   const FaRegThumbsDown = () => <span data-testid="thumbs-down">👎</span>;
+  FaRegThumbsDown.displayName = 'FaRegThumbsDown';
   const FaRegCopy = () => <span data-testid="copy-icon">📋</span>;
+  FaRegCopy.displayName = 'FaRegCopy';
   const FaDownload = () => <span data-testid="download-icon">📥</span>;
+  FaDownload.displayName = 'FaDownload';
   return { FaRegThumbsUp, FaRegThumbsDown, FaRegCopy, FaDownload };
 });
 
@@ -38,7 +42,14 @@ describe('FeedbackButtons', () => {
 
   it('shows download button when onDownloadReport and runData are provided', () => {
     const handleDownload = jest.fn();
-    const runData = { id: '1', user_input: 'test' };
+    const runData = {
+      id: '1',
+      user_input: 'test',
+      status: 'completed',
+      final_output: null,
+      output_artifacts: [],
+      started_at: '2024-01-01T00:00:00Z',
+    };
     render(
       <FeedbackButtons 
         userId={1} 
@@ -88,16 +99,11 @@ describe('FeedbackButtons', () => {
       },
       writable: true,
     });
-    
     render(<FeedbackButtons userId={1} textToCopy="test copy text" />);
     fireEvent.click(screen.getByTestId('copy-icon'));
-    
-    // Wait for the success message to appear
     await waitFor(() => {
       expect(screen.getByText('Copied successfully!')).toBeInTheDocument();
     });
-    
-    // Wait for it to disappear
     await waitFor(() => {
       expect(screen.queryByText('Copied successfully!')).not.toBeInTheDocument();
     }, { timeout: 2100 });
@@ -110,16 +116,11 @@ describe('FeedbackButtons', () => {
       },
       writable: true,
     });
-    
     render(<FeedbackButtons userId={1} textToCopy="test copy text" />);
     fireEvent.click(screen.getByTestId('copy-icon'));
-    
-    // Wait for the error message to appear
     await waitFor(() => {
       expect(screen.getByText('Failed to copy')).toBeInTheDocument();
     });
-    
-    // Wait for it to disappear
     await waitFor(() => {
       expect(screen.queryByText('Failed to copy')).not.toBeInTheDocument();
     }, { timeout: 2100 });
@@ -127,7 +128,14 @@ describe('FeedbackButtons', () => {
 
   it('calls onDownloadReport with runData', () => {
     const handleDownload = jest.fn();
-    const runData = { id: '1', user_input: 'test input' };
+    const runData = {
+      id: '1',
+      user_input: 'test input',
+      status: 'completed',
+      final_output: 'Response',
+      output_artifacts: [],
+      started_at: '2024-01-01T00:00:00Z',
+    };
     render(
       <FeedbackButtons 
         userId={1} 

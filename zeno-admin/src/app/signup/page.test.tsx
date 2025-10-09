@@ -99,8 +99,9 @@ export default function SignUpPage() {
       setTimeout(() => {
         router.push('/signin');
       }, 2000);
-    } catch (err: any) {
-      setLocalError(err.message || 'An error occurred during sign up.');
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'An error occurred during sign up.';
+      setLocalError(message);
     }
   };
 
