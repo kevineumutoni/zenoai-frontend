@@ -1,29 +1,142 @@
-import { render, screen, fireEvent } from "@testing-library/react";
-import FeedbackButtons from ".";
-import { act } from "react";
+// FeedbackButtons.test.tsx
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import FeedbackButtons from './';
+import * as React from 'react';
 
-describe("FeedbackButtons", () => {
+jest.mock('../FeedbackModal', () => {
+  return ({ onClose }: { onClose: () => void }) => (
+    <div data-testid="feedback-modal">
+      <button onClick={onClose} data-testid="close-modal">Close</button>
+    </div>
+  );
+});
+
+jest.mock('react-icons/fa', () => {
+  const FaRegThumbsUp = () => <span data-testid="thumbs-up">👍</span>;
+  const FaRegThumbsDown = () => <span data-testid="thumbs-down">👎</span>;
+  const FaRegCopy = () => <span data-testid="copy-icon">📋</span>;
+  const FaDownload = () => <span data-testid="download-icon">📥</span>;
+  return { FaRegThumbsUp, FaRegThumbsDown, FaRegCopy, FaDownload };
+});
+
+describe('FeedbackButtons', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
-    Object.assign(navigator, {
-      clipboard: { writeText: jest.fn().mockResolvedValue(undefined) },
+    Object.defineProperty(window, 'localStorage', {
+      value: {
+        getItem: jest.fn().mockReturnValue('test-token'),
+      },
+      writable: true,
     });
   });
 
-  it("opens modal when like button is clicked", () => {
-    render(<FeedbackButtons userId={1} textToCopy="Test text" />);
-
-    fireEvent.click(screen.getByLabelText("like"));
-    expect(screen.getByRole("dialog")).toBeInTheDocument();
+  it('renders all feedback buttons', () => {
+    render(<FeedbackButtons userId={1} textToCopy="test" />);
+    expect(screen.getByTestId('thumbs-up')).toBeInTheDocument();
+    expect(screen.getByTestId('thumbs-down')).toBeInTheDocument();
+    expect(screen.getByTestId('copy-icon')).toBeInTheDocument();
   });
 
-  it("copies text to clipboard", async () => {
-    render(<FeedbackButtons userId={1} textToCopy="Copy me" />);
+  it('shows download button when onDownloadReport and runData are provided', () => {
+    const handleDownload = jest.fn();
+    const runData = { id: '1', user_input: 'test' };
+    render(
+      <FeedbackButtons 
+        userId={1} 
+        textToCopy="test" 
+        onDownloadReport={handleDownload} 
+        runData={runData} 
+      />
+    );
+    expect(screen.getByTestId('download-icon')).toBeInTheDocument();
+  });
 
-    await act(async () => {
-      fireEvent.click(screen.getByLabelText("copy"));
+  it('does not show download button when runData is missing', () => {
+    const handleDownload = jest.fn();
+    render(
+      <FeedbackButtons 
+        userId={1} 
+        textToCopy="test" 
+        onDownloadReport={handleDownload} 
+      />
+    );
+    expect(screen.queryByTestId('download-icon')).not.toBeInTheDocument();
+  });
+
+  it('opens feedback modal on like click', () => {
+    render(<FeedbackButtons userId={1} textToCopy="test" />);
+    fireEvent.click(screen.getByTestId('thumbs-up'));
+    expect(screen.getByTestId('feedback-modal')).toBeInTheDocument();
+  });
+
+  it('opens feedback modal on dislike click', () => {
+    render(<FeedbackButtons userId={1} textToCopy="test" />);
+    fireEvent.click(screen.getByTestId('thumbs-down'));
+    expect(screen.getByTestId('feedback-modal')).toBeInTheDocument();
+  });
+
+  it('closes feedback modal', () => {
+    render(<FeedbackButtons userId={1} textToCopy="test" />);
+    fireEvent.click(screen.getByTestId('thumbs-up'));
+    fireEvent.click(screen.getByTestId('close-modal'));
+    expect(screen.queryByTestId('feedback-modal')).not.toBeInTheDocument();
+  });
+
+  it('shows copy success message', async () => {
+    Object.defineProperty(navigator, 'clipboard', {
+      value: {
+        writeText: jest.fn().mockResolvedValue(undefined),
+      },
+      writable: true,
     });
+    
+    render(<FeedbackButtons userId={1} textToCopy="test copy text" />);
+    fireEvent.click(screen.getByTestId('copy-icon'));
+    
+    // Wait for the success message to appear
+    await waitFor(() => {
+      expect(screen.getByText('Copied successfully!')).toBeInTheDocument();
+    });
+    
+    // Wait for it to disappear
+    await waitFor(() => {
+      expect(screen.queryByText('Copied successfully!')).not.toBeInTheDocument();
+    }, { timeout: 2100 });
+  });
 
-    expect(navigator.clipboard.writeText).toHaveBeenCalledWith("Copy me");
+  it('shows copy error message', async () => {
+    Object.defineProperty(navigator, 'clipboard', {
+      value: {
+        writeText: jest.fn().mockRejectedValue(new Error('Permission denied')),
+      },
+      writable: true,
+    });
+    
+    render(<FeedbackButtons userId={1} textToCopy="test copy text" />);
+    fireEvent.click(screen.getByTestId('copy-icon'));
+    
+    // Wait for the error message to appear
+    await waitFor(() => {
+      expect(screen.getByText('Failed to copy')).toBeInTheDocument();
+    });
+    
+    // Wait for it to disappear
+    await waitFor(() => {
+      expect(screen.queryByText('Failed to copy')).not.toBeInTheDocument();
+    }, { timeout: 2100 });
+  });
+
+  it('calls onDownloadReport with runData', () => {
+    const handleDownload = jest.fn();
+    const runData = { id: '1', user_input: 'test input' };
+    render(
+      <FeedbackButtons 
+        userId={1} 
+        textToCopy="test" 
+        onDownloadReport={handleDownload} 
+        runData={runData} 
+      />
+    );
+    fireEvent.click(screen.getByTestId('download-icon'));
+    expect(handleDownload).toHaveBeenCalledWith(runData);
   });
 });

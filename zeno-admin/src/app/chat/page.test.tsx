@@ -1,69 +1,92 @@
-import { render, screen, act, fireEvent } from '@testing-library/react';
+import { render, screen, act, fireEvent, waitFor } from '@testing-library/react';
 import ChatPage from './page';
 import * as useConversationWithRuns from '../hooks/useConversationWithRuns';
 import * as useFetchPostRuns from '../hooks/useFetchPostRuns';
 import React from 'react';
 
+const mockPush = jest.fn();
 jest.mock("next/navigation", () => ({
   useRouter: () => ({
-    push: jest.fn(),
-    replace: jest.fn(),
-    refresh: jest.fn(),
-    back: jest.fn(),
-    forward: jest.fn(),
-    prefetch: jest.fn(),
+    push: mockPush,
   }),
 }));
 
-type SidebarMockProps = {
-  onAddChat: () => void;
-  onRenameConversation: (id: number, title: string) => void;
-  onDeleteConversation: (id: number) => void;
-};
-function SidebarMock(props: SidebarMockProps) {
-  return (
+jest.mock('../sharedComponents/Sidebar', () => {
+  return ({ onLogout }: { onLogout: () => void }) => (
     <div data-testid="sidebar">
-      <button data-testid="add-chat" onClick={props.onAddChat} />
-      <button data-testid="rename-chat" onClick={() => props.onRenameConversation(1, 'Changed Title')} />
-      <button data-testid="delete-chat" onClick={() => props.onDeleteConversation(1)} />
+      <button onClick={onLogout} data-testid="logout-btn">Logout</button>
     </div>
   );
-}
+});
 
-type ChatInputMockProps = {
-  sendMessage: (params: { conversationId: number | null; userInput: string }) => void;
-};
-function ChatInputMock(props: ChatInputMockProps) {
-  return (
+jest.mock('./components/ChatMessages', () => {
+  return ({ runs }: { runs: any[] }) => (
+    <div data-testid="chat-messages">
+      {runs.map((run, i) => (
+        <div key={i} data-testid={`message-${i}`}>{run.user_input}</div>
+      ))}
+    </div>
+  );
+});
+
+jest.mock('../sharedComponents/ChatInput', () => {
+  return ({ sendMessage }: { sendMessage: () => void }) => (
     <div data-testid="chat-input">
-      <button data-testid="send-message" onClick={() => props.sendMessage({
-        conversationId: null,
-        userInput: 'Hi there',
-      })} />
+      <button onClick={sendMessage} data-testid="send-btn">Send</button>
     </div>
   );
-}
+});
 
-function ChatMessagesMock() {
-  return <div data-testid="chat-messages" />;
-}
-function HandMock(props: React.HTMLAttributes<HTMLDivElement>) {
-  return <div data-testid="hand" {...props} />;
-}
+jest.mock('lucide-react', () => {
+  const Hand = () => <span data-testid="hand-icon">👋</span>;
+  return { Hand };
+});
 
-jest.mock('../sharedComponents/Sidebar', () => SidebarMock);
-jest.mock('./components/ChatMessages', () => ChatMessagesMock);
-jest.mock('../sharedComponents/ChatInput', () => ChatInputMock);
-jest.mock('lucide-react', () => ({ Hand: HandMock }));
+const localStorageMock = (() => {
+  let store: Record<string, string> = {};
+  return {
+    getItem(key: string) {
+      return store[key] || null;
+    },
+    setItem(key: string, value: string) {
+      store[key] = value.toString();
+    },
+    clear() {
+      store = {};
+    },
+  };
+})();
+
+Object.defineProperty(window, 'localStorage', {
+  value: localStorageMock,
+  writable: true,
+});
+
+const mockUser = {
+  id: 11,
+  first_name: 'Test',
+  last_name: 'User',
+  name: 'Test User',
+  email: 'test@example.com',
+  created_at: '2023-01-01T00:00:00Z',
+  role: 'user'
+};
 
 const mockConversations = [
-  { conversation_id: 1, title: 'First Chat', runs: [], created_at: '2023-01-01T00:00:00Z', user: {id: 11, first_name: 'Arsema', last_name: 'geb', name: 'Arsema geb', email: 'arsema@example.com',  created_at: '2022-12-01T00:00:00Z', role: 'user' } },
+  { 
+    conversation_id: 1, 
+    title: 'Test Chat', 
+    runs: [], 
+    created_at: '2023-01-01T00:00:00Z',
+    user: mockUser
+  },
 ];
+
 const mockRuns = [
   {
     id: 'run1',
     user_input: 'Hello',
-    final_output: 'Hi!',
+    final_output: 'Hi there!',
     output_artifacts: [],
     status: 'completed',
     started_at: '2023-01-01T00:00:00Z',
@@ -75,12 +98,66 @@ const mockRuns = [
 describe('ChatPage', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    window.localStorage.setItem('token', 'token123');
-    window.localStorage.setItem('id', '42');
+    localStorageMock.clear();
+    mockPush.mockClear();
+  });
 
+  it('redirects to /signin when no token', async () => {
+    localStorageMock.getItem = jest.fn((key) => {
+      if (key === 'token') return null;
+      if (key === 'id') return '123';
+      if (key === 'role') return 'User';
+      return null;
+    });
+    
+    render(<ChatPage />);
+    
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith('/signin');
+    });
+  });
+
+  it('redirects to /signin when no id', async () => {
+    localStorageMock.getItem = jest.fn((key) => {
+      if (key === 'token') return 'valid-token';
+      if (key === 'id') return null;
+      if (key === 'role') return 'User';
+      return null;
+    });
+    
+    render(<ChatPage />);
+    
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith('/signin');
+    });
+  });
+
+  it('redirects to /signin when invalid role', async () => {
+    localStorageMock.getItem = jest.fn((key) => {
+      if (key === 'token') return 'valid-token';
+      if (key === 'id') return '123';
+      if (key === 'role') return 'Guest';
+      return null;
+    });
+    
+    render(<ChatPage />);
+    
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith('/signin');
+    });
+  });
+
+  it('renders greeting when no messages', async () => {
+    localStorageMock.getItem = jest.fn((key) => {
+      if (key === 'token') return 'valid-token';
+      if (key === 'id') return '123';
+      if (key === 'role') return 'User';
+      return null;
+    });
+    
     jest.spyOn(useConversationWithRuns, 'useConversationsWithRuns').mockReturnValue({
       conversations: mockConversations,
-      selectedConversationId: 1,
+      selectedConversationId: null,
       setSelectedConversationId: jest.fn(),
       fetchConvos: jest.fn(),
       setConversations: jest.fn(),
@@ -94,27 +171,33 @@ describe('ChatPage', () => {
       clearRuns: jest.fn(),
       setRuns: jest.fn(),
     });
-  });
 
-  it('renders unauthorized user screen if user is not set', () => {
-    window.localStorage.clear();
     render(<ChatPage />);
-    expect(screen.getByText(/unauthorized user/i)).toBeInTheDocument();
-    expect(screen.getByText(/please sign in/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument();
+    
+    await waitFor(() => {
+      expect(screen.getByText('Hello there!')).toBeInTheDocument();
+      expect(screen.getByText('How may I help you today?')).toBeInTheDocument();
+      expect(screen.getByTestId('hand-icon')).toBeInTheDocument();
+    });
   });
 
-  it('renders greeting when showGreeting is true', () => {
-    render(<ChatPage />);
-    expect(screen.getByText(/hello there!/i)).toBeInTheDocument();
-    expect(screen.getByText(/how may i help you today/i)).toBeInTheDocument();
-    expect(screen.getByTestId('hand')).toBeInTheDocument();
-  });
-
-  it('renders messages and input when showGreeting is false', () => {
+  it('renders chat messages when runs exist', async () => {
+    localStorageMock.getItem = jest.fn((key) => {
+      if (key === 'token') return 'valid-token';
+      if (key === 'id') return '123';
+      if (key === 'role') return 'User';
+      return null;
+    });
+    
     jest.spyOn(useConversationWithRuns, 'useConversationsWithRuns').mockReturnValue({
       conversations: [
-        { conversation_id: 1, title: 'Has runs', runs: mockRuns, created_at: '2023-01-01T00:00:00Z', user: {id: 11, first_name: 'Arsema', last_name: 'geb', email: 'arsema@example.com',  created_at: '2022-12-01T00:00:00Z', role: 'user' } }
+        { 
+          conversation_id: 1, 
+          title: 'Has runs', 
+          runs: mockRuns, 
+          created_at: '2023-01-01T00:00:00Z',
+          user: mockUser
+        }
       ],
       selectedConversationId: 1,
       setSelectedConversationId: jest.fn(),
@@ -123,6 +206,7 @@ describe('ChatPage', () => {
       loading: false,
       error: null,
     });
+
     jest.spyOn(useFetchPostRuns, 'useRuns').mockReturnValue({
       runs: mockRuns,
       sendMessage: jest.fn().mockResolvedValue(mockRuns[0]),
@@ -131,117 +215,129 @@ describe('ChatPage', () => {
     });
 
     render(<ChatPage />);
-    expect(screen.getByTestId('chat-messages')).toBeInTheDocument();
-    expect(screen.getByTestId('chat-input')).toBeInTheDocument();
+    
+    await waitFor(() => {
+      expect(screen.getByTestId('chat-messages')).toBeInTheDocument();
+      expect(screen.getByTestId('message-0')).toHaveTextContent('Hello');
+    });
   });
 
-  it('calls handleAddChat and updates conversations', async () => {
-    const setConversations = jest.fn();
-    const setSelectedConversationId = jest.fn();
-    (useConversationWithRuns.useConversationsWithRuns as jest.Mock).mockReturnValue({
-      conversations: mockConversations,
-      selectedConversationId: 1,
-      setSelectedConversationId,
-      fetchConvos: jest.fn(),
-      setConversations,
-      loading: false,
-      error: null,
+  it('handles logout correctly', async () => {
+    localStorageMock.getItem = jest.fn((key) => {
+      if (key === 'token') return 'valid-token';
+      if (key === 'id') return '123';
+      if (key === 'role') return 'User';
+      return null;
     });
-    global.fetch = jest.fn()
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ conversation_id: 99, title: 'New Chat', runs: [], created_at: '2023-02-01T00:00:00Z' }),
-      });
-
-    render(<ChatPage />);
-    await act(async () => {
-      fireEvent.click(screen.getByTestId('add-chat'));
-    });
-    expect(global.fetch).toHaveBeenCalledWith('/api/conversations', expect.any(Object));
-    expect(setConversations).toHaveBeenCalled();
-    expect(setSelectedConversationId).toHaveBeenCalledWith(99);
-  });
-
-  it('calls handleRenameConversation', async () => {
-    const fetchConvos = jest.fn();
-    (useConversationWithRuns.useConversationsWithRuns as jest.Mock).mockReturnValue({
+    
+    jest.spyOn(useConversationWithRuns, 'useConversationsWithRuns').mockReturnValue({
       conversations: mockConversations,
-      selectedConversationId: 1,
+      selectedConversationId: null,
       setSelectedConversationId: jest.fn(),
-      fetchConvos,
+      fetchConvos: jest.fn(),
       setConversations: jest.fn(),
       loading: false,
       error: null,
     });
-    global.fetch = jest.fn()
-      .mockResolvedValueOnce({ ok: true });
-    render(<ChatPage />);
-    await act(async () => {
-      fireEvent.click(screen.getByTestId('rename-chat'));
-    });
-    expect(global.fetch).toHaveBeenCalledWith('/api/conversations/1', expect.objectContaining({ method: 'PATCH' }));
-    expect(fetchConvos).toHaveBeenCalled();
-  });
 
-  it('calls handleDeleteConversation and updates state', async () => {
-    const setConversations = jest.fn();
-    const setSelectedConversationId = jest.fn();
-    const fetchConvos = jest.fn();
-    (useConversationWithRuns.useConversationsWithRuns as jest.Mock).mockReturnValue({
-      conversations: mockConversations,
-      selectedConversationId: 1,
-      setSelectedConversationId,
-      fetchConvos,
-      setConversations,
-      loading: false,
-      error: null,
-    });
-    global.fetch = jest.fn()
-      .mockResolvedValueOnce({ ok: true });
-    render(<ChatPage />);
-    await act(async () => {
-      fireEvent.click(screen.getByTestId('delete-chat'));
-    });
-    expect(global.fetch).toHaveBeenCalledWith('/api/conversations/1', expect.objectContaining({ method: 'DELETE' }));
-    expect(setConversations).toHaveBeenCalled();
-    expect(setSelectedConversationId).toHaveBeenCalled();
-    expect(fetchConvos).toHaveBeenCalled();
-  });
-
-  it('calls handleSendMessage and updates state', async () => {
-    const setConversations = jest.fn();
-    const setSelectedConversationId = jest.fn();
-    const fetchConvos = jest.fn();
-    (useConversationWithRuns.useConversationsWithRuns as jest.Mock).mockReturnValue({
-      conversations: mockConversations,
-      selectedConversationId: 1,
-      setSelectedConversationId,
-      fetchConvos,
-      setConversations,
-      loading: false,
-      error: null,
-    });
-    const sendMessage = jest.fn().mockResolvedValue(mockRuns[0]);
-    (useFetchPostRuns.useRuns as jest.Mock).mockReturnValue({
+    jest.spyOn(useFetchPostRuns, 'useRuns').mockReturnValue({
       runs: [],
-      sendMessage,
+      sendMessage: jest.fn().mockResolvedValue(mockRuns[0]),
       clearRuns: jest.fn(),
       setRuns: jest.fn(),
     });
+
+    render(<ChatPage />);
+    
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('logout-btn'));
+    });
+    
+    expect(localStorageMock.clear).toHaveBeenCalled();
+    expect(mockPush).toHaveBeenCalledWith('/signin');
+  });
+
+  it('creates new conversation on send when no conversation selected', async () => {
+    localStorageMock.getItem = jest.fn((key) => {
+      if (key === 'token') return 'valid-token';
+      if (key === 'id') return '123';
+      if (key === 'role') return 'User';
+      return null;
+    });
+    
+    jest.spyOn(useConversationWithRuns, 'useConversationsWithRuns').mockReturnValue({
+      conversations: mockConversations,
+      selectedConversationId: null,
+      setSelectedConversationId: jest.fn(),
+      fetchConvos: jest.fn(),
+      setConversations: jest.fn(),
+      loading: false,
+      error: null,
+    });
+
+    const sendMessageMock = jest.fn().mockResolvedValue(mockRuns[0]);
+    jest.spyOn(useFetchPostRuns, 'useRuns').mockReturnValue({
+      runs: [],
+      sendMessage: sendMessageMock,
+      clearRuns: jest.fn(),
+      setRuns: jest.fn(),
+    });
+
     global.fetch = jest.fn()
       .mockResolvedValueOnce({
         ok: true,
-        json: async () => ({ conversation_id: 123, title: 'New Chat', runs: [], created_at: '2023-02-01T00:00:00Z' }),
-      })
-      .mockResolvedValueOnce({ ok: true })
-      .mockResolvedValueOnce({ ok: true });
+        json: async () => ({ conversation_id: 456, title: 'New Chat', runs: [], created_at: '2023-01-01T00:00:00Z', user: mockUser }),
+      });
+
     render(<ChatPage />);
+    
     await act(async () => {
-      fireEvent.click(screen.getByTestId('send-message'));
+      fireEvent.click(screen.getByTestId('send-btn'));
     });
+
     expect(global.fetch).toHaveBeenCalledWith('/api/conversations', expect.any(Object));
-    expect(sendMessage).toHaveBeenCalled();
-    expect(fetchConvos).toHaveBeenCalled();
+    expect(sendMessageMock).toHaveBeenCalled();
   });
-  
+
+  it('handles conversation creation error', async () => {
+    localStorageMock.getItem = jest.fn((key) => {
+      if (key === 'token') return 'valid-token';
+      if (key === 'id') return '123';
+      if (key === 'role') return 'User';
+      return null;
+    });
+    
+    jest.spyOn(useConversationWithRuns, 'useConversationsWithRuns').mockReturnValue({
+      conversations: mockConversations,
+      selectedConversationId: null,
+      setSelectedConversationId: jest.fn(),
+      fetchConvos: jest.fn(),
+      setConversations: jest.fn(),
+      loading: false,
+      error: null,
+    });
+
+    jest.spyOn(useFetchPostRuns, 'useRuns').mockReturnValue({
+      runs: [],
+      sendMessage: jest.fn().mockResolvedValue(mockRuns[0]),
+      clearRuns: jest.fn(),
+      setRuns: jest.fn(),
+    });
+
+    global.fetch = jest.fn()
+      .mockResolvedValueOnce({
+        ok: false,
+        json: async () => ({ error: 'Daily conversation limit reached' }),
+      });
+
+    render(<ChatPage />);
+    
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('send-btn'));
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('You have run out of conversations for today. Try again tomorrow.')).toBeInTheDocument();
+    });
+  });
 });

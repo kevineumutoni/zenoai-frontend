@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined';
 import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
@@ -22,32 +22,33 @@ export default function SignUpPage() {
   const [termsOpen, setTermsOpen] = useState(false);
   const [agreed, setAgreed] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
-  const [passwordMatchError, setPasswordMatchError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
   const { signUp, isLoading, error } = useFetchSignUp();
   const router = useRouter();
 
+  const isValidEmail = (email: string) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
+  };
+
+  const isValidPassword = (password: string) => {
+    return (
+      password.length >= 8 &&
+      /[A-Z]/.test(password) &&
+      /[^A-Za-z0-9]/.test(password)
+    );
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setForm(prev => {
-      const updated = { ...prev, [name]: value };
-      if (
-        updated.password &&
-        updated.confirmPassword &&
-        updated.password !== updated.confirmPassword
-      ) {
-        setPasswordMatchError('Passwords do not match.');
-      } else {
-        setPasswordMatchError(null);
-      }
-      return updated;
-    });
+    setForm(prev => ({ ...prev, [name]: value }));
     setLocalError(null);
     setSuccess(null);
   };
 
   const handleTermsAgree = () => {
+    setAgreed(true)
     setTermsOpen(false);
   };
 
@@ -65,31 +66,45 @@ export default function SignUpPage() {
       setLocalError('Please fill all fields.');
       return;
     }
+
+    if (!isValidEmail(form.email)) {
+      setLocalError('Please enter a valid email.');
+      return;
+    }
+
+    if (!isValidPassword(form.password)) {
+      setLocalError('Password must be at least 8 characters, include a capital letter and a special character.');
+      return;
+    }
+
     if (form.password !== form.confirmPassword) {
       setLocalError('Passwords do not match.');
       return;
     }
+
     if (!agreed) {
       setLocalError('You must agree to terms and conditions to continue.');
       return;
     }
+
     const response = await signUp({
       first_name: form.first_name,
       last_name: form.last_name,
       email: form.email,
       password: form.password,
     });
+
     if (response) {
       setSuccess('Account created successfully!');
       setTimeout(() => {
-        router.push('/chat');
+        router.push('/signin');
       }, 2000);
     }
   };
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center">
-      <div className="2xl:w-250 lg:w-160 xl:w-150 xl:px-10 2xl:px-30 2xl:h-180 rounded-2xl flex flex-col items-center px-30 xl:py-14 lg:py-5 bg-black/0 border border-gray-600 shadow-lg shadow-gray-600">
+      <div className="2xl:w-250 lg:w-160 xl:w-150 xl:px-10 2xl:px-30 2xl:h-190 rounded-2xl flex flex-col items-center px-30 xl:py-14 lg:py-5 bg-black/0 border border-gray-600 shadow-lg shadow-gray-600">
         <h2 className="2xl:text-[50px] lg:text-[30px] xl:text-[40px] lg:m-4 xl:mx-10 font-bold text-[#9FF8F8] w-full text-left">
           Sign Up
         </h2>
@@ -122,43 +137,57 @@ export default function SignUpPage() {
               />
             </div>
           </div>
-          <div className="relative flex items-center border-b border-white/60">
-            <EmailOutlinedIcon className="text-white mr-3" />
-            <input
-              type="email"
-              name="email"
-              value={form.email}
-              onChange={handleChange}
-              className="bg-transparent w-full xl:py-3 lg:py-1 pl-0 pr-3 text-white placeholder:text-white/70 text-[20px] outline-none"
-              placeholder="Email"
-              required
-              autoComplete="off"
-            />
+          <div className="relative flex flex-col">
+            <div className="flex items-center border-b border-white/60">
+              <EmailOutlinedIcon className="text-white mr-3" />
+              <input
+                type="email"
+                name="email"
+                value={form.email}
+                onChange={handleChange}
+                className="bg-transparent w-full xl:py-3 lg:py-1 pl-0 pr-3 text-white placeholder:text-white/70 text-[20px] outline-none"
+                placeholder="Email"
+                required
+                autoComplete="off"
+              />
+            </div>
+            {!isValidEmail(form.email) && form.email && (
+              <div className="text-red-400 text-sm mt-1">
+                Please enter a valid email.
+              </div>
+            )}
           </div>
-          <div className="relative flex items-center border-b border-white/60">
-            <LockOutlinedIcon className="text-white mr-3" />
-            <input
-              type={showPassword ? 'text' : 'password'}
-              name="password"
-              value={form.password}
-              onChange={handleChange}
-              className="bg-transparent w-full xl:py-3 lg:py-1 pl-0 pr-3 text-white placeholder:text-white/70 text-[20px] outline-none"
-              placeholder="Password"
-              required
-              autoComplete="off"
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword((v) => !v)}
-              tabIndex={-1}
-              aria-label={showPassword ? 'Hide password' : 'Show password'}
-            >
-              {showPassword ? (
-                <VisibilityOffOutlinedIcon className="text-white" />
-              ) : (
-                <VisibilityOutlinedIcon className="text-white" />
-              )}
-            </button>
+          <div className="relative flex flex-col">
+            <div className="flex items-center border-b border-white/60">
+              <LockOutlinedIcon className="text-white mr-3" />
+              <input
+                type={showPassword ? 'text' : 'password'}
+                name="password"
+                value={form.password}
+                onChange={handleChange}
+                className="bg-transparent w-full xl:py-3 lg:py-1 pl-0 pr-3 text-white placeholder:text-white/70 text-[20px] outline-none"
+                placeholder="Password"
+                required
+                autoComplete="off"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                tabIndex={-1}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+              >
+                {showPassword ? (
+                  <VisibilityOffOutlinedIcon className="text-white" />
+                ) : (
+                  <VisibilityOutlinedIcon className="text-white" />
+                )}
+              </button>
+            </div>
+            {!isValidPassword(form.password) && form.password && (
+              <div className="text-red-400 text-sm mt-1">
+                Password must be at least 8 characters, include a capital letter and a special character.
+              </div>
+            )}
           </div>
           <div className="relative flex flex-col">
             <div className="flex items-center border-b border-white/60">
@@ -186,9 +215,9 @@ export default function SignUpPage() {
                 )}
               </button>
             </div>
-            {passwordMatchError && (
+            {form.confirmPassword && form.password !== form.confirmPassword && (
               <div className="text-red-400 text-center mt-2 text-base">
-                {passwordMatchError}
+                Passwords do not match.
               </div>
             )}
           </div>
@@ -252,7 +281,7 @@ export default function SignUpPage() {
         agreed={agreed}
         setAgreed={setAgreed}
         onClose={() => setTermsOpen(false)}
-        onAgree={handleTermsAgree}
+        onAgree={handleTermsAgree}  
       />
     </div>
   );

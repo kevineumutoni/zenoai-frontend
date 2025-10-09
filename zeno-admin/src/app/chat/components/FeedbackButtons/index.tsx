@@ -1,14 +1,18 @@
 "use client";
 import { useState } from "react";
-import { FaRegThumbsUp, FaRegThumbsDown, FaRegCopy } from "react-icons/fa";
+import { FaRegThumbsUp, FaRegThumbsDown, FaRegCopy, FaDownload } from "react-icons/fa";
 import FeedbackModal from "../FeedbackModal";
 
 export default function FeedbackButtons({
   userId,
   textToCopy,
+  onDownloadReport,
+  runData,
 }: {
   userId?: number;
   textToCopy: string;
+  onDownloadReport?: (run: any) => void;
+  runData?: any;
 }) {
   const [feedbackType, setFeedbackType] = useState<"like" | "dislike" | null>(null);
   const [showModal, setShowModal] = useState(false);
@@ -36,6 +40,12 @@ export default function FeedbackButtons({
     }
   };
 
+  const handleDownload = () => {
+    if (onDownloadReport && runData) {
+      onDownloadReport(runData);
+    }
+  };
+
   return (
     <div className="flex flex-col items-center space-y-2 text-gray-300 text-xl">
       <div className="flex space-x-3">
@@ -60,6 +70,15 @@ export default function FeedbackButtons({
         >
           <FaRegCopy className="hover:text-blue-500" />
         </button>
+        {onDownloadReport && runData && (
+          <button
+            onClick={handleDownload}
+            aria-label="download report"
+            className="cursor-pointer"
+          >
+            <FaDownload className="hover:text-cyan-400" />
+          </button>
+        )}
       </div>
 
       {copySuccess && (

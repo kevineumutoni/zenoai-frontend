@@ -14,6 +14,7 @@ export default function ChatPage() {
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const [token, setToken] = useState<string | undefined>(undefined);
   const [userId, setUserId] = useState<number | undefined>(undefined);
+  const [role, setRole] = useState<string | undefined>(undefined);
   const [showGreeting, setShowGreeting] = useState(true);
   const [runLimitError, setRunLimitError] = useState(false);
   const router = useRouter();
@@ -21,11 +22,15 @@ export default function ChatPage() {
   useEffect(() => {
     const token = localStorage.getItem('token');
     const id = localStorage.getItem('id');
-    if (token && id) {
+    const role = localStorage.getItem('role');
+    if (token && id && (role === 'User' || role === 'Admin')) {
       setToken(token);
       setUserId(parseInt(id, 10));
+      setRole(role);
+    } else {
+      router.push('/signin');
     }
-  }, []);
+  }, [router]);
 
   const user = token && userId ? { id: userId, token } : undefined;
   const [conversationError, setConversationError] = useState<string | null>(null);
@@ -72,22 +77,12 @@ export default function ChatPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [runs]);
 
-  if (!user) {
+  if (!user || (role !== 'User' && role !== 'Admin')) {
     return (
       <div className="min-h-screen w-full flex items-center justify-center px-4">
         <div className="text-center">
-          <div className="bg-cyan-500 text-white p-10 rounded-lg mb-4">
-            <h2 className="text-xl font-semibold mb-2">Unauthorized user</h2>
-            <p>Please Sign in</p>
-            <button
-              className="mt-4 px-4 py-2 text-white bg-[#15213B] rounded hover:bg-cyan-600"
-              onClick={() => router.push('/signin')}
-            >
-              Sign In
-            </button>
-          </div>
         </div>
-      </div>
+        </div>
     );
   }
 
@@ -268,9 +263,9 @@ export default function ChatPage() {
         setSelectedConversationId={setSelectedConversationId}
         onAddChat={handleAddChat}
         onLogout={() => {
-          localStorage.clear();
-          window.location.href = "/signin";
-        }}
+        localStorage.clear();
+        router.push('/signin'); 
+  }}
         isMobile={false}
         showSidebar={true}
         setShowSidebar={() => {}}

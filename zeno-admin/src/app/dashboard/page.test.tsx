@@ -1,36 +1,117 @@
-import React from 'react';
-import { render, screen } from '@testing-library/react';
-import DashboardPage from './page';
+'use client';
 
-jest.mock('./ModuleUsage', () => ({
-  __esModule: true,
-  default: function ModuleUsageCardMock() { return <div>ModuleUsageCardMock</div>; }
+import { render, screen, waitFor } from '@testing-library/react';
+import { useRouter } from 'next/navigation';
+import DashboardPage from './page';
+import * as React from 'react';
+
+const mockReplace = jest.fn();
+jest.mock('next/navigation', () => ({
+  useRouter: () => ({
+    replace: mockReplace,
+  }),
 }));
-jest.mock('./UserFeedback', () => ({
-  __esModule: true,
-  default: function UserFeedbackCardMock() { return <div>UserFeedbackCardMock</div>; }
-}));
-jest.mock('./WeeklyUsageCard', () => ({
-  __esModule: true,
-  default: function WeeklyUsageCardMock() { return <div>WeeklyUsageCardMock</div>; }
-}));
-jest.mock('./RecentSignupCard', () => ({
-  __esModule: true,
-  default: function RecentSignupsCardMock() { return <div>RecentSignupsCardMock</div>; }
-}));
-jest.mock('./UserGrowth', () => ({
-  __esModule: true,
-  default: function UserGrowthLineGraphMock() { return <div>UserGrowthLineGraphMock</div>; }
-}));
+
+const localStorageMock = (() => {
+  let store: Record<string, string> = {};
+  return {
+    getItem(key: string) {
+      return store[key] || null;
+    },
+    setItem(key: string, value: string) {
+      store[key] = value.toString();
+    },
+    clear() {
+      store = {};
+    },
+    removeItem(key: string) {
+      delete store[key];
+    },
+  };
+})();
+
+Object.defineProperty(window, 'localStorage', {
+  value: localStorageMock,
+});
+
+const resetMocks = () => {
+  mockReplace.mockClear();
+  localStorageMock.clear();
+};
 
 describe('DashboardPage', () => {
-  it('renders dashboard title and all key cards', () => {
+  beforeEach(() => {
+    resetMocks();
+    Object.defineProperty(window, 'innerWidth', {
+      writable: true,
+      configurable: true,
+      value: 1024,
+    });
+  });
+
+  it('redirects to /signin when no token exists', async () => {
     render(<DashboardPage />);
-    expect(screen.getByText(/Dashboard/i)).toBeInTheDocument();
-    expect(screen.getByText('ModuleUsageCardMock')).toBeInTheDocument();
-    expect(screen.getByText('UserFeedbackCardMock')).toBeInTheDocument();
-    expect(screen.getByText('UserGrowthLineGraphMock')).toBeInTheDocument();
-    expect(screen.getByText('WeeklyUsageCardMock')).toBeInTheDocument();
-    expect(screen.getByText('RecentSignupsCardMock')).toBeInTheDocument();
+    
+    await waitFor(() => {
+      expect(mockReplace).toHaveBeenCalledWith('/signin');
+    });
+  });
+
+  it('redirects to /signin when role is not admin', async () => {
+    localStorageMock.setItem('token', 'valid-token');
+    localStorageMock.setItem('role', 'User');
+    
+    render(<DashboardPage />);
+    
+    await waitFor(() => {
+      expect(mockReplace).toHaveBeenCalledWith('/signin');
+    });
+  });
+
+  it('redirects to /signin when role is missing', async () => {
+    localStorageMock.setItem('token', 'valid-token');
+    
+    render(<DashboardPage />);
+    
+    await waitFor(() => {
+      expect(mockReplace).toHaveBeenCalledWith('/signin');
+    });
+  });
+
+  it('renders dashboard when user is admin', async () => {
+    localStorageMock.setItem('token', 'valid-token');
+    localStorageMock.setItem('role', 'Admin');
+    
+    render(<DashboardPage />);
+    
+    await waitFor(() => {
+      expect(mockReplace).not.toHaveBeenCalled();
+    });
+    
+    expect(screen.getByText('Dashboard')).toBeInTheDocument();
+    expect(screen.getByText('Module Usage')).toBeInTheDocument();
+    expect(screen.getByText('User Feedback')).toBeInTheDocument();
+    expect(screen.getByText('User Growth')).toBeInTheDocument();
+    expect(screen.getByText('Weekly Usage')).toBeInTheDocument();
+    expect(screen.getByText('Recent Signups')).toBeInTheDocument();
+  });
+
+  it('renders dashboard when role is "admin" (lowercase)', async () => {
+    localStorageMock.setItem('token', 'valid-token');
+    localStorageMock.setItem('role', 'admin');
+    
+    render(<DashboardPage />);
+    
+    await waitFor(() => {
+      expect(mockReplace).not.toHaveBeenCalled();
+    });
+    
+    expect(screen.getByText('Dashboard')).toBeInTheDocument();
+  });
+
+  it('shows nothing during initial check', () => {
+    const { container } = render(<DashboardPage />);
+    
+    expect(container.firstChild).toBeNull();
   });
 });
