@@ -1,8 +1,6 @@
 
 import { NextRequest, NextResponse } from "next/server";
 
-
-
 const BASE_URL = process.env.BASE_URL;
 
 export async function GET(
